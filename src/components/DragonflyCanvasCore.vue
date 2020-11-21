@@ -1,6 +1,6 @@
 <template>
-    <div class="dragonfly-canvas" ref="canvas"
-         :style="{transform:`scale(${scale})`, top: `${offsetY}px`, left:`${offsetX}px`}">
+    <div class="dragonfly-canvas"
+         :style="{transform:`scale(${scale})`, top:`${offsetY}px`, left:`${offsetX}px`}">
         <div class="ref"></div>
         <dragonfly-node v-for="node in nodes" :key="node.id" :node="node">
             <slot :node="node" name="node">{{ node.id }}</slot>

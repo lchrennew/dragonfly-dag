@@ -1,5 +1,8 @@
 <template>
-    <div class="dragonfly-viewport" @mousedown.prevent="dragging=true" @mousemove="onMove" @mouseup="dragging=false"
+    <div class="dragonfly-viewport"
+         @mousedown.prevent="dragging=true"
+         @mousemove="onMove"
+         @mouseup="dragging=false"
          @wheel.prevent="onZoom">
         <dragonfly-canvas-core
             :offset-x="offsetX"
@@ -49,7 +52,7 @@ export default {
         },
         maxScale: {
             type: Number,
-            default: 1.5,
+            default: 5,
         },
         minScale: {
             type: Number,
@@ -61,19 +64,13 @@ export default {
             if ((event.deltaY < 0 && this.scale <= this.minScale) || (event.deltaY > 0 && this.scale >= this.maxScale))
                 return
 
-            let scale = this.scale
-
-            const x0 = (this.width / 2 - event.clientX + this.offsetX)
-            const y0 = (this.height / 2 - event.clientY + this.offsetY)
-
-            scale += this.zoomSensitivity * event.deltaY / scale
+            let scale = this.scale + this.zoomSensitivity * event.deltaY / this.scale
             if (scale > this.maxScale) scale = this.maxScale
             else if (scale < this.minScale) scale = this.minScale
 
             const delta = scale - this.scale
-            this.offsetX += x0 * delta / this.scale
-            this.offsetY += y0 * delta / this.scale
-
+            this.offsetX += (this.width / 2 - event.clientX + this.offsetX) * delta / this.scale
+            this.offsetY += (this.height / 2 - event.clientY + this.offsetY) * delta / this.scale
             this.scale = scale
         },
         onMove(event) {
