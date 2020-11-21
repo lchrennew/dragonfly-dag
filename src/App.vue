@@ -1,7 +1,7 @@
 <template>
     <dragonfly-canvas :nodes="nodes" :edges="edges">
         <template #nodeRenderer="{node}">
-            Hi, {{ node.id }}
+            <div class="node">Hi, {{ node.id }}</div>
         </template>
     </dragonfly-canvas>
 </template>
@@ -28,3 +28,9 @@ export default {
     }
 }
 </script>
+<style lang="less">
+.node {
+    padding: 1em;
+    background-color: #9cdfff;
+}
+</style>
