@@ -30,15 +30,19 @@ export default {
             inDomOffset: {x: 0, y: 0},
         }
     },
-    inject: ['resize'],
+    inject: ['resize', 'moving'],
     methods: {
         onMouseDown(event) {
             this.inDomOffset.x = event.offsetX
             this.inDomOffset.y = event.offsetY
         },
         onDrag(event) {
-            this.x += event.offsetX - this.inDomOffset.x
-            this.y += event.offsetY - this.inDomOffset.y
+            const x = this.x + event.offsetX - this.inDomOffset.x
+            const y = this.y + event.offsetY - this.inDomOffset.y
+            this.moving(      // hacking: 回调DragonflyCanvasCore, 修改输入的position信息（同时可以影响到edge）
+                this.node.id,
+                x + this.width / 2,
+                y + this.height / 2)
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
@@ -56,8 +60,8 @@ export default {
     },
     watch: {
         position(value) {
-            this.x = value.x
-            this.y = value.y
+            this.x = value.x - this.width / 2
+            this.y = value.y - this.height / 2
         }
     }
 }
