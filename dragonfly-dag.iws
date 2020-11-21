@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="7c0ef7b6-4c17-4db8-b0a3-62cef2a34f0e" name="Default Changelist" comment="f">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/1/7/1792716fbaeba046996dcd68517e97396286e38e" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/4/1/41d348bfb8135a570c1d2675c884f60724201c5c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/5/4/5441d5289c77ce615f0e420c266cdee5d78f3ecd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/7/0/7030d0b2f71b999ff89a343de08c414af32fc93a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/8/7/87fe897889d099548c4fbbaf6004328e90b4f86a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/9/1/91636216cf97aed54a489614431515be074d7040" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/5/c5d38a62d1faae90a2acaa34b79a7ef365c917e4" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/e/8/e8422a4de01c2c4293426fe3293b3913381eb7d9" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dragonfly-dag.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dragonfly-dag.ipr" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dragonfly-dag.iws" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/favicon.ico" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/App.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/DragonflyCanvas.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/DragonflyCanvasCore.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/DragonflyNode.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/index.less" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/layout/drageLayout.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/layout/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+        <option value="Vue Single File Component" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1kY7d4kSP3pZgUUHw2RaNhS14FJ" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7c0ef7b6-4c17-4db8-b0a3-62cef2a34f0e" name="Default Changelist" comment="" />
+      <created>1605865754363</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1605865754363</updated>
+      <workItem from="1605865755425" duration="19712000" />
+      <workItem from="1605918968193" duration="2781000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="304" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605923205972">
+      <screen x="0" y="23" width="1680" height="958" />
+    </state>
+    <state x="304" y="165" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1680.958@0.23.1680.958" timestamp="1605923205972" />
+    <state x="304" y="166" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1680.963@0.23.1680.963" timestamp="1605885481575" />
+    <state x="417" y="104" key="CommitChangelistDialog2" timestamp="1605923387797">
+      <screen x="0" y="23" width="1680" height="958" />
+    </state>
+    <state x="417" y="104" key="CommitChangelistDialog2/0.23.1680.958@0.23.1680.958" timestamp="1605923387797" />
+    <state width="1638" height="258" key="GridCell.Tab.0.bottom" timestamp="1605917757737">
+      <screen x="0" y="23" width="1680" height="961" />
+    </state>
+    <state width="1638" height="258" key="GridCell.Tab.0.bottom/0.23.1680.961@0.23.1680.961" timestamp="1605917757737" />
+    <state width="1638" height="258" key="GridCell.Tab.0.center" timestamp="1605917757737">
+      <screen x="0" y="23" width="1680" height="961" />
+    </state>
+    <state width="1638" height="258" key="GridCell.Tab.0.center/0.23.1680.961@0.23.1680.961" timestamp="1605917757737" />
+    <state width="1638" height="258" key="GridCell.Tab.0.left" timestamp="1605917757737">
+      <screen x="0" y="23" width="1680" height="961" />
+    </state>
+    <state width="1638" height="258" key="GridCell.Tab.0.left/0.23.1680.961@0.23.1680.961" timestamp="1605917757737" />
+    <state width="1638" height="258" key="GridCell.Tab.0.right" timestamp="1605917757737">
+      <screen x="0" y="23" width="1680" height="961" />
+    </state>
+    <state width="1638" height="258" key="GridCell.Tab.0.right/0.23.1680.961@0.23.1680.961" timestamp="1605917757737" />
+    <state x="541" y="257" width="598" height="490" key="find.popup" timestamp="1605922607372">
+      <screen x="0" y="23" width="1680" height="958" />
+    </state>
+    <state x="541" y="257" width="598" height="490" key="find.popup/0.23.1680.958@0.23.1680.958" timestamp="1605922607372" />
+    <state x="474" y="189" key="new project wizard" timestamp="1605917148300">
+      <screen x="0" y="23" width="1680" height="963" />
+    </state>
+    <state x="474" y="189" key="new project wizard/0.23.1680.963@0.23.1680.963" timestamp="1605917148300" />
+  </component>
+</project>

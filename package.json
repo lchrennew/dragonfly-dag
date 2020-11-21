@@ -1,0 +1,17 @@
+{
+  "name": "dragonfly-dag",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "dagre": "^0.8.5",
+    "vue": "^3.0.2"
+  },
+  "devDependencies": {
+    "@vue/compiler-sfc": "^3.0.2",
+    "less": "^3.12.2",
+    "vite": "^1.0.0-rc.9"
+  }
+}
