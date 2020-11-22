@@ -321,9 +321,7 @@ export default {
         }
 
         .selecting {
-            border-style: solid;
-            border-color: #00aaff;
-            border-width: 0.1pt;
+            border: none;
             background-color: #80d4ff;
             opacity: 0.3;
             position: absolute;
