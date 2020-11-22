@@ -35,7 +35,7 @@ export default {
             targeted: false,
         }
     },
-    inject: ['resize', 'moving', 'linking', 'stopLinking', 'positions', 'canvasDraggable', 'canvasLinkable'],
+    inject: ['nodeResize', 'nodeMoving', 'nodeLinking', 'stopNodeLinking', 'positions', 'canvasDraggable', 'canvasLinkable'],
     computed: {
         draggable() {
             return this.node.draggable ?? this.canvasDraggable.value
@@ -65,12 +65,12 @@ export default {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
 
             if (this.draggable) {
-                this.moving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
+                this.nodeMoving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
                     event.offsetX - this.inDomOffset.x,
                     event.offsetY - this.inDomOffset.y
                 )
             } else if (this.linkable) {
-                this.linking(
+                this.nodeLinking(
                     this.center.x,
                     this.center.y,
                     event.offsetX + this.x,
@@ -85,22 +85,20 @@ export default {
         },
         onDragEnd() {
             document.removeEventListener('dragover', preventDefaultDrop)
-            this.stopLinking()
+            this.stopNodeLinking()
         },
         onDrop(event) {
             this.targeted = false
-            this.$emit(
-                'link:node',
-                {
-                    target: this.node.id,
-                    source: event.dataTransfer.getData('text'),
-                })
+            const target = this.node.id,
+                source = event.dataTransfer.getData('text'),
+                linkToSelf = target === source
+            !linkToSelf && this.$emit('link:node', {target, source})
         },
     },
     mounted() {
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
-        this.resize(this.node.id, this.width, this.height)  // hacking: 回调DragonflyCanvasCore，提供尺寸信息
+        this.nodeResize(this.node.id, this.width, this.height)  // hacking: 回调DragonflyCanvasCore，提供尺寸信息
     },
     watch: {
         position(value) {
@@ -119,7 +117,8 @@ export default {
     justify-content: center;
     z-index: 3;
     border: solid 1px transparent;
-    box-sizing: border-box;
+    margin: -1px;
+    box-sizing: content-box;
     user-select: none;
 
     &.selected {

@@ -1,15 +1,15 @@
 <template>
     <svg xmlns="http://www.w3.org/2000/svg" class="dragonfly-edges-layer">
         <template
-            v-for="edge in edges.value"
+            v-for="edge in edges"
             :key="edge.id">
             <slot
-                :source="getPosition(edge.source)"
-                :target="getPosition(edge.target)"
+                :source="positions[edge.source]"
+                :target="positions[edge.target]"
             />
         </template>
         <template v-if="linking">
-            <slot
+            <slot name="linking"
                 :source="linkingSource"
                 :target="linkingTarget"/>
         </template>
@@ -22,13 +22,7 @@ import StraightLine from "./edge/StraightLine.vue";
 export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {StraightLine},
-    props: ['positions', 'linking', 'linkingSource', 'linkingTarget'],
-    inject: ['edges'],
-    methods: {
-        getPosition(nodeId) {
-            return this.positions[nodeId]
-        }
-    }
+    props: ['positions', 'linking', 'linkingSource', 'linkingTarget', 'edges'],
 }
 </script>
 
