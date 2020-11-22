@@ -9,7 +9,9 @@
             :position="positions[node.id]">
             <slot :node="node" name="node">{{ node.id }}</slot>
         </dragonfly-node>
-        <dragonfly-canvas-edges-layer :positions="positions"/>
+        <dragonfly-canvas-edges-layer :positions="positions" #default="{target, source}">
+            <slot name="edge" :target="target" :source="source"/>
+        </dragonfly-canvas-edges-layer>
     </div>
 </template>
 
@@ -22,7 +24,7 @@ import {ref} from 'vue'
 export default {
     name: "DragonflyCanvasCore",
     components: {DragonflyCanvasEdgesLayer, DragonflyNode},
-    props: ['offsetX', 'offsetY', 'scale'],
+    props: ['offsetX', 'offsetY', 'scale', 'layoutConfig'],
     inject: ['nodes', 'edges'],
     data() {
         return {
@@ -39,7 +41,7 @@ export default {
     },
     computed: {
         layout() {
-            return dagreLayout(this.nodes, this.nodeSizes, this.edges)
+            return dagreLayout(this.nodes, this.nodeSizes, this.edges, this.layoutConfig)
         },
     },
     methods: {

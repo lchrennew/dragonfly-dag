@@ -1,6 +1,5 @@
 <template>
     <line
-        v-if="source && target"
         :x1="source.x"
         :x2="target.x"
         :y1="source.y"
@@ -9,12 +8,14 @@
 
 <script>
 export default {
-    name: "DragonflyEdge",
+    name: "StraightLine",
     props: ['source', 'target'],
-    computed: {}
 }
 </script>
 
-<style scoped>
-
+<style scoped lang="less">
+line {
+    stroke-width: 2;
+    stroke: red;
+}
 </style>

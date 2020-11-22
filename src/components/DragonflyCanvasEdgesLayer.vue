@@ -1,20 +1,22 @@
 <template>
     <svg xmlns="http://www.w3.org/2000/svg" class="dragonfly-edges-layer">
-        <dragonfly-edge
+        <template
             v-for="edge in edges"
-            :key="edge.id"
-            :source="getPosition(edge.source)"
-            :target="getPosition(edge.target)"
-        />
+            :key="edge.id">
+            <slot
+                :source="getPosition(edge.source)"
+                :target="getPosition(edge.target)"
+            />
+        </template>
     </svg>
 </template>
 
 <script>
-import DragonflyEdge from "./DragonflyEdge.vue";
+import StraightLine from "./edge/StraightLine.vue";
 
 export default {
     name: "DragonflyCanvasEdgesLayer",
-    components: {DragonflyEdge},
+    components: {StraightLine},
     props: ['positions'],
     inject: ['edges'],
     methods: {
@@ -34,10 +36,5 @@ export default {
     height: 1px;
     overflow: visible;
     z-index: 2;
-
-    line {
-        stroke-width: 2;
-        stroke: red;
-    }
 }
 </style>

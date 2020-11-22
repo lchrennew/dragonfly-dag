@@ -1,8 +1,10 @@
 import dagre from 'dagre'
 
-const dagreLayout = (nodes = [], nodeSizes = {}, edges = []) => {
-    const g = new dagre.graphlib.Graph()
-    g.setGraph({})
+
+const dagreLayout = (nodes = [], nodeSizes = {}, edges = [], config = {}) => {
+    console.log(config)
+    const g = new dagre.graphlib.Graph({multigraph: true})
+    g.setGraph({...config})
     g.setDefaultEdgeLabel(() => ({}))
     nodes.forEach(node => g.setNode(node.id, {
         label: node.id,

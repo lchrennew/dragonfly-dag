@@ -8,9 +8,17 @@
             :offset-x="offsetX"
             :offset-y="offsetY"
             :scale="scale"
+            :layout-config="layoutConfig"
         >
             <template #node="{node}">
                 <slot name="nodeRenderer" :node="node"/>
+            </template>
+            <template #edge="{target, source}">
+                <template v-if="target && source">
+                    <slot name="edgeRenderer" :target="target" :source="source">
+                        <straight-line :target="target" :source="source"/>
+                    </slot>
+                </template>
             </template>
         </dragonfly-canvas-core>
     </div>
@@ -19,10 +27,11 @@
 <script>
 import DragonflyNode from "./DragonflyNode.vue";
 import DragonflyCanvasCore from "./DragonflyCanvasCore.vue";
+import StraightLine from "./edge/StraightLine.vue";
 
 export default {
     name: "DragonflyCanvas",
-    components: {DragonflyCanvasCore, DragonflyNode},
+    components: {StraightLine, DragonflyCanvasCore, DragonflyNode},
     data() {
         return {
             dragging: false,
@@ -58,6 +67,10 @@ export default {
             type: Number,
             default: 0.5,
         },
+        layoutConfig: {
+            type: Object,
+            default: () => ({})
+        }
     },
     methods: {
         onZoom(event) {
