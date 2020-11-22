@@ -14,13 +14,20 @@
                 @change="checked=>$emit('update:linkable', checked)"
             />
         </p>
+        <p>
+            画布移动
+            <a-switch
+                :default-checked="movable"
+                @change="checked=>$emit('update:movable', checked)"
+            />
+        </p>
     </div>
 </template>
 
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['draggable', 'linkable'],
+    props: ['draggable', 'linkable', 'movable'],
 
 }
 </script>

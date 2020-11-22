@@ -5,6 +5,7 @@
         :layout-config="config.layout"
         :draggable="config.draggable"
         :linkable="config.linkable"
+        :movable="config.movable"
         :min-scale="0.2"
         :max-scale="5"
     >
@@ -15,6 +16,7 @@
     <canvas-config
         v-model:draggable="config.draggable"
         v-model:linkable="config.linkable"
+        v-model:movable="config.movable"
     />
     <canvas-data :nodes="nodes" :edges="edges"/>
 </template>
@@ -38,6 +40,7 @@ export default {
             config: {
                 draggable: ref(false),
                 linkable: ref(true),
+                movable: ref(false),
                 layout: {
                     rankdir: 'LR',
                     marginx: 20,
