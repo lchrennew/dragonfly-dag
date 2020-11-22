@@ -56,8 +56,8 @@ export default {
             }
         },
         onDrag(event) {
-            const deltaX = event.offsetX - this.inDomOffset.x + this.width / 2
-            const deltaY = event.offsetY - this.inDomOffset.y + this.height / 2
+            const deltaX = event.offsetX - this.inDomOffset.x
+            const deltaY = event.offsetY - this.inDomOffset.y
             this.moving(deltaX, deltaY) // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
         },
         onDragStart(event) {
