@@ -9,6 +9,7 @@
             :offset-y="offsetY"
             :scale="scale"
             :layout-config="layoutConfig"
+            @update:edges="$emit('update:edges', $event)"
         >
             <template #node="{node}">
                 <slot name="nodeRenderer" :node="node"/>
@@ -78,6 +79,10 @@ export default {
         draggable: {
             type: Boolean,
             default: false,
+        },
+        linkable: {
+            type: Boolean,
+            default: false,
         }
     },
     methods: {
@@ -106,6 +111,7 @@ export default {
             nodes: computed(() => this.nodes),
             edges: computed(() => this.edges),
             canvasDraggable: computed(() => this.draggable),
+            canvasLinkable: computed(() => this.linkable),
         }
     },
     mounted() {

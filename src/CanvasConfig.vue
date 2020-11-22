@@ -9,7 +9,10 @@
         </p>
         <p>
             节点连接
-            <a-switch/>
+            <a-switch
+                :default-checked="linkable"
+                @change="checked=>$emit('update:linkable', checked)"
+            />
         </p>
     </div>
 </template>

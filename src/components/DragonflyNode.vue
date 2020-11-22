@@ -3,11 +3,12 @@
         class="dragonfly-node"
         :class="{selected}"
         :style="{left: `${x}px`, top:`${y}px`}"
-        :draggable="draggable"
+        :draggable="draggable || linkable"
         @mousedown.stop="onMouseDown"
         @dragstart="onDragStart"
         @drag.prevent="onDrag"
         @dragend.prevent.stop="onDragEnd"
+        @drop="onDrop"
     >
         <slot/>
     </div>
@@ -28,17 +29,22 @@ export default {
             height: 0,
             x: this.position?.x ?? 0,
             y: this.position?.y ?? 0,
-            dragging: false,
             inDomOffset: {x: 0, y: 0},
         }
     },
-    inject: ['resize', 'moving', 'positions', 'canvasDraggable'],
+    inject: ['resize', 'moving', 'linking', 'stopLinking', 'positions', 'canvasDraggable', 'canvasLinkable'],
     computed: {
         draggable() {
             return this.node.draggable ?? this.canvasDraggable.value
         },
+        linkable() {
+            return this.node.linkable ?? this.canvasLinkable.value
+        },
         position() {
             return this.positions.value[this.node.id]
+        },
+        center() {
+            return {x: this.x + this.width / 2, y: this.y + this.height / 2}
         }
     },
     methods: {
@@ -54,18 +60,38 @@ export default {
         },
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
-            this.moving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
-                event.offsetX - this.inDomOffset.x,
-                event.offsetY - this.inDomOffset.y)
+
+            if (this.draggable) {
+                this.moving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
+                    event.offsetX - this.inDomOffset.x,
+                    event.offsetY - this.inDomOffset.y
+                )
+            } else if (this.linkable) {
+                this.linking(
+                    this.center.x,
+                    this.center.y,
+                    event.offsetX + this.x,
+                    event.offsetY + this.y,
+                )
+            }
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
+            event.dataTransfer.setData('text', this.node.id)
             document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
         },
         onDragEnd() {
-            this.dragging = false
             document.removeEventListener('dragover', preventDefaultDrop)
+            this.stopLinking()
         },
+        onDrop(event) {
+            this.$emit(
+                'link:node',
+                {
+                    target: this.node.id,
+                    source: event.dataTransfer.getData('text'),
+                })
+        }
     },
     mounted() {
         this.width = this.$el.clientWidth

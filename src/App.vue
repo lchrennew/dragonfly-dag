@@ -1,15 +1,22 @@
 <template>
-    <dragonfly-canvas :nodes="nodes" :edges="edges"
-                      :layout-config="config.layout"
-                      :draggable="config.draggable"
-                      :min-scale="0.2"
-                      :max-scale="5"
+    <dragonfly-canvas
+        v-model:nodes="nodes"
+        v-model:edges="edges"
+        :layout-config="config.layout"
+        :draggable="config.draggable"
+        :linkable="config.linkable"
+        :min-scale="0.2"
+        :max-scale="5"
     >
         <template #nodeRenderer="{node}">
             <div class="node">Hi, {{ node.id }}</div>
         </template>
     </dragonfly-canvas>
-    <canvas-config v-model:draggable="config.draggable"/>
+    <canvas-config
+        v-model:draggable="config.draggable"
+        v-model:linkable="config.linkable"
+    />
+    <canvas-data :nodes="nodes" :edges="edges"/>
 </template>
 
 <script>
@@ -17,17 +24,20 @@
 import DragonflyCanvas from "./components/DragonflyCanvas.vue";
 import CanvasConfig from "./CanvasConfig.vue";
 import {ref} from 'vue'
+import CanvasData from "./CanvasData.vue";
+
 export default {
     name: 'App',
     components: {
+        CanvasData,
         CanvasConfig,
         DragonflyCanvas
     },
     data() {
         return {
             config: {
-                draggable: ref(true),
-                linkable: true,
+                draggable: ref(false),
+                linkable: ref(true),
                 layout: {
                     rankdir: 'LR',
                     marginx: 20,

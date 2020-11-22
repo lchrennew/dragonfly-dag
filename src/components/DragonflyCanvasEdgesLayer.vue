@@ -8,6 +8,11 @@
                 :target="getPosition(edge.target)"
             />
         </template>
+        <template v-if="linking">
+            <slot
+                :source="linkingSource"
+                :target="linkingTarget"/>
+        </template>
     </svg>
 </template>
 
@@ -17,7 +22,7 @@ import StraightLine from "./edge/StraightLine.vue";
 export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {StraightLine},
-    props: ['positions'],
+    props: ['positions', 'linking', 'linkingSource', 'linkingTarget'],
     inject: ['edges'],
     methods: {
         getPosition(nodeId) {

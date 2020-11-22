@@ -10,11 +10,21 @@
             :selected="selected[node.id]"
             @select="onNodeSelected"
             @unselect="onNodeUnselected"
+            @link:node="linkNode"
         >
             <slot :node="node" name="node">{{ node.id }}</slot>
         </dragonfly-node>
-        <dragonfly-canvas-edges-layer :positions="positions" #default="{target, source}">
-            <slot name="edge" :target="target" :source="source"/>
+        <dragonfly-canvas-edges-layer
+            :positions="positions"
+            :linking="isLinking"
+            :linking-source="linkingSource"
+            :linking-target="linkingTarget">
+            <template #default="{target, source}">
+                <slot name="edge" :target="target" :source="source"/>
+            </template>
+            <template #linking="{target, source}">
+                <straight-line :target="target" :source="source"/>
+            </template>
         </dragonfly-canvas-edges-layer>
     </div>
 </template>
@@ -24,10 +34,11 @@ import DragonflyNode from "./DragonflyNode.vue";
 import dagreLayout from "../layout/dagreLayout";
 import DragonflyCanvasEdgesLayer from "./DragonflyCanvasEdgesLayer.vue";
 import {computed} from 'vue'
+import StraightLine from "./edge/StraightLine.vue";
 
 export default {
     name: "DragonflyCanvasCore",
-    components: {DragonflyCanvasEdgesLayer, DragonflyNode},
+    components: {StraightLine, DragonflyCanvasEdgesLayer, DragonflyNode},
     props: ['offsetX', 'offsetY', 'scale', 'layoutConfig'],
     inject: ['nodes', 'edges'],
     data() {
@@ -35,12 +46,17 @@ export default {
             nodeSizes: {},
             positions: {},
             selected: {},
+            linkingSource: {x: 0, y: 0},
+            linkingTarget: {x: 0, y: 0},
+            isLinking: false,
         }
     },
     provide() {
         return {
             resize: this.resize,
             moving: this.moving,
+            linking: this.linking,
+            stopLinking: this.stopLinking,
             positions: computed(() => this.positions),
         }
     },
@@ -59,6 +75,21 @@ export default {
                 x += deltaX
                 y += deltaY
                 this.positions[nodeId] = {x, y}
+            }
+        },
+        linking(sourceX, sourceY, targetX, targetY) {
+            if (Object.keys(this.selected).length === 1) {
+                this.linkingSource = {x: sourceX, y: sourceY}
+                this.linkingTarget = {x: targetX, y: targetY}
+                this.isLinking = true
+            }
+        },
+        stopLinking() {
+            this.isLinking = false
+        },
+        linkNode({target, source}) {
+            if (!this.edges.value.some(edge => edge.target === target && edge.source === source)) {
+                this.$emit('update:edges', [...this.edges.value, {id:`${source}-${target}`, target, source}])
             }
         },
         onNodeSelected({nodeId, multiple}) {
