@@ -1,22 +1,38 @@
 <template>
-    <dragonfly-canvas :nodes="nodes" :edges="edges" :layout-config="{rankdir:'LR', marginx: 20, marginy: 20, ranker: 'tight-tree'}">
+    <dragonfly-canvas :nodes="nodes" :edges="edges"
+                      :layout-config="config.layout"
+                      :draggable="config.draggable"
+    >
         <template #nodeRenderer="{node}">
             <div class="node">Hi, {{ node.id }}</div>
         </template>
     </dragonfly-canvas>
+    <canvas-config v-model:draggable="config.draggable"/>
 </template>
 
 <script>
 
 import DragonflyCanvas from "./components/DragonflyCanvas.vue";
-
+import CanvasConfig from "./CanvasConfig.vue";
+import {ref} from 'vue'
 export default {
     name: 'App',
     components: {
+        CanvasConfig,
         DragonflyCanvas
     },
     data() {
         return {
+            config: {
+                draggable: ref(false),
+                linkable: true,
+                layout: {
+                    rankdir: 'LR',
+                    marginx: 20,
+                    marginy: 20,
+                }
+            },
+
             nodes: [
                 {id: '1'},
                 {id: '2'},

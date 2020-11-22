@@ -1,12 +1,16 @@
 <template>
     <div class="dragonfly-canvas"
-         :style="{transform:`scale(${scale})`, top:`${offsetY}px`, left:`${offsetX}px`}">
+         :style="{transform:`scale(${scale})`, top:`${offsetY}px`, left:`${offsetX}px`}"
+         @mousedown.stop.prevent="clearSelection">
         <div class="ref"></div>
         <dragonfly-node
             v-for="node in nodes"
             :key="node.id"
             :node="node"
-            :position="positions[node.id]">
+            :selected="selected[node.id]"
+            @select="onNodeSelected"
+            @unselect="onNodeUnselected"
+        >
             <slot :node="node" name="node">{{ node.id }}</slot>
         </dragonfly-node>
         <dragonfly-canvas-edges-layer :positions="positions" #default="{target, source}">
@@ -19,7 +23,7 @@
 import DragonflyNode from "./DragonflyNode.vue";
 import dagreLayout from "../layout/dagreLayout";
 import DragonflyCanvasEdgesLayer from "./DragonflyCanvasEdgesLayer.vue";
-import {ref} from 'vue'
+import {computed} from 'vue'
 
 export default {
     name: "DragonflyCanvasCore",
@@ -30,13 +34,14 @@ export default {
         return {
             nodeSizes: {},
             positions: {},
+            selected: {},
         }
     },
     provide() {
         return {
             resize: this.resize,
             moving: this.moving,
-            positions: ref(this.positions),
+            positions: computed(() => this.positions),
         }
     },
     computed: {
@@ -48,9 +53,28 @@ export default {
         resize(nodeId, width, height) {
             this.nodeSizes[nodeId] = {width, height}
         },
-        moving(nodeId, x, y) {
-            this.positions[nodeId] = {x, y}
+        moving(deltaX, deltaY) {
+            for (const nodeId in this.selected) {
+                let {x, y} = this.positions[nodeId]
+                x += deltaX
+                y += deltaY
+                this.positions[nodeId] = {x, y}
+            }
         },
+        onNodeSelected({nodeId, multiple}) {
+            console.log(`selected node #${nodeId}`)
+            if (multiple)
+                this.selected[nodeId] = true
+            else
+                this.selected = {[nodeId]: true}
+        },
+        onNodeUnselected(nodeId) {
+            delete this.selected[nodeId]
+        },
+        clearSelection() {
+            console.log('selected clear')
+            this.selected = {}
+        }
     },
     mounted() {
         this.positions = this.layout._nodes

@@ -6,6 +6,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "ant-design-vue": "^2.0.0-rc.1",
     "dagre": "^0.8.5",
     "vue": "^3.0.2"
   },

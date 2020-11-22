@@ -1,11 +1,13 @@
 <template>
-    <div class="dragonfly-node"
-         :style="{left: `${x}px`, top:`${y}px`}"
-         draggable="true"
-         @mousedown.stop="onMouseDown"
-         @dragstart="onDragStart"
-         @drag.prevent="onDrag"
-         @dragend.prevent.stop="onDragEnd"
+    <div
+        class="dragonfly-node"
+        :class="{selected}"
+        :style="{left: `${x}px`, top:`${y}px`}"
+        :draggable="draggable"
+        @mousedown.stop="onMouseDown"
+        @dragstart="onDragStart"
+        @drag.prevent="onDrag"
+        @dragend.prevent.stop="onDragEnd"
     >
         <slot/>
     </div>
@@ -19,7 +21,7 @@ img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>'
 
 export default {
     name: "DragonflyNode",
-    props: ['node', 'position'],
+    props: ['node', 'selected'],
     data() {
         return {
             width: 0,
@@ -30,19 +32,33 @@ export default {
             inDomOffset: {x: 0, y: 0},
         }
     },
-    inject: ['resize', 'moving'],
+    inject: ['resize', 'moving', 'positions', 'canvasDraggable'],
+    computed: {
+        draggable() {
+            return this.node.draggable ?? this.canvasDraggable.value
+        },
+        position() {
+            return this.positions.value[this.node.id]
+        }
+    },
     methods: {
         onMouseDown(event) {
             this.inDomOffset.x = event.offsetX
             this.inDomOffset.y = event.offsetY
+
+            if (this.selected) {
+                if (event.shiftKey) {
+                    this.$emit('unselect', this.node.id)
+                }
+            } else {
+                const multiple = event.shiftKey
+                this.$emit('select', {nodeId: this.node.id, multiple})
+            }
         },
         onDrag(event) {
-            const x = this.x + event.offsetX - this.inDomOffset.x
-            const y = this.y + event.offsetY - this.inDomOffset.y
-            this.moving(      // hacking: 回调DragonflyCanvasCore, 修改输入的position信息（同时可以影响到edge）
-                this.node.id,
-                x + this.width / 2,
-                y + this.height / 2)
+            const deltaX = event.offsetX - this.inDomOffset.x + this.width / 2
+            const deltaY = event.offsetY - this.inDomOffset.y + this.height / 2
+            this.moving(deltaX, deltaY) // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
@@ -74,5 +90,12 @@ export default {
     align-items: center;
     justify-content: center;
     z-index: 3;
+    border: solid 1px transparent;
+    box-sizing: border-box;
+
+    &.selected {
+        border: dashed 1px #777;
+        user-select: none;
+    }
 }
 </style>

@@ -28,6 +28,7 @@
 import DragonflyNode from "./DragonflyNode.vue";
 import DragonflyCanvasCore from "./DragonflyCanvasCore.vue";
 import StraightLine from "./edge/StraightLine.vue";
+import {computed} from 'vue'
 
 export default {
     name: "DragonflyCanvas",
@@ -46,6 +47,9 @@ export default {
         nodes: {
             type: Array,
             default: [],
+            validate(value) {
+                return value.every(node => node.id)
+            }
         },
         edges: {
             type: Array,
@@ -70,6 +74,10 @@ export default {
         layoutConfig: {
             type: Object,
             default: () => ({})
+        },
+        draggable: {
+            type: Boolean,
+            default: false,
         }
     },
     methods: {
@@ -97,6 +105,7 @@ export default {
         return {
             nodes: this.nodes,
             edges: this.edges,
+            canvasDraggable: computed(() => this.draggable),
         }
     },
     mounted() {
