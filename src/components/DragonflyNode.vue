@@ -94,6 +94,7 @@ export default {
     &.selected {
         border: dashed 1px #777;
         user-select: none;
+        z-index: 4;
     }
 }
 </style>
