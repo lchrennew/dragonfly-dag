@@ -1,7 +1,7 @@
 <template>
     <div
         class="dragonfly-node"
-        :class="{selected}"
+        :class="{selected, targeted}"
         :style="{left: `${x}px`, top:`${y}px`}"
         :draggable="draggable || linkable"
         @mousedown.stop="onMouseDown"
@@ -9,6 +9,8 @@
         @drag.prevent="onDrag"
         @dragend.prevent.stop="onDragEnd"
         @drop="onDrop"
+        @dragenter.stop.passive="targeted = true"
+        @dragleave.stop.passive="targeted = false"
     >
         <slot/>
     </div>
@@ -30,6 +32,7 @@ export default {
             x: this.position?.x ?? 0,
             y: this.position?.y ?? 0,
             inDomOffset: {x: 0, y: 0},
+            targeted: false,
         }
     },
     inject: ['resize', 'moving', 'linking', 'stopLinking', 'positions', 'canvasDraggable', 'canvasLinkable'],
@@ -85,13 +88,14 @@ export default {
             this.stopLinking()
         },
         onDrop(event) {
+            this.targeted = false
             this.$emit(
                 'link:node',
                 {
                     target: this.node.id,
                     source: event.dataTransfer.getData('text'),
                 })
-        }
+        },
     },
     mounted() {
         this.width = this.$el.clientWidth
@@ -116,11 +120,19 @@ export default {
     z-index: 3;
     border: solid 1px transparent;
     box-sizing: border-box;
+    user-select: none;
 
     &.selected {
         border: dashed 1px #777;
-        user-select: none;
         z-index: 4;
+    }
+
+    &:not(.selected).targeted {
+        border: solid 1px #f00;
+    }
+
+    :not(.dragonfly-endpoint) {
+        pointer-events: none;
     }
 }
 </style>
