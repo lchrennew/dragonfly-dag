@@ -49,7 +49,7 @@ export default {
             },
 
             nodes: [
-                {id: '1'},
+                {id: '1', x: 100, y: 100},
                 {id: '2'},
                 {id: '3'},
                 {id: '4'},

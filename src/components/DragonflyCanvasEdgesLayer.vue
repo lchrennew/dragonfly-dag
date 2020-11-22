@@ -9,9 +9,11 @@
             />
         </template>
         <template v-if="linking">
-            <slot name="linking"
+            <slot
+                name="linking"
                 :source="linkingSource"
-                :target="linkingTarget"/>
+                :target="linkingTarget"
+            />
         </template>
     </svg>
 </template>

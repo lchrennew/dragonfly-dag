@@ -284,7 +284,14 @@ export default {
     mounted() {
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
-        this.positions = this.layout._nodes
+        const positions = this.layout._nodes
+        for (let {id, x, y} of this.nodes) {
+            if (x !== undefined)
+                positions[id] = {...positions[id], x}
+            if (y !== undefined)
+                positions[id] = {...positions[id], y}
+        }
+        this.positions = positions
     }
 }
 </script>
