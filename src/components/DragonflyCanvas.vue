@@ -85,7 +85,7 @@ export default {
             if ((event.deltaY < 0 && this.scale <= this.minScale) || (event.deltaY > 0 && this.scale >= this.maxScale))
                 return
 
-            let scale = this.scale + this.zoomSensitivity * event.deltaY / this.scale
+            let scale = this.scale + this.zoomSensitivity * event.deltaY
             if (scale > this.maxScale) scale = this.maxScale
             else if (scale < this.minScale) scale = this.minScale
 

@@ -53,6 +53,7 @@ export default {
             }
         },
         onDrag(event) {
+            if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
             this.moving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
                 event.offsetX - this.inDomOffset.x,
                 event.offsetY - this.inDomOffset.y)

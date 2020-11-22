@@ -3,7 +3,7 @@
         <p>
             节点拖拽
             <a-switch
-                :default-checked="draggable.value"
+                :default-checked="draggable"
                 @change="checked=>$emit('update:draggable', checked)"
             />
         </p>

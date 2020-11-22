@@ -2,6 +2,8 @@
     <dragonfly-canvas :nodes="nodes" :edges="edges"
                       :layout-config="config.layout"
                       :draggable="config.draggable"
+                      :min-scale="0.2"
+                      :max-scale="5"
     >
         <template #nodeRenderer="{node}">
             <div class="node">Hi, {{ node.id }}</div>
@@ -24,7 +26,7 @@ export default {
     data() {
         return {
             config: {
-                draggable: ref(false),
+                draggable: ref(true),
                 linkable: true,
                 layout: {
                     rankdir: 'LR',
