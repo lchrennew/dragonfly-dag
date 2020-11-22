@@ -1,7 +1,7 @@
 <template>
     <svg xmlns="http://www.w3.org/2000/svg" class="dragonfly-edges-layer">
         <template
-            v-for="edge in edges"
+            v-for="edge in edges.value"
             :key="edge.id">
             <slot
                 :source="getPosition(edge.source)"

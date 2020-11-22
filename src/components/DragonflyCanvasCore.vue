@@ -1,10 +1,10 @@
 <template>
     <div class="dragonfly-canvas"
          :style="{transform:`scale(${scale})`, top:`${offsetY}px`, left:`${offsetX}px`}"
-         @mousedown.stop.prevent="clearSelection">
+         @mousedown.prevent="clearSelection">
         <div class="ref"></div>
         <dragonfly-node
-            v-for="node in nodes"
+            v-for="node in nodes.value"
             :key="node.id"
             :node="node"
             :selected="selected[node.id]"
@@ -46,7 +46,7 @@ export default {
     },
     computed: {
         layout() {
-            return dagreLayout(this.nodes, this.nodeSizes, this.edges, this.layoutConfig)
+            return dagreLayout(this.nodes.value, this.nodeSizes, this.edges.value, this.layoutConfig)
         },
     },
     methods: {
@@ -62,17 +62,14 @@ export default {
             }
         },
         onNodeSelected({nodeId, multiple}) {
-            console.log(`selected node #${nodeId}`)
-            if (multiple)
-                this.selected[nodeId] = true
-            else
-                this.selected = {[nodeId]: true}
+            multiple
+                ? (this.selected[nodeId] = true)
+                : (this.selected = {[nodeId]: true})
         },
         onNodeUnselected(nodeId) {
             delete this.selected[nodeId]
         },
         clearSelection() {
-            console.log('selected clear')
             this.selected = {}
         }
     },

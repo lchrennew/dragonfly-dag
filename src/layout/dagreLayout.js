@@ -2,7 +2,6 @@ import dagre from 'dagre'
 
 
 const dagreLayout = (nodes = [], nodeSizes = {}, edges = [], config = {}) => {
-    console.log(config)
     const g = new dagre.graphlib.Graph({multigraph: true})
     g.setGraph({...config})
     g.setDefaultEdgeLabel(() => ({}))

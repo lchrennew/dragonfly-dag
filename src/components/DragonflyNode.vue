@@ -47,18 +47,15 @@ export default {
             this.inDomOffset.y = event.offsetY
 
             if (this.selected) {
-                if (event.shiftKey) {
-                    this.$emit('unselect', this.node.id)
-                }
+                event.shiftKey && this.$emit('unselect', this.node.id)
             } else {
-                const multiple = event.shiftKey
-                this.$emit('select', {nodeId: this.node.id, multiple})
+                this.$emit('select', {nodeId: this.node.id, multiple: event.shiftKey})
             }
         },
         onDrag(event) {
-            const deltaX = event.offsetX - this.inDomOffset.x
-            const deltaY = event.offsetY - this.inDomOffset.y
-            this.moving(deltaX, deltaY) // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
+            this.moving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
+                event.offsetX - this.inDomOffset.x,
+                event.offsetY - this.inDomOffset.y)
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage

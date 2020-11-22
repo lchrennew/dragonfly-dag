@@ -103,8 +103,8 @@ export default {
     },
     provide() {
         return {
-            nodes: this.nodes,
-            edges: this.edges,
+            nodes: computed(() => this.nodes),
+            edges: computed(() => this.edges),
             canvasDraggable: computed(() => this.draggable),
         }
     },
