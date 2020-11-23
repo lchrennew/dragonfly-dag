@@ -8,6 +8,7 @@
          @wheel.prevent="onZoom">
         <div :style="canvasStyle"
              class="dragonfly-canvas"
+             ref="canvas"
         >
             <div v-if="selecting"
                  class="selecting"
@@ -168,8 +169,9 @@ export default {
             } else {
                 if (!event.shiftKey) this.clearSelection()
                 this.selecting = true
-                this.selectingSource.x = this.selectingTarget.x = event.offsetX - this.offsetX
-                this.selectingSource.y = this.selectingTarget.y = event.offsetY - this.offsetY
+                const insideCanvas = event.target === this.$refs.canvas
+                this.selectingSource.x = this.selectingTarget.x = event.offsetX - (insideCanvas ? 0 : this.offsetX)
+                this.selectingSource.y = this.selectingTarget.y = event.offsetY - (insideCanvas ? 0 : this.offsetY)
             }
         },
         onViewportMouseUp() {
