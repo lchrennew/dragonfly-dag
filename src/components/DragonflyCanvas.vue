@@ -178,8 +178,9 @@ export default {
             else if (scale < this.minScale) scale = this.minScale
 
             const delta = scale - this.scale
-            this.offsetX += (this.width / 2 - event.clientX + this.offsetX) * delta / this.scale
-            this.offsetY += (this.height / 2 - event.clientY + this.offsetY) * delta / this.scale
+            const rect = this.$el.getBoundingClientRect()
+            this.offsetX += (this.width / 2 - event.clientX + this.offsetX + rect.left) * delta / this.scale
+            this.offsetY += (this.height / 2 - event.clientY + this.offsetY + rect.top) * delta / this.scale
             this.scale = scale
         },
         onViewportMouseDown(event) {
