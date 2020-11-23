@@ -168,8 +168,8 @@ export default {
             } else {
                 if (!event.shiftKey) this.clearSelection()
                 this.selecting = true
-                this.selectingSource.x = this.selectingTarget.x = event.offsetX
-                this.selectingSource.y = this.selectingTarget.y = event.offsetY
+                this.selectingSource.x = this.selectingTarget.x = event.offsetX - this.offsetX
+                this.selectingSource.y = this.selectingTarget.y = event.offsetY - this.offsetY
             }
         },
         onViewportMouseUp() {
