@@ -2,7 +2,7 @@
     <div class="dragonfly-viewport"
          @mousemove="onMove"
          @mouseup="onViewportMouseUp"
-         @mousedown.prevent="onViewportMouseDown"
+         @mousedown="onViewportMouseDown"
          @mouseleave="onLeave"
          @mouseenter="onEnter"
          @wheel.prevent="onZoom">
@@ -13,7 +13,6 @@
             <div v-if="selecting"
                  class="selecting"
                  :style="selectingStyle"/>
-            <div class="ref"></div>
             <dragonfly-node
                 v-for="node in nodes"
                 :key="node.id"
@@ -23,7 +22,21 @@
                 @unselect="onNodeUnselected"
                 @link:node="linkNode"
             >
-                <slot :node="node" name="nodeRenderer">{{ node.id }}</slot>
+                <template #default>
+                    <slot :node="node" name="nodeRenderer">{{ node.id }}</slot>
+                </template>
+                <template #topEndpoints>
+                    <slot name="topEndpoints" :node="node"/>
+                </template>
+                <template #leftEndpoints>
+                    <slot name="leftEndpoints" :node="node"/>
+                </template>
+                <template #rightEndpoints>
+                    <slot name="rightEndpoints" :node="node"/>
+                </template>
+                <template #bottomEndpoints>
+                    <slot name="bottomEndpoints" :node="node"/>
+                </template>
             </dragonfly-node>
             <dragonfly-canvas-edges-layer
                 :edges="edges"
@@ -31,10 +44,16 @@
                 :linking-source="linkingSource"
                 :linking-target="linkingTarget"
                 :positions="positions"
+                :endpoint-positions="endpointPositions"
             >
-                <template #default="{target, source}">
+                <template #default="{target, source, targetOffset, sourceOffset}">
                     <slot :source="source" :target="target" name="edgeRenderer">
-                        <straight-line v-if="source && target" :source="source" :target="target"/>
+                        <straight-line v-if="source && target"
+                                       :source="source"
+                                       :target="target"
+                                       :source-offset="sourceOffset"
+                                       :target-offset="targetOffset"
+                        />
                     </slot>
                 </template>
                 <template #linking="{target, source}">
@@ -72,6 +91,7 @@ export default {
             height: 0,
             nodeSizes: {},
             positions: {},
+            endpointPositions: {}, // 存锚点相对于节点的位置
             selected: {},
             linkingSource: {x: 0, y: 0},
             linkingTarget: {x: 0, y: 0},
@@ -167,15 +187,19 @@ export default {
                 this.dragging = true
                 this.clearSelection()
             } else {
-                if (!event.shiftKey) this.clearSelection()
-                this.selecting = true
-                // hacking: 如果在canvas内开始选择，就不再需要去掉canvas相对于viewport的偏移
-                const insideCanvas = event.target === this.$refs.canvas
-                this.selectingSource.x = this.selectingTarget.x = event.offsetX - (insideCanvas ? 0 : this.offsetX)
-                this.selectingSource.y = this.selectingTarget.y = event.offsetY - (insideCanvas ? 0 : this.offsetY)
+                const fromCanvas = event.target === this.$refs.canvas
+                const insideCanvas = !fromCanvas && event.path.includes(this.$refs.canvas)
+                if (!insideCanvas) {
+                    event.preventDefault()
+                    if (!event.shiftKey) this.clearSelection()
+                    this.selecting = true
+                    // hacking: 如果在canvas内开始选择，就不再需要去掉canvas相对于viewport的偏移
+                    this.selectingSource.x = this.selectingTarget.x = event.offsetX - (fromCanvas ? 0 : this.offsetX)
+                    this.selectingSource.y = this.selectingTarget.y = event.offsetY - (fromCanvas ? 0 : this.offsetY)
+                }
             }
         },
-        onViewportMouseUp() {
+        onViewportMouseUp(event) {
             this.dragging = false
             if (this.selecting) {
                 this.syncSelectedFromSelectingSelected()
@@ -265,11 +289,25 @@ export default {
         stopNodeLinking() {
             this.linking = false
         },
-        linkNode({target, source}) {
-            if (!this.edges.some(edge => edge.target === target && edge.source === source)) {
-                this.$emit('update:edges', [...this.edges, {id: `${source}-${target}`, target, source}])
+        linkNode({target, source, targetEndpoint, sourceEndpoint}) {
+            if (!this.edges.some(
+                edge =>
+                    edge.target === target &&
+                    edge.source === source &&
+                    edge.targetEndpoint === targetEndpoint &&
+                    edge.sourceEndpoint === sourceEndpoint)) {
+                this.$emit('update:edges', [...this.edges, {
+                    id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
+                    target,
+                    source,
+                    targetEndpoint,
+                    sourceEndpoint
+                }])
             }
         },
+        endpointReposition(id, x, y) {
+            this.endpointPositions[id] = {x, y}
+        }
     },
     provide() {
         return {
@@ -281,6 +319,7 @@ export default {
             nodeMoving: this.nodeMoving,
             nodeLinking: this.nodeLinking,
             stopNodeLinking: this.stopNodeLinking,
+            endpointReposition: this.endpointReposition,
             positions: computed(() => this.positions),
         }
     },
@@ -310,18 +349,6 @@ export default {
         overflow: visible;
         width: 100%;
         height: 100%;
-
-        .ref {
-            display: block;
-            width: 4px;
-            height: 4px;
-            margin-top: -2px;
-            margin-bottom: -2px;
-            background-color: red;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-        }
 
         .selecting {
             border: none;

@@ -6,6 +6,8 @@
             <slot
                 :source="positions[edge.source]"
                 :target="positions[edge.target]"
+                :sourceOffset="endpointPositions[edge.sourceEndpoint]"
+                :targetOffset="endpointPositions[edge.targetEndpoint]"
             />
         </template>
         <template v-if="linking">
@@ -24,7 +26,7 @@ import StraightLine from "./edge/StraightLine.vue";
 export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {StraightLine},
-    props: ['positions', 'linking', 'linkingSource', 'linkingTarget', 'edges'],
+    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges'],
 }
 </script>
 

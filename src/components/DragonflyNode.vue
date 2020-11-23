@@ -3,26 +3,85 @@
         class="dragonfly-node"
         :class="{selected, targeted}"
         :style="{left: `${x}px`, top:`${y}px`}"
-        :draggable="draggable || linkable"
-        @mousedown.stop="onMouseDown"
-        @dragstart="onDragStart"
-        @drag.prevent="onDrag"
-        @dragend.prevent.stop="onDragEnd"
-        @drop="onDrop"
-        @dragenter.stop.passive="targeted = true"
-        @dragleave.stop.passive="targeted = false"
     >
-        <slot/>
+        <div class="dragonfly-node-inner"
+             ref="inner"
+             @mousedown.stop="onMouseDown"
+             :draggable="draggable||linkable"
+             @drop="onDrop"
+             @dragstart="onDragStart"
+             @drag.passive="onDrag"
+             @dragend.prevent="onDragEnd"
+             @dragenter.stop="onDragEnter"
+             @dragleave.stop="onDragLeave"
+        >
+            <slot/>
+        </div>
+        <div class="dragonfly-endpoints left">
+            <template v-if="leftEndpoints">
+                <dragonfly-endpoint
+                    v-for="endpoint in leftEndpoints"
+                    :key="endpoint.key"
+                    :id="endpoint.id"
+                />
+            </template>
+            <slot v-else name="leftEndpoints"/>
+        </div>
+        <div class="dragonfly-endpoints right">
+            <template v-if="rightEndpoints">
+                <dragonfly-endpoint
+                    v-for="endpoint in rightEndpoints"
+                    :key="endpoint.key"
+                    :id="endpoint.id"
+                />
+            </template>
+            <slot v-else name="rightEndpoints"/>
+        </div>
+        <div class="dragonfly-endpoints top">
+            <template v-if="topEndpoints">
+                <dragonfly-endpoint
+                    v-for="endpoint in topEndpoints"
+                    :key="endpoint.key"
+                    :id="endpoint.id"
+                />
+            </template>
+            <slot v-else name="topEndpoints"/>
+        </div>
+        <div class="dragonfly-endpoints bottom">
+            <template v-if="bottomEndpoints">
+                <dragonfly-endpoint
+                    v-for="endpoint in bottomEndpoints"
+                    :key="endpoint.key"
+                    :id="endpoint.id"
+                />
+            </template>
+            <slot v-else name="bottomEndpoints"/>
+        </div>
+        <div class="dragonfly-endpoints left-top">
+            <slot name="leftTopEndpoints"/>
+        </div>
+        <div class="dragonfly-endpoints left-bottom">
+            <slot name="leftBottomEndpoints"/>
+        </div>
+        <div class="dragonfly-endpoints right-top">
+            <slot name="rightTopEndpoints"/>
+        </div>
+        <div class="dragonfly-endpoints right-bottom">
+            <slot name="rightBottomEndpoints"/>
+        </div>
     </div>
 </template>
 
 <script>
 import img from '../utils/emptyDragImage.js'
+import DragonflyEndpoint from "./DragonflyEndpoint.vue";
+import {computed} from 'vue'
 
 const preventDefaultDrop = event => event.preventDefault()
 
 export default {
     name: "DragonflyNode",
+    components: {DragonflyEndpoint},
     props: ['node', 'selected'],
     data() {
         return {
@@ -32,9 +91,15 @@ export default {
             y: this.position?.y ?? 0,
             inDomOffset: {x: 0, y: 0},
             targeted: false,
+            endPointRefs: [],
         }
     },
     inject: ['nodeResize', 'nodeMoving', 'nodeLinking', 'stopNodeLinking', 'positions', 'canvasDraggable', 'canvasLinkable'],
+    provide() {
+        return {
+            node: computed(() => this.node)
+        }
+    },
     computed: {
         draggable() {
             return this.node.draggable ?? this.canvasDraggable.value
@@ -47,7 +112,19 @@ export default {
         },
         center() {
             return {x: this.x + this.width / 2, y: this.y + this.height / 2}
-        }
+        },
+        leftEndpoints() {
+            return this.node.endpoints ? this.node.endpoints.filter(endpoint => !endpoint.position || (endpoint.position === 'left')) : undefined
+        },
+        rightEndpoints() {
+            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.position === 'right') : undefined
+        },
+        topEndpoints() {
+            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.position === 'top') : undefined
+        },
+        bottomEndpoints() {
+            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.position === 'bottom') : undefined
+        },
     },
     methods: {
         onMouseDown(event) {
@@ -82,6 +159,14 @@ export default {
             event.dataTransfer.setData('text', this.node.id)
             document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
         },
+        onDragEnter(event) {
+            if (event.path.includes(event.toElement))
+                this.targeted = true
+        },
+        onDragLeave(event) {
+            if (!event.path.includes(this.fromElement))
+                this.targeted = false
+        },
         onDragEnd() {
             document.removeEventListener('dragover', preventDefaultDrop)
             this.stopNodeLinking()
@@ -111,14 +196,10 @@ export default {
 <style scoped lang="less">
 .dragonfly-node {
     position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     z-index: 3;
     border: solid 1px transparent;
     margin: -1px;
-    box-sizing: content-box;
-    user-select: none;
+    box-sizing: border-box;
 
     &.selected {
         border: dashed 1px #777;
@@ -129,8 +210,81 @@ export default {
         border: solid 1px #f00;
     }
 
-    :not(.dragonfly-endpoint) {
-        pointer-events: none;
+    .dragonfly-node-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        z-index: 1;
+    }
+
+    .dragonfly-endpoints {
+        position: absolute;
+        overflow: visible;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        z-index: 2;
+
+        &.left {
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            flex-direction: column;
+        }
+
+        &.right {
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            flex-direction: column;
+        }
+
+        &.top {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            flex-direction: row;
+        }
+
+        &.bottom {
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            flex-direction: row;
+        }
+
+        &.left-top {
+            width: 0;
+            height: 0;
+            left: 0;
+            top: 0;
+        }
+
+        &.left-bottom {
+            width: 0;
+            height: 0;
+            left: 0;
+            bottom: 0;
+        }
+
+        &.right-top {
+            width: 0;
+            height: 0;
+            right: 0;
+            top: 0;
+        }
+
+        &.right-bottom {
+            width: 0;
+            height: 0;
+            right: 0;
+            bottom: 0;
+        }
     }
 }
 </style>
