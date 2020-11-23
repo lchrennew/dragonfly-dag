@@ -169,6 +169,7 @@ export default {
             } else {
                 if (!event.shiftKey) this.clearSelection()
                 this.selecting = true
+                // hacking: 如果在canvas内开始选择，就不再需要去掉canvas相对于viewport的偏移
                 const insideCanvas = event.target === this.$refs.canvas
                 this.selectingSource.x = this.selectingTarget.x = event.offsetX - (insideCanvas ? 0 : this.offsetX)
                 this.selectingSource.y = this.selectingTarget.y = event.offsetY - (insideCanvas ? 0 : this.offsetY)
