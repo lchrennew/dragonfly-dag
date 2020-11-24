@@ -30,7 +30,7 @@
         </p>
         <p>
             箭头比例
-            <a-slider :value="arrowZoomRatio" :min="1" :max="3" @change="value=>$emit('update:arrowZoomRatio', value)"/>
+            <a-slider :value="arrowZoomRatio" :min="1" :max="3" :step="0.01" @change="value=>$emit('update:arrowZoomRatio', value)"/>
         </p>
         <p>
             箭头居中
