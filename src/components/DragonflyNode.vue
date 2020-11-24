@@ -18,25 +18,25 @@
             <slot/>
         </div>
         <dragonfly-endpoints
-            position="left"
+            orientation="left"
             :endpoints="leftEndpoints"
         >
             <slot name="leftEndpoints"/>
         </dragonfly-endpoints>
         <dragonfly-endpoints
-            position="right"
+            orientation="right"
             :endpoints="rightEndpoints"
         >
             <slot name="rightEndpoints"/>
         </dragonfly-endpoints>
         <dragonfly-endpoints
-            position="top"
+            orientation="top"
             :endpoints="topEndpoints"
         >
             <slot name="topEndpoints"/>
         </dragonfly-endpoints>
         <dragonfly-endpoints
-            position="bottom"
+            orientation="bottom"
             :endpoints="bottomEndpoints"
         >
             <slot name="bottomEndpoints"/>
@@ -115,12 +115,15 @@ export default {
             if (this.draggable) {
                 this.nodeMoving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
                     event.offsetX - this.inDomOffset.x,
-                    event.offsetY - this.inDomOffset.y
+                    event.offsetY - this.inDomOffset.y,
                 )
             } else if (this.linkable) {
                 this.nodeLinking(
                     this.position.x,
                     this.position.y,
+                    this.width,
+                    this.height,
+                    'right',
                     event.offsetX + this.x,
                     event.offsetY + this.y,
                 )

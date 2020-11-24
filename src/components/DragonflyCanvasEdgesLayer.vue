@@ -1,15 +1,17 @@
 <template>
     <svg xmlns="http://www.w3.org/2000/svg" class="dragonfly-edges-layer">
-        <template
+        <dragonfly-edge
             v-for="edge in edges"
-            :key="edge.id">
-            <slot
-                :source="positions[edge.source]"
-                :target="positions[edge.target]"
-                :sourceOffset="endpointPositions[edge.sourceEndpoint]"
-                :targetOffset="endpointPositions[edge.targetEndpoint]"
-            />
-        </template>
+            :key="edge.id"
+            :edge="edge"
+            :source-node="positions[edge.source]"
+            :target-node="positions[edge.target]"
+            :source-endpoint="endpointPositions[edge.sourceEndpoint]"
+            :target-endpoint="endpointPositions[edge.targetEndpoint]"
+            #default="{source, target}"
+        >
+            <slot :source="source" :target="target"/>
+        </dragonfly-edge>
         <template v-if="linking">
             <slot
                 name="linking"
@@ -22,22 +24,30 @@
 
 <script>
 import StraightLine from "./edge/StraightLine.vue";
+import DragonflyEdge from "./DragonflyEdge.vue";
 
 export default {
     name: "DragonflyCanvasEdgesLayer",
-    components: {StraightLine},
+    components: {DragonflyEdge, StraightLine},
     props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges'],
 }
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 .dragonfly-edges-layer {
     position: absolute;
     top: 0;
     left: 0;
     width: 1px;
     height: 1px;
-    overflow: visible;
     z-index: 2;
+    overflow: visible !important;
+
+    line, polyline, path {
+        stroke-width: 2;
+        stroke: #f00;
+        pointer-events: none;
+        fill: transparent;
+    }
 }
 </style>

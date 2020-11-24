@@ -28,7 +28,7 @@ export default {
             default: true,
         },
     },
-    inject: ['node', 'endpointReposition', 'nodeLinkable', 'nodePosition', 'getPosition', 'nodeLinking', 'stopNodeLinking', 'link'],
+    inject: ['node', 'endpointReposition', 'nodeLinkable', 'nodePosition', 'getPosition', 'nodeLinking', 'stopNodeLinking', 'link', 'orientation'],
     data() {
         return {
             x: 0,
@@ -49,6 +49,7 @@ export default {
                 height: this.height,
                 left: x - this.width / 2,
                 top: y - this.height / 2,
+                orientation: this.orientation,
                 x,
                 y,
             }
@@ -73,6 +74,9 @@ export default {
                 this.nodeLinking(
                     this.position.x,
                     this.position.y,
+                    this.width,
+                    this.height,
+                    this.orientation,
                     event.offsetX + this.position.left,
                     event.offsetY + this.position.top,
                 )
@@ -97,7 +101,7 @@ export default {
         // offset to node's center
         this.x = position.left + this.$el.offsetLeft + this.width / 2
         this.y = position.top + this.$el.offsetTop + this.height / 2
-        this.endpointReposition(this.id, this.x, this.y)
+        this.endpointReposition(this.id, this.x, this.y, this.width, this.height, this.orientation)
     }
 }
 </script>

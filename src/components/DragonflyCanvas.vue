@@ -46,13 +46,11 @@
                 :positions="positions"
                 :endpoint-positions="endpointPositions"
             >
-                <template #default="{target, source, targetOffset, sourceOffset}">
+                <template #default="{target, source}">
                     <slot :source="source" :target="target" name="edgeRenderer">
-                        <straight-line v-if="source && target"
+                        <zig-zag-line v-if="source && target"
                                        :source="source"
                                        :target="target"
-                                       :source-offset="sourceOffset"
-                                       :target-offset="targetOffset"
                         />
                     </slot>
                 </template>
@@ -70,6 +68,7 @@ import StraightLine from "./edge/StraightLine.vue";
 import {computed} from 'vue'
 import dagreLayout from "../layout/dagreLayout";
 import DragonflyCanvasEdgesLayer from "./DragonflyCanvasEdgesLayer.vue";
+import ZigZagLine from "./edge/ZigZagLine.vue";
 
 const shiftStrategies = {
     disabled: (selected, selecting) => selecting,
@@ -79,7 +78,7 @@ const shiftStrategies = {
 
 export default {
     name: "DragonflyCanvas",
-    components: {StraightLine, DragonflyNode, DragonflyCanvasEdgesLayer},
+    components: {ZigZagLine, StraightLine, DragonflyNode, DragonflyCanvasEdgesLayer},
     data() {
         return {
             dragging: false,
@@ -290,17 +289,39 @@ export default {
         nodeMoving(deltaX, deltaY) {
             for (const nodeId in this.selected) {
                 if (this.selected[nodeId]) {
-                    let {x, y} = this.positions[nodeId]
+                    let {x, y, width, height, label} = this.positions[nodeId]
                     x += deltaX
                     y += deltaY
-                    this.positions[nodeId] = {x, y}
+                    this.positions[nodeId] = {x, y, width, height, label}
                 }
             }
         },
-        nodeLinking(sourceX, sourceY, targetX, targetY) {
+        nodeLinking(
+            sourceX,
+            sourceY,
+            sourceWidth,
+            sourceHeight,
+            sourceOrientation = 'right',
+            targetX,
+            targetY,
+            targetWidth = 0,
+            targetHeight = 0,
+            targetOrientation = 'left') {
             if (!this.multipleSelected) {   // hacking: 包含了从endpoint连接的情况
-                this.linkingSource = {x: sourceX, y: sourceY}
-                this.linkingTarget = {x: targetX, y: targetY}
+                this.linkingSource = {
+                    x: sourceX,
+                    y: sourceY,
+                    width: sourceWidth,
+                    height: sourceHeight,
+                    orientation: sourceOrientation
+                }
+                this.linkingTarget = {
+                    x: targetX,
+                    y: targetY,
+                    width: targetWidth ?? 0,
+                    height: targetHeight ?? 0,
+                    orientation: targetOrientation
+                }
                 this.linking = true
             }
         },
@@ -323,8 +344,8 @@ export default {
                 }])
             }
         },
-        endpointReposition(id, x, y) {
-            this.endpointPositions[id] = {x, y}
+        endpointReposition(id, x, y, width, height, orientation) {
+            this.endpointPositions[id] = {x, y, width, height, orientation}
         }
     },
     provide() {

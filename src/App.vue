@@ -61,10 +61,6 @@ export default {
                 {id: '2',},
                 {id: '3',},
                 {id: '4',},
-                {id: '5',},
-                {id: '6',},
-                {id: '7',},
-                {id: '8',},
             ],
             edges: [
                 {
@@ -74,9 +70,15 @@ export default {
                     sourceEndpoint: '1-succeeded',
                 },
                 {
-                    id: '2-succeeded-3',
-                    source: '2',
+                    id: '1-failed-3',
+                    source: '1',
                     target: '3',
+                    sourceEndpoint: '2-failed',
+                },
+                {
+                    id: '2-succeeded-4',
+                    source: '2',
+                    target: '4',
                     sourceEndpoint: '2-succeeded',
                 },
                 {
@@ -84,54 +86,6 @@ export default {
                     source: '3',
                     target: '4',
                     sourceEndpoint: '3-succeeded',
-                },
-                {
-                    id: '1-failed-4',
-                    source: '1',
-                    target: '4',
-                    sourceEndpoint: '1-succeeded',
-                },
-                {
-                    id: '4-succeeded-5',
-                    source: '4',
-                    target: '5',
-                    sourceEndpoint: '4-succeeded',
-                },
-                {
-                    id: '4-failed-6',
-                    source: '4',
-                    target: '6',
-                    sourceEndpoint: '4-failed',
-                },
-                {
-                    id: '5-succeeded-6',
-                    source: '5',
-                    target: '6',
-                    sourceEndpoint: '5-succeeded',
-                },
-                {
-                    id: '6-succeeded-7',
-                    source: '6',
-                    target: '7',
-                    sourceEndpoint: '6-succeeded',
-                },
-                {
-                    id: '4-succeeded-8',
-                    source: '4',
-                    target: '8',
-                    sourceEndpoint: '4-succeeded',
-                },
-                {
-                    id: '5-failed-8',
-                    source: '5',
-                    target: '8',
-                    sourceEndpoint: '5-failed',
-                },
-                {
-                    id: '7-succeeded-8',
-                    source: '7',
-                    target: '8',
-                    sourceEndpoint: '7-succeeded',
                 },
             ],
         }
