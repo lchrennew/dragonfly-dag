@@ -32,13 +32,20 @@
             箭头比例
             <a-slider :value="arrowZoomRatio" :min="1" :max="3" @change="value=>$emit('update:arrowZoomRatio', value)"/>
         </p>
+        <p>
+            箭头居中
+            <a-switch
+                :default-checked="midArrow"
+                @change="checked=>$emit('update:midArrow', checked)"
+            />
+        </p>
     </div>
 </template>
 
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['draggable', 'linkable', 'movable', 'showArrow', 'arrowZoomRatio'],
+    props: ['draggable', 'linkable', 'movable', 'showArrow', 'arrowZoomRatio','midArrow'],
 
 }
 </script>

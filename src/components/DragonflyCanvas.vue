@@ -148,6 +148,7 @@ export default {
         },
         showArrow: {type: Boolean, default: true,},
         arrowZoomRatio: {type: Number, default: 1}, // 箭头显示大小的倍率
+        midArrow: {type: Boolean, default: false},
     },
     computed: {
         layout() {
@@ -364,6 +365,7 @@ export default {
             stopNodeLinking: this.stopNodeLinking,
             endpointReposition: this.endpointReposition,
             positions: computed(() => this.positions),
+            midArrow: computed(() => this.midArrow),
         }
     },
     mounted() {

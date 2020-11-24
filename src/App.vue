@@ -11,6 +11,7 @@
             :max-scale="5"
             :arrow-zoom-ratio="config.arrowZoomRatio"
             :show-arrow="config.showArrow"
+            :mid-arrow="config.midArrow"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -27,6 +28,7 @@
         v-model:movable="config.movable"
         v-model:showArrow="config.showArrow"
         v-model:arrowZoomRatio="config.arrowZoomRatio"
+        v-model:midArrow="config.midArrow"
     />
     <canvas-data :nodes="nodes" :edges="edges"/>
 </template>
@@ -60,6 +62,7 @@ export default {
                 },
                 showArrow: ref(false),
                 arrowZoomRatio: ref(1),
+                midArrow: ref(false),
             },
 
             nodes: [
