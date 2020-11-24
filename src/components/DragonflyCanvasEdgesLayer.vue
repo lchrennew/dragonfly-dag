@@ -68,6 +68,7 @@ export default {
 
         &.linking {
             stroke-dasharray: 2 5;
+            stroke-dashoffset: -10;
         }
     }
 

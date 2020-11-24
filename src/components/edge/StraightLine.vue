@@ -1,10 +1,18 @@
 <template>
     <line
         :x1="start.x"
-        :x2="end.x"
+        :x2="center.x"
         :y1="start.y"
+        :y2="center.y"
+        :marker-end="midArrow?'url(#arrow)':''"
+        :class="{linking}"
+    />
+    <line
+        :x1="center.x"
+        :x2="end.x"
+        :y1="center.y"
         :y2="end.y"
-        marker-end="url(#arrow)"
+        :marker-end="midArrow?'':'url(#arrow)'"
         :class="{linking}"
     />
 </template>
@@ -13,7 +21,7 @@
 export default {
     name: "StraightLine",
     props: ['source', 'target'],
-    inject: ['linking'],
+    inject: ['linking', 'midArrow'],
     computed: {
         k() {
             return Math.abs((this.source.y - this.target.y) / (this.source.x - this.target.x))
@@ -41,6 +49,12 @@ export default {
             x += vector.x * width * vectorK.x || 0
             y += vector.y * height * vectorK.y || 0
             return {x, y}
+        },
+        center() {
+            return {
+                x: (this.source.x + this.target.x) / 2,
+                y: (this.source.y + this.target.y) / 2,
+            }
         },
         end() {
             let {x, y, width, height} = this.target
