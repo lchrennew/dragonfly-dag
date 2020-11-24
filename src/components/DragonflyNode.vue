@@ -17,58 +17,30 @@
         >
             <slot/>
         </div>
-        <div class="dragonfly-endpoints left">
-            <template v-if="leftEndpoints">
-                <dragonfly-endpoint
-                    v-for="endpoint in leftEndpoints"
-                    :key="endpoint.key"
-                    :id="endpoint.id"
-                />
-            </template>
-            <slot v-else name="leftEndpoints"/>
-        </div>
-        <div class="dragonfly-endpoints right">
-            <template v-if="rightEndpoints">
-                <dragonfly-endpoint
-                    v-for="endpoint in rightEndpoints"
-                    :key="endpoint.key"
-                    :id="endpoint.id"
-                />
-            </template>
-            <slot v-else name="rightEndpoints"/>
-        </div>
-        <div class="dragonfly-endpoints top">
-            <template v-if="topEndpoints">
-                <dragonfly-endpoint
-                    v-for="endpoint in topEndpoints"
-                    :key="endpoint.key"
-                    :id="endpoint.id"
-                />
-            </template>
-            <slot v-else name="topEndpoints"/>
-        </div>
-        <div class="dragonfly-endpoints bottom">
-            <template v-if="bottomEndpoints">
-                <dragonfly-endpoint
-                    v-for="endpoint in bottomEndpoints"
-                    :key="endpoint.key"
-                    :id="endpoint.id"
-                />
-            </template>
-            <slot v-else name="bottomEndpoints"/>
-        </div>
-        <div class="dragonfly-endpoints left-top">
-            <slot name="leftTopEndpoints"/>
-        </div>
-        <div class="dragonfly-endpoints left-bottom">
-            <slot name="leftBottomEndpoints"/>
-        </div>
-        <div class="dragonfly-endpoints right-top">
-            <slot name="rightTopEndpoints"/>
-        </div>
-        <div class="dragonfly-endpoints right-bottom">
-            <slot name="rightBottomEndpoints"/>
-        </div>
+        <dragonfly-endpoints
+            position="left"
+            :endpoints="leftEndpoints"
+        >
+            <slot name="leftEndpoints"/>
+        </dragonfly-endpoints>
+        <dragonfly-endpoints
+            position="right"
+            :endpoints="rightEndpoints"
+        >
+            <slot name="rightEndpoints"/>
+        </dragonfly-endpoints>
+        <dragonfly-endpoints
+            position="top"
+            :endpoints="topEndpoints"
+        >
+            <slot name="topEndpoints"/>
+        </dragonfly-endpoints>
+        <dragonfly-endpoints
+            position="bottom"
+            :endpoints="bottomEndpoints"
+        >
+            <slot name="bottomEndpoints"/>
+        </dragonfly-endpoints>
     </div>
 </template>
 
@@ -76,19 +48,19 @@
 import img from '../utils/emptyDragImage.js'
 import DragonflyEndpoint from "./DragonflyEndpoint.vue";
 import {computed} from 'vue'
-
-const preventDefaultDrop = event => event.preventDefault()
+import preventDefaultDrop from '../utils/preventDefaultDrop'
+import DragonflyEndpoints from "./DragonflyEndpoints.vue";
 
 export default {
     name: "DragonflyNode",
-    components: {DragonflyEndpoint},
+    components: {DragonflyEndpoints, DragonflyEndpoint},
     props: ['node', 'selected'],
     data() {
         return {
             width: 0,
             height: 0,
-            x: this.position?.x ?? 0,
-            y: this.position?.y ?? 0,
+            x: 0,
+            y: 0,
             inDomOffset: {x: 0, y: 0},
             targeted: false,
             endPointRefs: [],
@@ -97,7 +69,10 @@ export default {
     inject: ['nodeResize', 'nodeMoving', 'nodeLinking', 'stopNodeLinking', 'positions', 'canvasDraggable', 'canvasLinkable'],
     provide() {
         return {
-            node: computed(() => this.node)
+            node: computed(() => this.node),
+            nodeLinkable: computed(() => this.linkable),
+            nodePosition: computed(() => this.position),
+            link: this.link,
         }
     },
     computed: {
@@ -109,9 +84,6 @@ export default {
         },
         position() {
             return this.positions.value[this.node.id]
-        },
-        center() {
-            return {x: this.x + this.width / 2, y: this.y + this.height / 2}
         },
         leftEndpoints() {
             return this.node.endpoints ? this.node.endpoints.filter(endpoint => !endpoint.position || (endpoint.position === 'left')) : undefined
@@ -147,8 +119,8 @@ export default {
                 )
             } else if (this.linkable) {
                 this.nodeLinking(
-                    this.center.x,
-                    this.center.y,
+                    this.position.x,
+                    this.position.y,
                     event.offsetX + this.x,
                     event.offsetY + this.y,
                 )
@@ -156,7 +128,7 @@ export default {
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
-            event.dataTransfer.setData('text', this.node.id)
+            event.dataTransfer.setData('text', JSON.stringify({source: this.node.id}))
             document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
         },
         onDragEnter(event) {
@@ -174,14 +146,19 @@ export default {
         onDrop(event) {
             this.targeted = false
             const target = this.node.id,
-                source = event.dataTransfer.getData('text'),
+                {source, sourceEndpoint} = JSON.parse(event.dataTransfer.getData('text')),
                 linkToSelf = target === source
-            !linkToSelf && this.$emit('link:node', {target, source})
+            !linkToSelf && this.link(target, source, sourceEndpoint)
         },
+        link(target, source, sourceEndpoint, targetEndpoint) {
+            this.$emit('link:node', {target, source, sourceEndpoint, targetEndpoint})
+        }
     },
     mounted() {
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
+        this.x = this.position?.x ?? 0 - this.width / 2
+        this.y = this.position?.y ?? 0 - this.height / 2
         this.nodeResize(this.node.id, this.width, this.height)  // hacking: 回调DragonflyCanvasCore，提供尺寸信息
     },
     watch: {
@@ -218,73 +195,6 @@ export default {
         z-index: 1;
     }
 
-    .dragonfly-endpoints {
-        position: absolute;
-        overflow: visible;
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-        z-index: 2;
 
-        &.left {
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 0;
-            flex-direction: column;
-        }
-
-        &.right {
-            right: 0;
-            top: 0;
-            height: 100%;
-            width: 0;
-            flex-direction: column;
-        }
-
-        &.top {
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 0;
-            flex-direction: row;
-        }
-
-        &.bottom {
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 0;
-            flex-direction: row;
-        }
-
-        &.left-top {
-            width: 0;
-            height: 0;
-            left: 0;
-            top: 0;
-        }
-
-        &.left-bottom {
-            width: 0;
-            height: 0;
-            left: 0;
-            bottom: 0;
-        }
-
-        &.right-top {
-            width: 0;
-            height: 0;
-            right: 0;
-            top: 0;
-        }
-
-        &.right-bottom {
-            width: 0;
-            height: 0;
-            right: 0;
-            bottom: 0;
-        }
-    }
 }
 </style>

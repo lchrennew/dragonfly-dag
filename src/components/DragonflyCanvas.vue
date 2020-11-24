@@ -1,6 +1,6 @@
 <template>
     <div class="dragonfly-viewport"
-         @mousemove="onMove"
+         @mousemove="onMouseMove"
          @mouseup="onViewportMouseUp"
          @mousedown="onViewportMouseDown"
          @mouseleave="onLeave"
@@ -164,8 +164,8 @@ export default {
             const left = `${Math.min(this.selectingSource.x, this.selectingTarget.x)}px`
             return {width, height, top, left,}
         },
-        singleSelected() {
-            return Object.keys(this.selected).filter(nodeId => this.selected[nodeId]).length === 1
+        multipleSelected() {
+            return Object.keys(this.selected).filter(nodeId => this.selected[nodeId]).length > 1
         }
     },
     methods: {
@@ -206,12 +206,15 @@ export default {
                 this.syncSelectedFromSelectingSelected()
             }
         },
+        onMouseMove(event) {
+            this.onMove(event)
+            this.onSelecting(event)
+        },
         onMove(event) {
             if (this.dragging) {
+                event.preventDefault()  // hacking: 避免移动时选择外部文本
                 this.offsetX += event.movementX
                 this.offsetY += event.movementY
-            } else {
-                this.onSelecting(event)
             }
         },
         syncSelectingSelected(shiftKey) {
@@ -231,26 +234,40 @@ export default {
         },
         onSelecting(event) {
             if (this.selecting) {
+                event.preventDefault()  // hacking: 避免移动时选择外部文本
                 this.selectingTarget.x += event.movementX / this.scale
                 this.selectingTarget.y += event.movementY / this.scale
                 this.syncSelectingSelected(event.shiftKey)
             }
         },
         onMouseUpOutside() {
-            document.removeEventListener('mousemove', this.onSelecting)
-            document.removeEventListener('mouseup', this.onMouseUpOutside)
-            this.syncSelectedFromSelectingSelected()
+            if (this.dragging) {
+                document.removeEventListener('mousemove', this.onMove)
+                document.removeEventListener('mouseup', this.onMouseUpOutside)
+                this.dragging = false
+            } else if (this.selecting) {
+                document.removeEventListener('mousemove', this.onSelecting)
+                document.removeEventListener('mouseup', this.onMouseUpOutside)
+                this.syncSelectedFromSelectingSelected()
+            }
+
         },
         onLeave() {
-            if (this.selecting) {
-                // hacking: 鼠标选择时离开窗口时，继续监听鼠标事件
+            // hacking: 鼠标选择时离开窗口时，继续监听鼠标事件
+            if (this.dragging) {
+                document.addEventListener('mousemove', this.onMove, false)
+                document.addEventListener('mouseup', this.onMouseUpOutside, {once: true})
+            } else if (this.selecting) {
                 document.addEventListener('mousemove', this.onSelecting, false)
                 document.addEventListener('mouseup', this.onMouseUpOutside, {once: true})
             }
         },
         onEnter() {
-            if (this.selecting) {
-                // hacking: 鼠标选择时离开窗口后又回到窗口时，消除离开时的额外监听
+            // hacking: 鼠标选择时离开窗口后又回到窗口时，消除离开时的额外监听
+            if (this.dragging) {
+                document.removeEventListener('mousemove', this.onMove)
+                document.removeEventListener('mouseup', this.onMouseUpOutside)
+            } else if (this.selecting) {
                 document.removeEventListener('mousemove', this.onSelecting)
                 document.removeEventListener('mouseup', this.onMouseUpOutside)
             }
@@ -281,7 +298,7 @@ export default {
             }
         },
         nodeLinking(sourceX, sourceY, targetX, targetY) {
-            if (this.singleSelected) {
+            if (!this.multipleSelected) {   // hacking: 包含了从endpoint连接的情况
                 this.linkingSource = {x: sourceX, y: sourceY}
                 this.linkingTarget = {x: targetX, y: targetY}
                 this.linking = true
