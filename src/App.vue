@@ -1,4 +1,7 @@
 <template>
+    <div>
+        <a-button @click="addNode">添加节点</a-button>
+    </div>
     <div style="width: 100%; height: 100%; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
         <dragonfly-canvas
             v-model:nodes="nodes"
@@ -64,39 +67,15 @@ export default {
                 arrowZoomRatio: ref(1),
                 midArrow: ref(false),
             },
-
-            nodes: [
-                {id: '1',},
-                {id: '2',},
-                {id: '3',},
-                {id: '4',},
-            ],
-            edges: [
-                {
-                    id: '1-succeeded-2',
-                    source: '1',
-                    target: '2',
-                    sourceEndpoint: '1-succeeded',
-                },
-                {
-                    id: '1-failed-3',
-                    source: '1',
-                    target: '3',
-                    sourceEndpoint: '2-failed',
-                },
-                {
-                    id: '2-succeeded-4',
-                    source: '2',
-                    target: '4',
-                    sourceEndpoint: '2-succeeded',
-                },
-                {
-                    id: '3-succeeded-4',
-                    source: '3',
-                    target: '4',
-                    sourceEndpoint: '3-succeeded',
-                },
-            ],
+            feed: 3,
+            nodes: [{id:'1'},{id:'2'}],
+            edges: [],
+        }
+    },
+    methods: {
+        addNode() {
+            this.nodes.push({id: this.feed})
+            this.feed++
         }
     }
 }

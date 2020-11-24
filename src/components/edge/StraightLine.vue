@@ -38,8 +38,8 @@ export default {
                 y: this.k >= this.sourceK ? 1 : this.k
             }
 
-            x += vector.x * width * vectorK.x
-            y += vector.y * height * vectorK.y
+            x += vector.x * width * vectorK.x || 0
+            y += vector.y * height * vectorK.y || 0
             return {x, y}
         },
         end() {
@@ -57,8 +57,8 @@ export default {
                 y: this.k >= this.targetK ? 1 : this.k
             }
 
-            x += vector.x * width * vectorK.x
-            y += vector.y * height * vectorK.y
+            x += vector.x * width * vectorK.x || 0
+            y += vector.y * height * vectorK.y || 0
             return {x, y}
         },
     }

@@ -51,8 +51,8 @@
                 <template #default="{target, source}">
                     <slot :source="source" :target="target" name="edgeRenderer">
                         <straight-line v-if="source && target"
-                                      :source="source"
-                                      :target="target"
+                                       :source="source"
+                                       :target="target"
                         />
                     </slot>
                 </template>
@@ -90,7 +90,6 @@ export default {
             offsetY: 0,
             width: 0,
             height: 0,
-            nodeSizes: {},
             positions: {},
             endpointPositions: {}, // 存锚点相对于节点的位置
             selected: {},
@@ -151,9 +150,6 @@ export default {
         midArrow: {type: Boolean, default: false},
     },
     computed: {
-        layout() {
-            return dagreLayout(this.nodes, this.nodeSizes, this.edges, this.layoutConfig)
-        },
         canvasStyle() {
             return {
                 transform: `scale(${this.scale})`,
@@ -173,6 +169,17 @@ export default {
         }
     },
     methods: {
+        generateLayout() {
+            const layout = dagreLayout(this.nodes, this.positions, this.edges, this.layoutConfig)
+            const positions = layout._nodes
+            for (let {id, x, y} of this.nodes) {
+                if (x !== undefined)
+                    positions[id] = {...positions[id], x}
+                if (y !== undefined)
+                    positions[id] = {...positions[id], y}
+            }
+            this.positions = positions
+        },
         onZoom(event) {
             if ((event.deltaY < 0 && this.scale <= this.minScale) || (event.deltaY > 0 && this.scale >= this.maxScale))
                 return
@@ -289,7 +296,7 @@ export default {
         },
         // 用于Provide/Inject
         nodeResize(nodeId, width, height) {
-            this.nodeSizes[nodeId] = {width, height}
+            this.positions[nodeId] = {x: width / 2, y: height / 2, ...this.positions[nodeId], width, height}
         },
         nodeMoving(deltaX, deltaY) {
             for (const nodeId in this.selected) {
@@ -371,15 +378,8 @@ export default {
     mounted() {
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
-        const positions = this.layout._nodes
-        for (let {id, x, y} of this.nodes) {
-            if (x !== undefined)
-                positions[id] = {...positions[id], x}
-            if (y !== undefined)
-                positions[id] = {...positions[id], y}
-        }
-        this.positions = positions
-    }
+        this.generateLayout()
+    },
 }
 </script>
 
