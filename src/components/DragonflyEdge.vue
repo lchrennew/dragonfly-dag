@@ -30,6 +30,11 @@ export default {
             }
             return this.targetNode
         },
+    },
+    provide() {
+        return {
+            linking: false,
+        }
     }
 }
 </script>

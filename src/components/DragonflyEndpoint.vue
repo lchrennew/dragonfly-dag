@@ -1,11 +1,14 @@
 <template>
     <div
         class="dragonfly-endpoint"
+        :class="{targeted}"
         @mousedown.stop="onMouseDown"
         draggable="true"
         @dragstart="onDragStart"
         @drag.passive="onDrag"
         @dragend.prevent="onDragEnd"
+        @dragenter.stop="onDragEnter"
+        @dragleave.stop="onDragLeave"
         @drop="onDrop"
     >
         <slot/>
@@ -35,6 +38,7 @@ export default {
             y: 0,
             width: 0,
             height: 0,
+            targeted: false,
         }
     },
     computed: {
@@ -86,7 +90,16 @@ export default {
             document.removeEventListener('dragover', preventDefaultDrop)
             this.stopNodeLinking()
         },
+        onDragEnter(event) {
+            if (event.path.includes(event.toElement))
+                this.targeted = true
+        },
+        onDragLeave(event) {
+            if (!event.path.includes(this.fromElement))
+                this.targeted = false
+        },
         onDrop(event) {
+            this.targeted = false
             const target = this.node.value.id,
                 targetEndpoint = this.id,
                 {source, sourceEndpoint} = JSON.parse(event.dataTransfer.getData('text')),
@@ -112,8 +125,12 @@ export default {
     width: 10px;
     height: 10px;
     border-radius: 10px;
-    border: solid 2px #ff7700;
+    border: solid 2px #777777;
     background-color: #fff;
     position: relative;
+
+    &.targeted {
+        border-color: #f00;
+    }
 }
 </style>

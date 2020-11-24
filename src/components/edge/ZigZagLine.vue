@@ -1,5 +1,9 @@
 <template>
-    <polyline :points="points"/>
+    <polyline
+        :points="points"
+        marker-end="url(#arrow)"
+        :class="{linking}"
+    />
 </template>
 
 <script>
@@ -21,7 +25,11 @@ export default {
             return `${this.source.x},${this.source.y}`
         },
         endPoint() {
-            return `${this.target.x},${this.target.y}`
+            let {x, y, width, height, orientation = 'left'} = this.target
+            const vector = vectors[orientation]
+            x += vector[0] * width / 2
+            y += vector[1] * height / 2
+            return `${x},${y}`
         },
         zigPoint() {
             let {x, y, width, height, orientation = 'right'} = this.source
@@ -40,6 +48,7 @@ export default {
         points() {
             return `${this.startPoint} ${this.zigPoint} ${this.zagPoint} ${this.endPoint}`
         }
-    }
+    },
+    inject: ['linking'],
 }
 </script>

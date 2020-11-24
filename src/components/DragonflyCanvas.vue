@@ -45,12 +45,14 @@
                 :linking-target="linkingTarget"
                 :positions="positions"
                 :endpoint-positions="endpointPositions"
+                :show-arrow="showArrow"
+                :arrow-zoom-ratio="arrowZoomRatio"
             >
                 <template #default="{target, source}">
                     <slot :source="source" :target="target" name="edgeRenderer">
                         <zig-zag-line v-if="source && target"
-                                       :source="source"
-                                       :target="target"
+                                      :source="source"
+                                      :target="target"
                         />
                     </slot>
                 </template>
@@ -144,6 +146,8 @@ export default {
             type: Boolean,
             default: false,
         },
+        showArrow: {type: Boolean, default: true,},
+        arrowZoomRatio: {type: Number, default: 1}, // 箭头显示大小的倍率
     },
     computed: {
         layout() {

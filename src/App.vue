@@ -9,6 +9,8 @@
             :movable="config.movable"
             :min-scale="0.2"
             :max-scale="5"
+            :arrow-zoom-ratio="1"
+            :show-arrow="true"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>

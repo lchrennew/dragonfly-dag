@@ -1,5 +1,19 @@
 <template>
     <svg xmlns="http://www.w3.org/2000/svg" class="dragonfly-edges-layer">
+        <defs v-if="showArrow">
+            <marker id="arrow"
+                    markerwidth="6"
+                    markerHeight="6"
+                    refX="6"
+                    refY="3"
+                    orient="auto"
+                    overflow="visible"
+                    :viewBox="`0 0 ${6/arrowZoomRatio} ${6/arrowZoomRatio}`"
+            >
+                <polygon points="0 0, 0 6, 6 3" class="arrow"/>
+            </marker>
+
+        </defs>
         <dragonfly-edge
             v-for="edge in edges"
             :key="edge.id"
@@ -12,24 +26,24 @@
         >
             <slot :source="source" :target="target"/>
         </dragonfly-edge>
-        <template v-if="linking">
+        <dragonfly-linking-edge v-if="linking">
             <slot
                 name="linking"
                 :source="linkingSource"
                 :target="linkingTarget"
             />
-        </template>
+        </dragonfly-linking-edge>
     </svg>
 </template>
 
 <script>
-import StraightLine from "./edge/StraightLine.vue";
 import DragonflyEdge from "./DragonflyEdge.vue";
+import DragonflyLinkingEdge from "./DragonflyLinkingEdge.vue";
 
 export default {
     name: "DragonflyCanvasEdgesLayer",
-    components: {DragonflyEdge, StraightLine},
-    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges'],
+    components: {DragonflyLinkingEdge, DragonflyEdge},
+    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'showArrow', 'arrowZoomRatio'],
 }
 </script>
 
@@ -42,14 +56,24 @@ export default {
     height: 1px;
     z-index: 2;
     overflow: visible !important;
+    color: #777;
 
-    line, polyline, path {
+    * {
         stroke-width: 2;
-        stroke: #f00;
+        stroke: currentColor;
         pointer-events: none;
         fill: transparent;
         stroke-linecap: round;
         stroke-linejoin: round;
+
+        &.linking {
+            stroke-dasharray: 2 5;
+        }
+    }
+
+    .arrow {
+        stroke-width: 0;
+        fill: currentColor;
     }
 }
 </style>
