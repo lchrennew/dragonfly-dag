@@ -9,8 +9,8 @@
             :movable="config.movable"
             :min-scale="0.2"
             :max-scale="5"
-            :arrow-zoom-ratio="1"
-            :show-arrow="true"
+            :arrow-zoom-ratio="config.arrowZoomRatio"
+            :show-arrow="config.showArrow"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -25,6 +25,8 @@
         v-model:draggable="config.draggable"
         v-model:linkable="config.linkable"
         v-model:movable="config.movable"
+        v-model:showArrow="config.showArrow"
+        v-model:arrowZoomRatio="config.arrowZoomRatio"
     />
     <canvas-data :nodes="nodes" :edges="edges"/>
 </template>
@@ -49,13 +51,15 @@ export default {
         return {
             config: {
                 draggable: ref(false),
-                linkable: ref(true),
+                linkable: ref(false),
                 movable: ref(false),
                 layout: {
                     rankdir: 'LR',
                     marginx: 20,
                     marginy: 20,
-                }
+                },
+                showArrow: ref(false),
+                arrowZoomRatio: ref(1),
             },
 
             nodes: [

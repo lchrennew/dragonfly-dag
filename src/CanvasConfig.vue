@@ -21,13 +21,24 @@
                 @change="checked=>$emit('update:movable', checked)"
             />
         </p>
+        <p>
+            显示箭头
+            <a-switch
+                :default-checked="showArrow"
+                @change="checked=>$emit('update:showArrow', checked)"
+            />
+        </p>
+        <p>
+            箭头比例
+            <a-slider :value="arrowZoomRatio" :min="1" :max="3" @change="value=>$emit('update:arrowZoomRatio', value)"/>
+        </p>
     </div>
 </template>
 
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['draggable', 'linkable', 'movable'],
+    props: ['draggable', 'linkable', 'movable', 'showArrow', 'arrowZoomRatio'],
 
 }
 </script>
