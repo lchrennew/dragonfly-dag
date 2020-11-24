@@ -178,7 +178,6 @@ export default {
     position: absolute;
     z-index: 3;
     border: solid 1px transparent;
-    margin: -1px;
     box-sizing: border-box;
 
     &.selected {

@@ -50,7 +50,7 @@
             >
                 <template #default="{target, source}">
                     <slot :source="source" :target="target" name="edgeRenderer">
-                        <zig-zag-line v-if="source && target"
+                        <straight-line v-if="source && target"
                                       :source="source"
                                       :target="target"
                         />
