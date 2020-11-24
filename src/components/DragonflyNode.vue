@@ -66,13 +66,12 @@ export default {
             endPointRefs: [],
         }
     },
-    inject: ['nodeResize', 'nodeMoving', 'nodeLinking', 'stopNodeLinking', 'positions', 'canvasDraggable', 'canvasLinkable'],
+    inject: ['nodeResize', 'nodeMoving', 'nodeLinking', 'stopNodeLinking', 'positions', 'canvasDraggable', 'canvasLinkable', 'link'],
     provide() {
         return {
             node: computed(() => this.node),
             nodeLinkable: computed(() => this.linkable),
             nodePosition: computed(() => this.position),
-            link: this.link,
         }
     },
     computed: {
@@ -149,13 +148,9 @@ export default {
         onDrop(event) {
             this.targeted = false
             const target = this.node.id,
-                {source, sourceEndpoint} = JSON.parse(event.dataTransfer.getData('text')),
-                linkToSelf = target === source
-            !linkToSelf && this.link(target, source, sourceEndpoint)
+                {source, sourceEndpoint} = JSON.parse(event.dataTransfer.getData('text'))
+            this.link(target, source, sourceEndpoint)
         },
-        link(target, source, sourceEndpoint, targetEndpoint) {
-            this.$emit('link:node', {target, source, sourceEndpoint, targetEndpoint})
-        }
     },
     mounted() {
         this.width = this.$el.clientWidth

@@ -20,7 +20,6 @@
                 :selected="selectingSelected[node.id] ?? selected[node.id]"
                 @select="onNodeSelected"
                 @unselect="onNodeUnselected"
-                @link:node="linkNode"
             >
                 <template #default>
                     <slot :node="node" name="nodeRenderer">{{ node.id }}</slot>
@@ -148,6 +147,7 @@ export default {
         showArrow: {type: Boolean, default: true,},
         arrowZoomRatio: {type: Number, default: 1}, // 箭头显示大小的倍率
         midArrow: {type: Boolean, default: false},
+        beforeAddEdgeHook: {type: Function,} // 连接前调用钩子，返回false可取消，返回对象可替换默认值
     },
     computed: {
         canvasStyle() {
@@ -340,20 +340,23 @@ export default {
         stopNodeLinking() {
             this.linking = false
         },
-        linkNode({target, source, targetEndpoint, sourceEndpoint}) {
-            if (!this.edges.some(
-                edge =>
-                    edge.target === target &&
-                    edge.source === source &&
-                    edge.targetEndpoint === targetEndpoint &&
-                    edge.sourceEndpoint === sourceEndpoint)) {
-                this.$emit('update:edges', [...this.edges, {
-                    id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
-                    target,
-                    source,
-                    targetEndpoint,
-                    sourceEndpoint
-                }])
+        async link(target, source, targetEndpoint, sourceEndpoint) {
+            const defaultEdge = {
+                id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
+                target,
+                source,
+                targetEndpoint,
+                sourceEndpoint
+            }
+            const edge =
+                await this.beforeAddEdgeHook?.(defaultEdge)
+
+            if (edge) {
+                this.$emit('edge:adding', {edge, defaultEdge})
+                this.$emit('update:edges', [...this.edges, edge])
+                this.$emit('edge:added', {edge, defaultEdge})
+            } else {
+                this.$emit('edge:adding-cancelled', {edge, defaultEdge})
             }
         },
         endpointReposition(id, x, y, width, height, orientation) {
@@ -371,6 +374,7 @@ export default {
             nodeLinking: this.nodeLinking,
             stopNodeLinking: this.stopNodeLinking,
             endpointReposition: this.endpointReposition,
+            link: this.link,
             positions: computed(() => this.positions),
             midArrow: computed(() => this.midArrow),
         }

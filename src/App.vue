@@ -15,6 +15,7 @@
             :arrow-zoom-ratio="config.arrowZoomRatio"
             :show-arrow="config.showArrow"
             :mid-arrow="config.midArrow"
+            :before-add-edge-hook="onAddingEdge"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -68,7 +69,7 @@ export default {
                 midArrow: ref(false),
             },
             feed: 3,
-            nodes: [{id:'1'},{id:'2'}],
+            nodes: [{id: '1'}, {id: '2'}],
             edges: [],
         }
     },
@@ -76,6 +77,13 @@ export default {
         addNode() {
             this.nodes.push({id: this.feed})
             this.feed++
+        },
+        async onAddingEdge({source, target, sourceEndpoint, targetEndpoint}) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(false)
+                }, 10000)
+            })
         }
     }
 }

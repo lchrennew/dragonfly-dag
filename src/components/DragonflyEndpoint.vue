@@ -102,9 +102,8 @@ export default {
             this.targeted = false
             const target = this.node.value.id,
                 targetEndpoint = this.id,
-                {source, sourceEndpoint} = JSON.parse(event.dataTransfer.getData('text')),
-                linkToSelf = target === source
-            !linkToSelf && this.link(target, source, sourceEndpoint, targetEndpoint)
+                {source, sourceEndpoint} = JSON.parse(event.dataTransfer.getData('text'))
+            this.link(target, source, sourceEndpoint, targetEndpoint)
         },
     },
     mounted() {
