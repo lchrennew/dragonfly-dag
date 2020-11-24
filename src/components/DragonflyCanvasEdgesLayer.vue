@@ -48,6 +48,8 @@ export default {
         stroke: #f00;
         pointer-events: none;
         fill: transparent;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 }
 </style>
