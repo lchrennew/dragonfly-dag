@@ -54,7 +54,7 @@ import DragonflyEndpoints from "./DragonflyEndpoints.vue";
 export default {
     name: "DragonflyNode",
     components: {DragonflyEndpoints, DragonflyEndpoint},
-    props: ['node', 'selected'],
+    props: ['node', 'selected', 'group'],
     data() {
         return {
             width: 0,
@@ -66,7 +66,17 @@ export default {
             endPointRefs: [],
         }
     },
-    inject: ['nodeResize', 'nodeMoving', 'nodeLinking', 'stopNodeLinking', 'positions', 'canvasDraggable', 'canvasLinkable', 'link'],
+    inject: [
+        'nodeResize',
+        'nodeMoving',
+        'startNodeLinking',
+        'nodeLinking',
+        'stopNodeLinking',
+        'positions',
+        'canvasDraggable',
+        'canvasLinkable',
+        'link',
+        'linkSource'],
     provide() {
         return {
             node: computed(() => this.node),
@@ -75,11 +85,48 @@ export default {
         }
     },
     computed: {
+        groupName() {
+            if (typeof this.group === 'string') {
+                return this.group
+            } else {
+                return this.group?.name
+            }
+        },
+        groupLinkIn() {
+            let {linkIn} = this.group ?? {}
+
+            if (typeof this.group === 'string') {
+                return ({sourceGroup}) => sourceGroup === this.group
+            } else if (linkIn === false) {
+                return () => false
+            } else if (linkIn === undefined) {
+                return ({sourceGroup}) => name === sourceGroup
+            } else if (typeof linkIn === 'string') {
+                return ({sourceGroup}) => linkIn === sourceGroup
+            } else if (linkIn instanceof Array) {
+                return ({sourceGroup}) => linkIn.includes(sourceGroup)
+            } else if (linkIn instanceof Function) {
+                return linkIn
+            } else {
+                return () => true
+            }
+        },
+        groupLinkOut() {
+            let {linkOut} = this.group ?? {}
+            if (linkOut === false) {
+                return () => false
+            } else if (linkOut instanceof Function) {
+                return linkOut
+            } else {
+                return () => true
+            }
+        },
+
         draggable() {
             return this.node.draggable ?? this.canvasDraggable.value
         },
         linkable() {
-            return this.node.linkable ?? this.canvasLinkable.value
+            return this.groupLinkOut(this.node) && (this.node.linkable ?? this.canvasLinkable.value)
         },
         position() {
             return this.positions.value[this.node.id]
@@ -130,7 +177,14 @@ export default {
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
-            event.dataTransfer.setData('text', JSON.stringify({source: this.node.id}))
+            if (this.draggable) {
+                // TODO: start moving
+            } else if (this.linkable) {
+                this.groupLinkOut(this.node) && this.startNodeLinking({
+                    source: this.node.id,
+                    sourceGroup: this.groupName
+                })
+            }
             document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
         },
         onDragEnter(event) {
@@ -145,11 +199,14 @@ export default {
             document.removeEventListener('dragover', preventDefaultDrop)
             this.stopNodeLinking()
         },
-        onDrop(event) {
+        onDrop() {
             this.targeted = false
-            const target = this.node.id,
-                {source, sourceEndpoint} = JSON.parse(event.dataTransfer.getData('text'))
-            this.link(target, source, sourceEndpoint)
+            const target = this.node.id
+            if (this.draggable) {
+                // TODO: moving stopped
+            } else if (this.linkable) {
+                this.groupLinkIn(this.linkSource.value) && this.link(target)
+            }
         },
     },
     mounted() {

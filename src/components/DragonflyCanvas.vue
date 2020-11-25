@@ -20,6 +20,7 @@
                 :selected="selectingSelected[node.id] ?? selected[node.id]"
                 @select="onNodeSelected"
                 @unselect="onNodeUnselected"
+                :group="normalizedNodeGroup(node)"
             >
                 <template #default>
                     <slot :node="node" name="nodeRenderer">{{ node.id }}</slot>
@@ -66,7 +67,7 @@
 <script>
 import DragonflyNode from "./DragonflyNode.vue";
 import StraightLine from "./edge/StraightLine.vue";
-import {computed} from 'vue'
+import {computed, ref} from 'vue'
 import dagreLayout from "../layout/dagreLayout";
 import DragonflyCanvasEdgesLayer from "./DragonflyCanvasEdgesLayer.vue";
 import ZigZagLine from "./edge/ZigZagLine.vue";
@@ -77,11 +78,12 @@ const shiftStrategies = {
     reverse: (selected, selecting) => selecting ? !selected : selected
 }
 
+let linkSource = ref({})
+
 export default {
     name: "DragonflyCanvas",
     components: {ZigZagLine, StraightLine, DragonflyNode, DragonflyCanvasEdgesLayer},
     data() {
-        let scale = this.zoomScale
         return {
             dragging: false,
             selecting: false,
@@ -151,7 +153,9 @@ export default {
         showArrow: {type: Boolean, default: true,},
         arrowZoomRatio: {type: Number, default: 1}, // 箭头显示大小的倍率
         midArrow: {type: Boolean, default: false},
-        beforeAddEdgeHook: {type: Function,} // 连接前调用钩子，返回false可取消，返回对象可替换默认值
+        beforeAddEdgeHook: {type: Function,}, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
+        nodeGroup: {type: [String, Object, Function]},
+        endpointGroup: {type: [String, Object, Function]},
     },
     computed: {
         canvasStyle() {
@@ -170,6 +174,16 @@ export default {
         },
         multipleSelected() {
             return Object.keys(this.selected).filter(nodeId => this.selected[nodeId]).length > 1
+        },
+        normalizedNodeGroup() {
+            return this.nodeGroup instanceof Function
+                ? this.nodeGroup
+                : () => this.nodeGroup
+        },
+        normalizedEndpointGroup() {
+            return this.endpointGroup instanceof Function
+                ? this.endpointGroup
+                : () => this.endpointGroup
         }
     },
     methods: {
@@ -315,6 +329,9 @@ export default {
                 }
             }
         },
+        startNodeLinking({source, sourceEndpoint, sourceGroup}) {
+            linkSource.value = {source, sourceEndpoint, sourceGroup}
+        },
         nodeLinking(
             sourceX,
             sourceY,
@@ -346,8 +363,13 @@ export default {
         },
         stopNodeLinking() {
             this.linking = false
+            linkSource.value = {}
         },
-        async link(target, source, targetEndpoint, sourceEndpoint) {
+        async link(target, targetEndpoint) {
+            const {source, sourceEndpoint} = linkSource.value
+
+            if ((sourceEndpoint ?? source) === (targetEndpoint ?? target)) return
+
             const defaultEdge = {
                 id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
                 target,
@@ -356,7 +378,7 @@ export default {
                 sourceEndpoint
             }
             const edge =
-                await this.beforeAddEdgeHook?.(defaultEdge)
+                await this.beforeAddEdgeHook?.(defaultEdge) ?? defaultEdge
 
             if (edge) {
                 this.$emit('edge:adding', {edge, defaultEdge})
@@ -378,12 +400,16 @@ export default {
             canvasLinkable: computed(() => this.linkable),
             nodeResize: this.nodeResize,
             nodeMoving: this.nodeMoving,
+            startNodeLinking: this.startNodeLinking,
             nodeLinking: this.nodeLinking,
             stopNodeLinking: this.stopNodeLinking,
             endpointReposition: this.endpointReposition,
             link: this.link,
             positions: computed(() => this.positions),
             midArrow: computed(() => this.midArrow),
+            linkSource: computed(() => linkSource.value),
+            nodeGroup: computed(() => this.normalizedNodeGroup),
+            endpointGroup: computed(() => this.normalizedEndpointGroup),
         }
     },
     mounted() {
@@ -395,7 +421,7 @@ export default {
         zoomScale(value) {
             this.scale = value
         },
-        scale(value){
+        scale(value) {
             this.$emit('update:zoomScale', value)
         }
     }

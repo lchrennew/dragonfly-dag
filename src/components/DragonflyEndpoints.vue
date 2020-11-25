@@ -4,7 +4,7 @@
             <dragonfly-endpoint
                 v-for="endpoint in endpoints"
                 :key="endpoint.key"
-                :id="endpoint.id"
+                :endpoint="endpoint"
             />
         </template>
         <slot v-else/>

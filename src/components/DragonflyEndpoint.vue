@@ -3,7 +3,7 @@
         class="dragonfly-endpoint"
         :class="{targeted}"
         @mousedown.stop="onMouseDown"
-        draggable="true"
+        :draggable="enabled"
         @dragstart="onDragStart"
         @drag.passive="onDrag"
         @dragend.prevent="onDragEnd"
@@ -22,16 +22,32 @@ import preventDefaultDrop from "../utils/preventDefaultDrop";
 export default {
     name: "DragonflyEndpoint",
     props: {
-        id: {
-            type: String,
+        endpoint: {
+            type: Object,
             required: true,
         },
         enabled: {
             type: Boolean,
             default: true,
         },
+        group: {
+            type: [String, Object],
+        }
     },
-    inject: ['node', 'endpointReposition', 'nodeLinkable', 'nodePosition', 'getPosition', 'nodeLinking', 'stopNodeLinking', 'link', 'orientation'],
+    inject: [
+        'node',
+        'endpointReposition',
+        'nodeLinkable',
+        'nodePosition',
+        'getPosition',
+        'startNodeLinking',
+        'nodeLinking',
+        'stopNodeLinking',
+        'link',
+        'orientation',
+        'linkSource',
+        'endpointGroup'
+    ],
     data() {
         return {
             x: 0,
@@ -42,8 +58,50 @@ export default {
         }
     },
     computed: {
-        linkable() {
-            return this.nodeLinkable.value && this.enabled
+        combinedGroup() {
+            return this.endpoint.group
+                ?? this.group
+                ?? this.endpointGroup.value(this.endpoint)
+        },
+
+        groupName() {
+            if (typeof this.combinedGroup === 'string') {
+                return this.combinedGroup
+            } else {
+                return this.combinedGroup?.name
+            }
+        },
+        groupLinkIn() {
+            let {linkIn} = this.combinedGroup ?? {}
+
+            if (typeof this.combinedGroup === 'string') {
+                return ({sourceGroup}) => sourceGroup === this.combinedGroup
+            } else if (linkIn === false) {
+                return () => false
+            } else if (linkIn === undefined) {
+                return ({sourceGroup}) => this.groupName === sourceGroup
+            } else if (typeof linkIn === 'string') {
+                return ({sourceGroup}) => linkIn === sourceGroup
+            } else if (linkIn instanceof Array) {
+                return ({sourceGroup}) => linkIn.includes(sourceGroup)
+            } else if (linkIn instanceof Function) {
+                return linkIn
+            } else {
+                return () => {
+                    debugger
+                    return true
+                }
+            }
+        },
+        groupLinkOut() {
+            let {linkOut} = this.combinedGroup ?? {}
+            if (linkOut === false) {
+                return () => false
+            } else if (linkOut instanceof Function) {
+                return linkOut
+            } else {
+                return () => true
+            }
         },
         position() {
             const x = this.x + (this.nodePosition.value?.x ?? 0)
@@ -65,45 +123,43 @@ export default {
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
-            event.dataTransfer.setData('text', JSON.stringify({
+            this.startNodeLinking({
                 source: this.node.value.id,
-                sourceEndpoint: this.id,
-            }))
+                sourceEndpoint: this.endpoint.id,
+                sourceGroup: this.groupName
+            })
             document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
         },
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
-
-            if (this.linkable) {
-                this.nodeLinking(
-                    this.position.x,
-                    this.position.y,
-                    this.width,
-                    this.height,
-                    this.orientation,
-                    event.offsetX + this.position.left,
-                    event.offsetY + this.position.top,
-                )
-            }
+            this.nodeLinking(
+                this.position.x,
+                this.position.y,
+                this.width,
+                this.height,
+                this.orientation,
+                event.offsetX + this.position.left,
+                event.offsetY + this.position.top,
+            )
         },
         onDragEnd() {
             document.removeEventListener('dragover', preventDefaultDrop)
             this.stopNodeLinking()
         },
         onDragEnter(event) {
-            if (event.path.includes(event.toElement))
-                this.targeted = true
+            this.targeted =
+                event.path.includes(event.toElement) &&
+                this.groupLinkIn(this.linkSource.value)
         },
         onDragLeave(event) {
             if (!event.path.includes(this.fromElement))
                 this.targeted = false
         },
-        onDrop(event) {
+        onDrop() {
             this.targeted = false
             const target = this.node.value.id,
-                targetEndpoint = this.id,
-                {source, sourceEndpoint} = JSON.parse(event.dataTransfer.getData('text'))
-            this.link(target, source, sourceEndpoint, targetEndpoint)
+                targetEndpoint = this.endpoint.id
+            this.groupLinkIn(this.linkSource.value) && this.link(target, targetEndpoint)
         },
     },
     mounted() {
@@ -113,7 +169,7 @@ export default {
         // offset to node's center
         this.x = position.left + this.$el.offsetLeft + this.width / 2
         this.y = position.top + this.$el.offsetTop + this.height / 2
-        this.endpointReposition(this.id, this.x, this.y, this.width, this.height, this.orientation)
+        this.endpointReposition(this.endpoint.id, this.x, this.y, this.width, this.height, this.orientation)
     }
 }
 </script>

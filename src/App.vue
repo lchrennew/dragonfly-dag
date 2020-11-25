@@ -18,13 +18,15 @@
             :show-arrow="config.showArrow"
             :mid-arrow="config.midArrow"
             :before-add-edge-hook="onAddingEdge"
+            :endpoint-group="{linkIn: false, linkOut: true}"
+            :node-group="{linkIn: true, linkOut: false}"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
             </template>
             <template #rightEndpoints="{node}">
-                <dragonfly-endpoint :id="`${node.id}-succeeded`"/>
-                <dragonfly-endpoint :id="`${node.id}-failed`"/>
+                <dragonfly-endpoint :endpoint="{id:`${node.id}-succeeded`}"/>
+                <dragonfly-endpoint :endpoint="{id:`${node.id}-failed`}"/>
             </template>
         </dragonfly-canvas>
     </div>
@@ -92,8 +94,10 @@ export default {
         async onAddingEdge({source, target, sourceEndpoint, targetEndpoint}) {
             return new Promise(resolve => {
                 setTimeout(() => {
-                    resolve(false)
-                }, 10000)
+                    // resolve({id: 'xxx', source, target, sourceEndpoint, targetEndpoint})
+                    // resolve(false)
+                    resolve(undefined)
+                }, 1000)
             })
         }
     }
