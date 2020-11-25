@@ -42,7 +42,9 @@ export default {
         'link',
         'orientation',
         'linkSource',
-        'endpointGroup'
+        'endpointGroup',
+        'nodeDraggingBehavior',
+        'select',
     ],
     data() {
         return {
@@ -55,7 +57,15 @@ export default {
     },
     computed: {
         linkable() {
-            return this.endpoint.linkable ?? this.canvasLinkable.value ?? true
+            switch (this.nodeDraggingBehavior.value) {
+                case 'link':
+                    return this.endpoint.linkable ?? this.canvasLinkable.value ?? true
+                default:
+                    return false
+            }
+        },
+        linkableOut() {
+            return this.linkable && this.groupLinkOut(this.node, this.endpoint)
         },
         combinedGroup() {
             return this.endpoint.group
@@ -117,16 +127,21 @@ export default {
     },
     methods: {
         onMouseDown() {
-            console.log('mouse down')
+            this.select()
         },
         onDragStart(event) {
-            event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
-            this.startNodeLinking({
-                source: this.node.value.id,
-                sourceEndpoint: this.endpoint.id,
-                sourceGroup: this.groupName
-            })
-            document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
+            if (this.linkableOut) {
+                event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
+                this.startNodeLinking({
+                    source: this.node.value.id,
+                    sourceEndpoint: this.endpoint.id,
+                    sourceGroup: this.groupName
+                })
+                document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
+            } else {
+                event.stopPropagation()
+                event.preventDefault()
+            }
         },
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)

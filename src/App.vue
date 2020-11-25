@@ -2,7 +2,7 @@
     <div>
         <a-button @click="addNode">添加节点</a-button>
     </div>
-    <div style="width: 100%; height: 100%; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
+    <div style="width: 800px; height: 100%; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
         <dragonfly-canvas
             v-model:nodes="nodes"
             v-model:edges="edges"

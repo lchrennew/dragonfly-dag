@@ -1,52 +1,56 @@
 <template>
     <div class="dragonfly-viewport"
-         @mousemove="onMouseMove"
-         @mouseup="onViewportMouseUp"
-         @mousedown="onViewportMouseDown"
-         @mouseleave="onLeave"
-         @mouseenter="onEnter"
+         @mousedown="onCanvasDragging"
+         @mouseenter="onCanvasDragging"
+         @mouseleave="onCanvasDragging"
+         @mousemove="onCanvasDragging"
+         @mouseup="onCanvasDragging"
          @wheel.prevent="onZoom">
-        <div :style="canvasStyle"
+        <dragonfly-canvas-tools
+            v-model:canvas-dragging-behavior="canvasDraggingBehavior"
+            v-model:node-dragging-behavior="nodeDraggingBehavior"
+        />
+        <div ref="canvas"
+             :style="canvasStyle"
              class="dragonfly-canvas"
-             ref="canvas"
         >
-            <div v-if="selecting"
-                 class="selecting"
-                 :style="selectingStyle"/>
+            <div v-if="draggingCanvas"
+                 :style="selectingStyle"
+                 class="selecting"/>
             <dragonfly-node
                 v-for="node in nodes"
                 :key="node.id"
+                :group="normalizedNodeGroup(node)"
                 :node="node"
                 :selected="selectingSelected[node.id] ?? selected[node.id]"
                 @select="onNodeSelected"
                 @unselect="onNodeUnselected"
-                :group="normalizedNodeGroup(node)"
             >
                 <template #default>
                     <slot :node="node" name="nodeRenderer">{{ node.id }}</slot>
                 </template>
                 <template #topEndpoints>
-                    <slot name="topEndpoints" :node="node"/>
+                    <slot :node="node" name="topEndpoints"/>
                 </template>
                 <template #leftEndpoints>
-                    <slot name="leftEndpoints" :node="node"/>
+                    <slot :node="node" name="leftEndpoints"/>
                 </template>
                 <template #rightEndpoints>
-                    <slot name="rightEndpoints" :node="node"/>
+                    <slot :node="node" name="rightEndpoints"/>
                 </template>
                 <template #bottomEndpoints>
-                    <slot name="bottomEndpoints" :node="node"/>
+                    <slot :node="node" name="bottomEndpoints"/>
                 </template>
             </dragonfly-node>
             <dragonfly-canvas-edges-layer
+                :arrow-zoom-ratio="arrowZoomRatio"
                 :edges="edges"
+                :endpoint-positions="endpointPositions"
                 :linking="linking"
                 :linking-source="linkingSource"
                 :linking-target="linkingTarget"
                 :positions="positions"
-                :endpoint-positions="endpointPositions"
                 :show-arrow="showArrow"
-                :arrow-zoom-ratio="arrowZoomRatio"
             >
                 <template #default="{target, source}">
                     <slot :source="source" :target="target" name="edgeRenderer">
@@ -71,22 +75,18 @@ import {computed, ref} from 'vue'
 import dagreLayout from "../layout/dagreLayout";
 import DragonflyCanvasEdgesLayer from "./DragonflyCanvasEdgesLayer.vue";
 import ZigZagLine from "./edge/ZigZagLine.vue";
-
-const shiftStrategies = {
-    disabled: (selected, selecting) => selecting,
-    continue: (selected, selecting) => selected || selecting,
-    reverse: (selected, selecting) => selecting ? !selected : selected
-}
+import DragonflyCanvasTools from "./DragonflyCanvasTools.vue";
+import canvasDraggingBehaviorHandlers from "./canvasDraggingBehaviorHandlers";
+import shiftStrategies from "./shiftStrategies";
 
 let linkSource = ref({})
 
 export default {
     name: "DragonflyCanvas",
-    components: {ZigZagLine, StraightLine, DragonflyNode, DragonflyCanvasEdgesLayer},
+    components: {DragonflyCanvasTools, ZigZagLine, StraightLine, DragonflyNode, DragonflyCanvasEdgesLayer},
     data() {
         return {
-            dragging: false,
-            selecting: false,
+            draggingCanvas: false,
             scale: this.zoomScale ?? 1,
             offsetX: 0,
             offsetY: 0,
@@ -101,6 +101,8 @@ export default {
             selectingTarget: {x: 0, y: 0},
             selectingSelected: {},
             linking: false,
+            nodeDraggingBehavior: this.defaultNodeDraggingBehavior,
+            canvasDraggingBehavior: this.defaultCanvasDraggingBehavior,
         }
     },
     props: {
@@ -156,6 +158,8 @@ export default {
         beforeAddEdgeHook: {type: Function,}, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
         nodeGroup: {type: [String, Object, Function]},
         endpointGroup: {type: [String, Object, Function]},
+        defaultCanvasDraggingBehavior: {type: String, default: 'off'},
+        defaultNodeDraggingBehavior: {type: String, default: 'off'},
     },
     computed: {
         canvasStyle() {
@@ -215,35 +219,12 @@ export default {
                 this.$emit('updated:zoomScale', scale)
             }
         },
-        onViewportMouseDown(event) {
-            if (this.movable) {
-                this.dragging = true
-                this.clearSelection()
-            } else {
-                const fromCanvas = event.target === this.$refs.canvas
-                const insideCanvas = !fromCanvas && event.path.includes(this.$refs.canvas)
-                if (!insideCanvas) {
-                    event.preventDefault()
-                    if (!event.shiftKey) this.clearSelection()
-                    this.selecting = true
-                    // hacking: 如果在canvas内开始选择，就不再需要去掉canvas相对于viewport的偏移
-                    this.selectingSource.x = this.selectingTarget.x = event.offsetX / (fromCanvas ? 1 : this.scale) - (fromCanvas ? 0 : this.offsetX / this.scale)
-                    this.selectingSource.y = this.selectingTarget.y = event.offsetY / (fromCanvas ? 1 : this.scale) - (fromCanvas ? 0 : this.offsetY / this.scale)
-                }
-            }
-        },
-        onViewportMouseUp(event) {
-            this.dragging = false
-            if (this.selecting) {
-                this.syncSelectedFromSelectingSelected()
-            }
-        },
-        onMouseMove(event) {
-            this.onMove(event)
-            this.onSelecting(event)
+        onCanvasDragging(event) {
+            (canvasDraggingBehaviorHandlers[this.canvasDraggingBehavior]
+                ?? canvasDraggingBehaviorHandlers.default)?.[event.type]?.call?.(this, event)
         },
         onMove(event) {
-            if (this.dragging) {
+            if (this.draggingCanvas) {
                 event.preventDefault()  // hacking: 避免移动时选择外部文本
                 this.offsetX += event.movementX
                 this.offsetY += event.movementY
@@ -262,10 +243,10 @@ export default {
         syncSelectedFromSelectingSelected() {
             this.selected = {...this.selectingSelected}
             this.selectingSelected = {}
-            this.selecting = false
+            this.draggingCanvas = false
         },
         onSelecting(event) {
-            if (this.selecting) {
+            if (this.draggingCanvas) {
                 event.preventDefault()  // hacking: 避免移动时选择外部文本
                 this.selectingTarget.x += event.movementX / this.scale
                 this.selectingTarget.y += event.movementY / this.scale
@@ -273,36 +254,7 @@ export default {
             }
         },
         onMouseUpOutside() {
-            if (this.dragging) {
-                document.removeEventListener('mousemove', this.onMove)
-                document.removeEventListener('mouseup', this.onMouseUpOutside)
-                this.dragging = false
-            } else if (this.selecting) {
-                document.removeEventListener('mousemove', this.onSelecting)
-                document.removeEventListener('mouseup', this.onMouseUpOutside)
-                this.syncSelectedFromSelectingSelected()
-            }
-
-        },
-        onLeave() {
-            // hacking: 鼠标选择时离开窗口时，继续监听鼠标事件
-            if (this.dragging) {
-                document.addEventListener('mousemove', this.onMove, false)
-                document.addEventListener('mouseup', this.onMouseUpOutside, {once: true})
-            } else if (this.selecting) {
-                document.addEventListener('mousemove', this.onSelecting, false)
-                document.addEventListener('mouseup', this.onMouseUpOutside, {once: true})
-            }
-        },
-        onEnter() {
-            // hacking: 鼠标选择时离开窗口后又回到窗口时，消除离开时的额外监听
-            if (this.dragging) {
-                document.removeEventListener('mousemove', this.onMove)
-                document.removeEventListener('mouseup', this.onMouseUpOutside)
-            } else if (this.selecting) {
-                document.removeEventListener('mousemove', this.onSelecting)
-                document.removeEventListener('mouseup', this.onMouseUpOutside)
-            }
+            canvasDraggingBehaviorHandlers[this.canvasDraggingBehavior]?.mouseupOutside?.call?.(this)
         },
         onNodeSelected({nodeId, multiple}) {
             multiple
@@ -409,6 +361,7 @@ export default {
             linkSource: computed(() => linkSource.value),
             nodeGroup: computed(() => this.normalizedNodeGroup),
             endpointGroup: computed(() => this.normalizedEndpointGroup),
+            nodeDraggingBehavior: computed(() => this.nodeDraggingBehavior),
         }
     },
     mounted() {
@@ -432,6 +385,7 @@ export default {
     overflow: hidden;
     width: 100%;
     height: 100%;
+    position: relative;
 
     .dragonfly-canvas {
         position: relative;

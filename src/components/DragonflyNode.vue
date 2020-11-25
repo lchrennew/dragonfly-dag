@@ -7,13 +7,13 @@
         <div class="dragonfly-node-inner"
              ref="inner"
              @mousedown.stop="onMouseDown"
-             :draggable="draggable||linkableOut"
-             @drop="onDrop"
-             @dragstart="onDragStart"
-             @drag.passive="onDrag"
-             @dragend.prevent="onDragEnd"
-             @dragenter.stop="onDragEnter"
-             @dragleave.stop="onDragLeave"
+             :draggable="draggable"
+             @drop="onNodeDragging"
+             @dragstart="onNodeDragging"
+             @drag.passive="onNodeDragging"
+             @dragend.prevent="onNodeDragging"
+             @dragenter.stop="onNodeDragging"
+             @dragleave.stop="onNodeDragging"
         >
             <slot/>
         </div>
@@ -51,6 +51,76 @@ import {computed} from 'vue'
 import preventDefaultDrop from '../utils/preventDefaultDrop'
 import DragonflyEndpoints from "./DragonflyEndpoints.vue";
 
+const nodeDraggingBehaviorHandlers = {
+    move: {
+        dragstart(event) {
+            if (this.draggable) {
+                event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
+                document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
+            }
+        },
+        drag(event) {
+            if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
+            if (this.draggable) {
+                this.nodeMoving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
+                    event.offsetX - this.inDomOffset.x,
+                    event.offsetY - this.inDomOffset.y,
+                )
+            }
+        },
+        dragend(event) {
+            document.removeEventListener('dragover', preventDefaultDrop)
+        },
+    },
+    link: {
+        dragstart(event) {
+            if (this.draggable) {
+                console.log('dragstart')
+                event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
+                this.groupLinkOut(this.node) && this.startNodeLinking({
+                    source: this.node.id,
+                    sourceGroup: this.groupName
+                })
+                document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
+            }
+        },
+        drag(event) {
+            if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
+            if (this.draggable) {
+                this.nodeLinking(
+                    this.position.x,
+                    this.position.y,
+                    this.width,
+                    this.height,
+                    'right',
+                    event.offsetX + this.x,
+                    event.offsetY + this.y,
+                )
+            }
+        },
+        dragenter(event) {
+            if (event.path.includes(event.toElement))
+                this.targeted = true
+        },
+        dragleave(event) {
+            if (!event.path.includes(this.fromElement))
+                this.targeted = false
+        },
+        dragend(event) {
+            document.removeEventListener('dragover', preventDefaultDrop)
+            this.stopNodeLinking()
+        },
+        drop(event) {
+            this.targeted = false
+            const target = this.node.id
+            console.log(this.linkableIn)
+            if (this.linkableIn) {
+                this.link(target)
+            }
+        },
+    },
+}
+
 export default {
     name: "DragonflyNode",
     components: {DragonflyEndpoints, DragonflyEndpoint},
@@ -76,14 +146,18 @@ export default {
         'canvasDraggable',
         'canvasLinkable',
         'link',
-        'linkSource'],
+        'linkSource',
+        'nodeDraggingBehavior',
+    ],
     provide() {
         return {
             node: computed(() => this.node),
             nodePosition: computed(() => this.position),
+            select: () => this.$emit('select', {nodeId: this.node.id})
         }
     },
     computed: {
+
         groupName() {
             if (typeof this.group === 'string') {
                 return this.group
@@ -122,16 +196,18 @@ export default {
         },
 
         draggable() {
-            return this.node.draggable ?? this.canvasDraggable.value
-        },
-        linkable() {
-            return this.node.linkable ?? this.canvasLinkable.value
-        },
-        linkableOut() {
-            return this.linkable && this.groupLinkOut(this.node)
+            switch (this.nodeDraggingBehavior.value) {
+                case 'move':
+                    return this.node.draggable ?? this.canvasDraggable.value
+                case 'link':
+                    return (this.node.linkable ?? this.canvasLinkable.value) && this.groupLinkOut(this.node)
+                default:
+                    return false
+            }
+
         },
         linkableIn() {
-            return this.linkable && this.groupLinkIn(this.linkSource.value)
+            return (this.node.linkable ?? this.canvasLinkable.value) && this.groupLinkIn(this.linkSource.value)
         },
         position() {
             return this.positions.value[this.node.id]
@@ -160,58 +236,8 @@ export default {
                 this.$emit('select', {nodeId: this.node.id, multiple: event.shiftKey})
             }
         },
-        onDrag(event) {
-            if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
-
-            if (this.draggable) {
-                this.nodeMoving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
-                    event.offsetX - this.inDomOffset.x,
-                    event.offsetY - this.inDomOffset.y,
-                )
-            } else if (this.linkableOut) {
-                this.nodeLinking(
-                    this.position.x,
-                    this.position.y,
-                    this.width,
-                    this.height,
-                    'right',
-                    event.offsetX + this.x,
-                    event.offsetY + this.y,
-                )
-            }
-        },
-        onDragStart(event) {
-            event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
-            if (this.draggable) {
-                // TODO: start moving
-            } else if (this.linkableOut) {
-                this.groupLinkOut(this.node) && this.startNodeLinking({
-                    source: this.node.id,
-                    sourceGroup: this.groupName
-                })
-            }
-            document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
-        },
-        onDragEnter(event) {
-            if (event.path.includes(event.toElement))
-                this.targeted = true
-        },
-        onDragLeave(event) {
-            if (!event.path.includes(this.fromElement))
-                this.targeted = false
-        },
-        onDragEnd() {
-            document.removeEventListener('dragover', preventDefaultDrop)
-            this.stopNodeLinking()
-        },
-        onDrop() {
-            this.targeted = false
-            const target = this.node.id
-            if (this.draggable) {
-                // TODO: moving stopped
-            } else if (this.linkableIn) {
-                this.link(target)
-            }
+        onNodeDragging(event) {
+            nodeDraggingBehaviorHandlers[this.nodeDraggingBehavior.value]?.[event.type]?.call(this, event)
         },
     },
     mounted() {
