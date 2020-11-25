@@ -209,8 +209,8 @@ export default {
 
                 const delta = scale - this.scale
                 const rect = this.$el.getBoundingClientRect()
-                this.offsetX += (this.width / 2 - event.clientX + this.offsetX + rect.left) * delta / this.scale
-                this.offsetY += (this.height / 2 - event.clientY + this.offsetY + rect.top) * delta / this.scale
+                this.offsetX += (this.offsetX + rect.left - event.clientX) * delta / this.scale
+                this.offsetY += (this.offsetY + rect.top - event.clientY) * delta / this.scale
                 this.scale = scale
                 this.$emit('updated:zoomScale', scale)
             }
