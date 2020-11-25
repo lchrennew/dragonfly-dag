@@ -10,8 +10,10 @@
             :draggable="config.draggable"
             :linkable="config.linkable"
             :movable="config.movable"
-            :min-scale="0.2"
-            :max-scale="5"
+            :zoomable="config.zoomable"
+            :min-zoom-scale="config.minZoomScale"
+            :max-zoom-scale="config.maxZoomScale"
+            v-model:zoom-scale="config.zoomScale"
             :arrow-zoom-ratio="config.arrowZoomRatio"
             :show-arrow="config.showArrow"
             :mid-arrow="config.midArrow"
@@ -33,6 +35,10 @@
         v-model:showArrow="config.showArrow"
         v-model:arrowZoomRatio="config.arrowZoomRatio"
         v-model:midArrow="config.midArrow"
+        v-model:zoomable="config.zoomable"
+        v-model:zoom-scale="config.zoomScale"
+        v-model:min-zoom-scale="config.minZoomScale"
+        v-model:max-zoom-scale="config.maxZoomScale"
     />
     <canvas-data :nodes="nodes" :edges="edges"/>
 </template>
@@ -59,6 +65,11 @@ export default {
                 draggable: ref(false),
                 linkable: ref(false),
                 movable: ref(false),
+                zoomable: ref(false),
+                zoomScale: ref(1),
+                minZoomScale: ref(0.1),
+                maxZoomScale: ref(2),
+                zoomSensitivity: ref(0.001),
                 layout: {
                     rankdir: 'LR',
                     marginx: 20,

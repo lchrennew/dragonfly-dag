@@ -1,6 +1,32 @@
 <template>
     <div class="canvas-config">
         <p>
+            画布缩放(滚轮)
+            <a-switch
+                :default-checked="zoomable"
+                @change="checked=>$emit('update:zoomable', checked)"
+            />
+        </p>
+        <p>缩放比例
+            <a-slider :value="zoomScale" :min="minZoomScale" :max="maxZoomScale" :step="0.01"
+                      @change="value=>$emit('update:zoomScale', value)"/>
+        </p>
+        <p>缩放范围
+            <a-slider :value="[minZoomScale, maxZoomScale]"
+                      :min="0.01"
+                      :max="5"
+                      :step="0.01"
+                      range
+                      @change="value=>{$emit('update:minZoomScale', value[0]);$emit('update:maxZoomScale', value[1])}"/>
+        </p>
+        <p>
+            画布移动
+            <a-switch
+                :default-checked="movable"
+                @change="checked=>$emit('update:movable', checked)"
+            />
+        </p>
+        <p>
             节点拖拽
             <a-switch
                 :default-checked="draggable"
@@ -14,13 +40,7 @@
                 @change="checked=>$emit('update:linkable', checked)"
             />
         </p>
-        <p>
-            画布移动
-            <a-switch
-                :default-checked="movable"
-                @change="checked=>$emit('update:movable', checked)"
-            />
-        </p>
+
         <p>
             显示箭头
             <a-switch
@@ -30,7 +50,8 @@
         </p>
         <p>
             箭头比例
-            <a-slider :value="arrowZoomRatio" :min="1" :max="3" :step="0.01" @change="value=>$emit('update:arrowZoomRatio', value)"/>
+            <a-slider :value="arrowZoomRatio" :min="1" :max="3" :step="0.01"
+                      @change="value=>$emit('update:arrowZoomRatio', value)"/>
         </p>
         <p>
             箭头居中
@@ -45,8 +66,7 @@
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['draggable', 'linkable', 'movable', 'showArrow', 'arrowZoomRatio','midArrow'],
-
+    props: ['draggable', 'linkable', 'movable', 'showArrow', 'arrowZoomRatio', 'midArrow', 'zoomable', 'zoomScale', 'minZoomScale', 'maxZoomScale'],
 }
 </script>
 

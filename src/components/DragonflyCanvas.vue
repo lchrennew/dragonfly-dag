@@ -81,10 +81,11 @@ export default {
     name: "DragonflyCanvas",
     components: {ZigZagLine, StraightLine, DragonflyNode, DragonflyCanvasEdgesLayer},
     data() {
+        let scale = this.zoomScale
         return {
             dragging: false,
             selecting: false,
-            scale: 1,
+            scale: this.zoomScale ?? 1,
             offsetX: 0,
             offsetY: 0,
             width: 0,
@@ -112,19 +113,22 @@ export default {
             type: Array,
             default: [],
         },
+        zoomable: {
+            type: Boolean,
+            default: false,
+        },
         zoomSensitivity: {
             type: Number,
             default: 0.001,
         },
-        defaultScale: {
+        zoomScale: {
             type: Number,
-            default: 1,
         },
-        maxScale: {
+        maxZoomScale: {
             type: Number,
             default: 5,
         },
-        minScale: {
+        minZoomScale: {
             type: Number,
             default: 0.5,
         },
@@ -181,18 +185,21 @@ export default {
             this.positions = positions
         },
         onZoom(event) {
-            if ((event.deltaY < 0 && this.scale <= this.minScale) || (event.deltaY > 0 && this.scale >= this.maxScale))
-                return
+            if (this.zoomable) {
+                if ((event.deltaY < 0 && this.scale <= this.minZoomScale) || (event.deltaY > 0 && this.scale >= this.maxZoomScale))
+                    return
 
-            let scale = this.scale + this.zoomSensitivity * event.deltaY
-            if (scale > this.maxScale) scale = this.maxScale
-            else if (scale < this.minScale) scale = this.minScale
+                let scale = this.scale + this.zoomSensitivity * event.deltaY
+                if (scale > this.maxZoomScale) scale = this.maxZoomScale
+                else if (scale < this.minZoomScale) scale = this.minZoomScale
 
-            const delta = scale - this.scale
-            const rect = this.$el.getBoundingClientRect()
-            this.offsetX += (this.width / 2 - event.clientX + this.offsetX + rect.left) * delta / this.scale
-            this.offsetY += (this.height / 2 - event.clientY + this.offsetY + rect.top) * delta / this.scale
-            this.scale = scale
+                const delta = scale - this.scale
+                const rect = this.$el.getBoundingClientRect()
+                this.offsetX += (this.width / 2 - event.clientX + this.offsetX + rect.left) * delta / this.scale
+                this.offsetY += (this.height / 2 - event.clientY + this.offsetY + rect.top) * delta / this.scale
+                this.scale = scale
+                this.$emit('updated:zoomScale', scale)
+            }
         },
         onViewportMouseDown(event) {
             if (this.movable) {
@@ -384,6 +391,14 @@ export default {
         this.height = this.$el.clientHeight
         this.generateLayout()
     },
+    watch: {
+        zoomScale(value) {
+            this.scale = value
+        },
+        scale(value){
+            this.$emit('update:zoomScale', value)
+        }
+    }
 }
 </script>
 
