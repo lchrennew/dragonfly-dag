@@ -227,8 +227,8 @@ export default {
                     if (!event.shiftKey) this.clearSelection()
                     this.selecting = true
                     // hacking: 如果在canvas内开始选择，就不再需要去掉canvas相对于viewport的偏移
-                    this.selectingSource.x = this.selectingTarget.x = event.offsetX - (fromCanvas ? 0 : this.offsetX)
-                    this.selectingSource.y = this.selectingTarget.y = event.offsetY - (fromCanvas ? 0 : this.offsetY)
+                    this.selectingSource.x = this.selectingTarget.x = event.offsetX / (fromCanvas ? 1 : this.scale) - (fromCanvas ? 0 : this.offsetX / this.scale)
+                    this.selectingSource.y = this.selectingTarget.y = event.offsetY / (fromCanvas ? 1 : this.scale) - (fromCanvas ? 0 : this.offsetY / this.scale)
                 }
             }
         },
@@ -438,6 +438,7 @@ export default {
         overflow: visible;
         width: 100%;
         height: 100%;
+        transform-origin: 0 0 0; // 左上角缩放
 
         .selecting {
             border: none;
