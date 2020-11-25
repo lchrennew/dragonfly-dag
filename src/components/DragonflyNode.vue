@@ -7,7 +7,7 @@
         <div class="dragonfly-node-inner"
              ref="inner"
              @mousedown.stop="onMouseDown"
-             :draggable="draggable||linkable"
+             :draggable="draggable||linkableOut"
              @drop="onDrop"
              @dragstart="onDragStart"
              @drag.passive="onDrag"
@@ -80,7 +80,6 @@ export default {
     provide() {
         return {
             node: computed(() => this.node),
-            nodeLinkable: computed(() => this.linkable),
             nodePosition: computed(() => this.position),
         }
     },
@@ -126,7 +125,13 @@ export default {
             return this.node.draggable ?? this.canvasDraggable.value
         },
         linkable() {
-            return this.groupLinkOut(this.node) && (this.node.linkable ?? this.canvasLinkable.value)
+            return this.node.linkable ?? this.canvasLinkable.value
+        },
+        linkableOut() {
+            return this.linkable && this.groupLinkOut(this.node)
+        },
+        linkableIn() {
+            return this.linkable && this.groupLinkIn(this.linkSource.value)
         },
         position() {
             return this.positions.value[this.node.id]
@@ -163,7 +168,7 @@ export default {
                     event.offsetX - this.inDomOffset.x,
                     event.offsetY - this.inDomOffset.y,
                 )
-            } else if (this.linkable) {
+            } else if (this.linkableOut) {
                 this.nodeLinking(
                     this.position.x,
                     this.position.y,
@@ -179,7 +184,7 @@ export default {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
             if (this.draggable) {
                 // TODO: start moving
-            } else if (this.linkable) {
+            } else if (this.linkableOut) {
                 this.groupLinkOut(this.node) && this.startNodeLinking({
                     source: this.node.id,
                     sourceGroup: this.groupName
@@ -204,8 +209,8 @@ export default {
             const target = this.node.id
             if (this.draggable) {
                 // TODO: moving stopped
-            } else if (this.linkable) {
-                this.groupLinkIn(this.linkSource.value) && this.link(target)
+            } else if (this.linkableIn) {
+                this.link(target)
             }
         },
     },

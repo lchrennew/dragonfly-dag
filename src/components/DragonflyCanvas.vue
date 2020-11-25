@@ -367,7 +367,6 @@ export default {
         },
         async link(target, targetEndpoint) {
             const {source, sourceEndpoint} = linkSource.value
-
             if ((sourceEndpoint ?? source) === (targetEndpoint ?? target)) return
 
             const defaultEdge = {

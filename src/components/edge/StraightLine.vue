@@ -1,18 +1,8 @@
 <template>
-    <line
-        :x1="start.x"
-        :x2="center.x"
-        :y1="start.y"
-        :y2="center.y"
-        :marker-end="midArrow?'url(#arrow)':''"
-        :class="{linking}"
-    />
-    <line
-        :x1="center.x"
-        :x2="end.x"
-        :y1="center.y"
-        :y2="end.y"
-        :marker-end="midArrow?'':'url(#arrow)'"
+    <polyline
+        :points="points"
+        :marker-end="midArrow.value?'':'url(#arrow)'"
+        :marker-mid="midArrow.value?'url(#arrow)':''"
         :class="{linking}"
     />
 </template>
@@ -74,6 +64,18 @@ export default {
             x += vector.x * width * vectorK.x || 0
             y += vector.y * height * vectorK.y || 0
             return {x, y}
+        },
+        startPoint() {
+            return `${this.start.x},${this.start.y}`
+        },
+        middlePoint() {
+            return `${this.center.x},${this.center.y}`
+        },
+        endPoint() {
+            return `${this.end.x},${this.end.y}`
+        },
+        points() {
+            return [this.startPoint, this.middlePoint, this.endPoint].join(' ')
         },
     }
 }

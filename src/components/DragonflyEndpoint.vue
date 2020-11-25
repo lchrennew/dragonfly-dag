@@ -3,7 +3,7 @@
         class="dragonfly-endpoint"
         :class="{targeted}"
         @mousedown.stop="onMouseDown"
-        :draggable="enabled"
+        :draggable="linkable"
         @dragstart="onDragStart"
         @drag.passive="onDrag"
         @dragend.prevent="onDragEnd"
@@ -26,10 +26,6 @@ export default {
             type: Object,
             required: true,
         },
-        enabled: {
-            type: Boolean,
-            default: true,
-        },
         group: {
             type: [String, Object],
         }
@@ -37,7 +33,7 @@ export default {
     inject: [
         'node',
         'endpointReposition',
-        'nodeLinkable',
+        'canvasLinkable',
         'nodePosition',
         'getPosition',
         'startNodeLinking',
@@ -58,6 +54,9 @@ export default {
         }
     },
     computed: {
+        linkable() {
+            return this.endpoint.linkable ?? this.canvasLinkable.value ?? true
+        },
         combinedGroup() {
             return this.endpoint.group
                 ?? this.group
@@ -88,7 +87,6 @@ export default {
                 return linkIn
             } else {
                 return () => {
-                    debugger
                     return true
                 }
             }
