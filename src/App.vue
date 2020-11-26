@@ -7,7 +7,6 @@
             v-model:nodes="nodes"
             v-model:edges="edges"
             :layout-config="config.layout"
-            :zoomable="config.zoomable"
             :min-zoom-scale="config.minZoomScale"
             :max-zoom-scale="config.maxZoomScale"
             v-model:zoom-scale="config.zoomScale"
@@ -19,6 +18,7 @@
             :node-group="{linkIn: true, linkOut: false}"
             v-model:canvas-dragging="config.canvasDragging"
             v-model:node-dragging="config.nodeDragging"
+            v-model:canvas-wheeling="config.canvasWheeling"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -33,12 +33,12 @@
         v-model:showArrow="config.showArrow"
         v-model:arrowZoomRatio="config.arrowZoomRatio"
         v-model:midArrow="config.midArrow"
-        v-model:zoomable="config.zoomable"
         v-model:zoom-scale="config.zoomScale"
         v-model:min-zoom-scale="config.minZoomScale"
         v-model:max-zoom-scale="config.maxZoomScale"
         v-model:canvas-dragging="config.canvasDragging"
         v-model:node-dragging="config.nodeDragging"
+        v-model:canvas-wheeling="config.canvasWheeling"
     />
     <canvas-data :nodes="nodes" :edges="edges"/>
 </template>
@@ -62,7 +62,6 @@ export default {
     data() {
         return {
             config: {
-                zoomable: ref(false),
                 zoomScale: ref(1),
                 minZoomScale: ref(0.1),
                 maxZoomScale: ref(2),
@@ -75,8 +74,9 @@ export default {
                 showArrow: ref(false),
                 arrowZoomRatio: ref(1),
                 midArrow: ref(false),
-                canvasDragging: ref('off'),
-                nodeDragging: ref('off'),
+                canvasDragging: ref('select'),
+                nodeDragging: ref('move'),
+                canvasWheeling: ref('zoom'),
             },
             feed: 3,
             nodes: [{id: '1'}, {id: '2'}],

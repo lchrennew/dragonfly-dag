@@ -24,6 +24,16 @@
         <button @click="toggleNodeDraggingBehavior('link')"
                 :class="{active: nodeDraggingBehavior==='link'}">连接
         </button>
+        <span>|</span>
+        <button @click="toggleCanvasWheelingBehavior('off')"
+                :class="{active: canvasWheelingBehavior==='off'}">锁定
+        </button>
+        <button @click="toggleCanvasWheelingBehavior('zoom')"
+                :class="{active: canvasWheelingBehavior==='zoom'}">缩放
+        </button>
+        <button @click="toggleNodeDraggingBehavior('scroll')"
+                :class="{active: canvasWheelingBehavior==='scroll'}">滚动
+        </button>
     </div>
 </template>
 
@@ -45,6 +55,13 @@ export default {
                 return ['off', 'select', 'scroll', 'zoom'].includes(value)
             }
         },
+        canvasWheelingBehavior: {
+            type: String,
+            default: 'zoom',
+            validate(value) {
+                return ['off', 'scroll', 'zoom'].includes(value)
+            }
+        },
 
     },
     methods: {
@@ -53,6 +70,9 @@ export default {
         },
         toggleCanvasDraggingBehavior(behavior) {
             this.$emit('update:canvasDraggingBehavior', this.canvasDraggingBehavior === behavior ? 'off' : behavior)
+        },
+        toggleCanvasWheelingBehavior(behavior) {
+            this.$emit('update:canvasWheelingBehavior', this.canvasWheelingBehavior === behavior ? 'off' : behavior)
         }
     }
 }

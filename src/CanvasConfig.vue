@@ -1,12 +1,5 @@
 <template>
     <div class="canvas-config">
-        <p>
-            画布缩放(滚轮)
-            <a-switch
-                :default-checked="zoomable"
-                @change="$emit('update:zoomable', $event)"
-            />
-        </p>
         <p>缩放比例
             <a-slider :value="zoomScale" :min="minZoomScale" :max="maxZoomScale" :step="0.01"
                       @change="$emit('update:zoomScale', $event)"/>
@@ -37,6 +30,20 @@
                 :default-checked="midArrow"
                 @change="$emit('update:midArrow', $event)"
             />
+        </p>
+        <p>画布滚屏行为
+            <a-radio-group :value="canvasWheeling" size="small"
+                           @change="$emit('update:canvasWheeling', $event.target.value)">
+                <a-radio-button value="off">
+                    锁定
+                </a-radio-button>
+                <a-radio-button value="zoom">
+                    缩放
+                </a-radio-button>
+                <a-radio-button value="scroll">
+                    滚动
+                </a-radio-button>
+            </a-radio-group>
         </p>
         <p>画布拖拽行为
             <a-radio-group :value="canvasDragging" size="small"
@@ -75,7 +82,7 @@
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['showArrow', 'arrowZoomRatio', 'midArrow', 'zoomable', 'zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging'],
+    props: ['showArrow', 'arrowZoomRatio', 'midArrow','zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging', 'canvasWheeling'],
 }
 </script>
 
@@ -84,7 +91,7 @@ export default {
     position: absolute;
     right: 0;
     top: 0;
-    width: 200px;
+    width: 400px;
     height: 800px;
     overflow: auto;
     background-color: #eee;

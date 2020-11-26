@@ -9,6 +9,7 @@
         <dragonfly-canvas-tools
             v-model:canvas-dragging-behavior="canvasDraggingBehavior"
             v-model:node-dragging-behavior="nodeDraggingBehavior"
+            v-model:canvas-wheeling-behavior="canvasWheelingBehavior"
         />
         <div ref="canvas"
              :style="canvasStyle"
@@ -78,6 +79,7 @@ import ZigZagLine from "./edge/ZigZagLine.vue";
 import DragonflyCanvasTools from "./DragonflyCanvasTools.vue";
 import canvasDraggingBehaviorHandlers from "./canvasDraggingBehaviorHandlers";
 import shiftStrategies from "./shiftStrategies";
+import canvasWheelingBehaviorHandlers from "./canvasWheelingBehaviorHandlers";
 
 let linkSource = ref({})
 
@@ -103,6 +105,7 @@ export default {
             linking: false,
             nodeDraggingBehavior: this.nodeDragging,
             canvasDraggingBehavior: this.canvasDragging,
+            canvasWheelingBehavior: this.canvasWheeling,
         }
     },
     props: {
@@ -116,10 +119,6 @@ export default {
         edges: {
             type: Array,
             default: [],
-        },
-        zoomable: {
-            type: Boolean,
-            default: false,
         },
         zoomSensitivity: {
             type: Number,
@@ -148,6 +147,7 @@ export default {
         endpointGroup: {type: [String, Object, Function]},
         canvasDragging: {type: String, default: 'off'},
         nodeDragging: {type: String, default: 'off'},
+        canvasWheeling: {type: String, default: 'off'},
     },
     computed: {
         canvasStyle() {
@@ -191,21 +191,7 @@ export default {
             this.positions = positions
         },
         onZoom(event) {
-            if (this.zoomable) {
-                if ((event.deltaY < 0 && this.scale <= this.minZoomScale) || (event.deltaY > 0 && this.scale >= this.maxZoomScale))
-                    return
-
-                let scale = this.scale + this.zoomSensitivity * event.deltaY
-                if (scale > this.maxZoomScale) scale = this.maxZoomScale
-                else if (scale < this.minZoomScale) scale = this.minZoomScale
-
-                const delta = scale - this.scale
-                const rect = this.$el.getBoundingClientRect()
-                this.offsetX += (this.offsetX + rect.left - event.clientX) * delta / this.scale
-                this.offsetY += (this.offsetY + rect.top - event.clientY) * delta / this.scale
-                this.scale = scale
-                this.$emit('updated:zoomScale', scale)
-            }
+            canvasWheelingBehaviorHandlers[this.canvasWheelingBehavior]?.[event.type]?.call?.(this, event)
         },
         onCanvasDragging(event) {
             (canvasDraggingBehaviorHandlers[this.canvasDraggingBehavior]
@@ -365,15 +351,21 @@ export default {
         nodeDragging(value) {
             this.nodeDraggingBehavior = value
         },
-        nodeDraggingBehavior(value){
+        nodeDraggingBehavior(value) {
             this.$emit('update:nodeDragging', value)
         },
-        canvasDragging(value){
+        canvasDragging(value) {
             this.canvasDraggingBehavior = value
         },
-        canvasDraggingBehavior(value){
+        canvasDraggingBehavior(value) {
             this.$emit('update:canvasDragging', value)
-        }
+        },
+        canvasWheeling(value) {
+            this.canvasWheelingBehavior = value
+        },
+        canvasWheelingBehavior(value) {
+            this.$emit('update:canvasWheeling', value)
+        },
 
     }
 }

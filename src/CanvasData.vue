@@ -18,7 +18,7 @@ export default {
 .canvas-data {
     width: 300px;
     position: absolute;
-    right: 200px;
+    right: 400px;
     top: 0;
 
 }
