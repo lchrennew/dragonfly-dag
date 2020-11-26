@@ -14,7 +14,7 @@
              :style="canvasStyle"
              class="dragonfly-canvas"
         >
-            <div v-if="draggingCanvas"
+            <div v-if="canvasDraggingBehavior==='select' && draggingCanvas"
                  :style="selectingStyle"
                  class="selecting"/>
             <dragonfly-node
