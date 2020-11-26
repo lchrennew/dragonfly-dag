@@ -143,7 +143,6 @@ export default {
         'nodeLinking',
         'stopNodeLinking',
         'positions',
-        'canvasLinkable',
         'link',
         'linkSource',
         'nodeDraggingBehavior',
@@ -199,14 +198,14 @@ export default {
                 case 'move':
                     return this.node.draggable ?? true
                 case 'link':
-                    return (this.node.linkable ?? this.canvasLinkable.value) && this.groupLinkOut(this.node)
+                    return (this.node.linkable ?? true) && this.groupLinkOut(this.node)
                 default:
                     return false
             }
 
         },
         linkableIn() {
-            return (this.node.linkable ?? this.canvasLinkable.value) && this.groupLinkIn(this.linkSource.value)
+            return (this.node.linkable ?? true) && this.groupLinkIn(this.linkSource.value)
         },
         position() {
             return this.positions.value[this.node.id]

@@ -33,7 +33,6 @@ export default {
     inject: [
         'node',
         'endpointReposition',
-        'canvasLinkable',
         'nodePosition',
         'getPosition',
         'startNodeLinking',
@@ -59,7 +58,7 @@ export default {
         linkable() {
             switch (this.nodeDraggingBehavior.value) {
                 case 'link':
-                    return this.endpoint.linkable ?? this.canvasLinkable.value ?? true
+                    return this.endpoint.linkable ?? true
                 default:
                     return false
             }

@@ -20,14 +20,6 @@
                       @change="()=>{$emit('update:minZoomScale', $event[0]);$emit('update:maxZoomScale', $event[1])}"/>
         </p>
         <p>
-            节点连接
-            <a-switch
-                :default-checked="linkable"
-                @change="$emit('update:linkable', $event)"
-            />
-        </p>
-
-        <p>
             显示箭头
             <a-switch
                 :default-checked="showArrow"
@@ -83,7 +75,7 @@
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['linkable', 'showArrow', 'arrowZoomRatio', 'midArrow', 'zoomable', 'zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging'],
+    props: ['showArrow', 'arrowZoomRatio', 'midArrow', 'zoomable', 'zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging'],
 }
 </script>
 
