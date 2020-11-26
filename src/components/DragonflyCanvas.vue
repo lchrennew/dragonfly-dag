@@ -140,10 +140,6 @@ export default {
             type: Object,
             default: () => ({})
         },
-        draggable: {
-            type: Boolean,
-            default: false,
-        },
         linkable: {
             type: Boolean,
             default: false,
@@ -343,7 +339,6 @@ export default {
         return {
             nodes: computed(() => this.nodes),
             edges: computed(() => this.edges),
-            canvasDraggable: computed(() => this.draggable),
             canvasLinkable: computed(() => this.linkable),
             nodeResize: this.nodeResize,
             nodeMoving: this.nodeMoving,

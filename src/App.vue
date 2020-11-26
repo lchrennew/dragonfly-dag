@@ -7,7 +7,6 @@
             v-model:nodes="nodes"
             v-model:edges="edges"
             :layout-config="config.layout"
-            :draggable="config.draggable"
             :linkable="config.linkable"
             :zoomable="config.zoomable"
             :min-zoom-scale="config.minZoomScale"
@@ -32,7 +31,6 @@
         </dragonfly-canvas>
     </div>
     <canvas-config
-        v-model:draggable="config.draggable"
         v-model:linkable="config.linkable"
         v-model:showArrow="config.showArrow"
         v-model:arrowZoomRatio="config.arrowZoomRatio"
@@ -66,7 +64,6 @@ export default {
     data() {
         return {
             config: {
-                draggable: ref(false),
                 linkable: ref(false),
                 zoomable: ref(false),
                 zoomScale: ref(1),

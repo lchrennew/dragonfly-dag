@@ -143,7 +143,6 @@ export default {
         'nodeLinking',
         'stopNodeLinking',
         'positions',
-        'canvasDraggable',
         'canvasLinkable',
         'link',
         'linkSource',
@@ -198,7 +197,7 @@ export default {
         draggable() {
             switch (this.nodeDraggingBehavior.value) {
                 case 'move':
-                    return this.node.draggable ?? this.canvasDraggable.value
+                    return this.node.draggable ?? true
                 case 'link':
                     return (this.node.linkable ?? this.canvasLinkable.value) && this.groupLinkOut(this.node)
                 default:
