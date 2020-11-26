@@ -20,13 +20,6 @@
                       @change="()=>{$emit('update:minZoomScale', $event[0]);$emit('update:maxZoomScale', $event[1])}"/>
         </p>
         <p>
-            画布移动
-            <a-switch
-                :default-checked="movable"
-                @change="$emit('update:movable', $event)"
-            />
-        </p>
-        <p>
             节点拖拽
             <a-switch
                 :default-checked="draggable"
@@ -97,7 +90,7 @@
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['draggable', 'linkable', 'movable', 'showArrow', 'arrowZoomRatio', 'midArrow', 'zoomable', 'zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging'],
+    props: ['draggable', 'linkable', 'showArrow', 'arrowZoomRatio', 'midArrow', 'zoomable', 'zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging'],
 }
 </script>
 

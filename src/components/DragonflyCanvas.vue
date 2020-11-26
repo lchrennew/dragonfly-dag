@@ -148,10 +148,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        movable: {
-            type: Boolean,
-            default: false,
-        },
         showArrow: {type: Boolean, default: true,},
         arrowZoomRatio: {type: Number, default: 1}, // 箭头显示大小的倍率
         midArrow: {type: Boolean, default: false},

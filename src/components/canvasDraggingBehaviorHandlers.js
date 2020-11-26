@@ -1,10 +1,8 @@
 const canvasDraggingBehaviorHandlers = {
     scroll: {
         mousedown(event) {
-            if (this.movable) {
-                this.draggingCanvas = true
-                this.clearSelection()
-            }
+            this.draggingCanvas = true
+            this.clearSelection()
         },
         mouseleave(event) {
             if (this.draggingCanvas) {

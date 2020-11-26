@@ -9,7 +9,6 @@
             :layout-config="config.layout"
             :draggable="config.draggable"
             :linkable="config.linkable"
-            :movable="config.movable"
             :zoomable="config.zoomable"
             :min-zoom-scale="config.minZoomScale"
             :max-zoom-scale="config.maxZoomScale"
@@ -35,7 +34,6 @@
     <canvas-config
         v-model:draggable="config.draggable"
         v-model:linkable="config.linkable"
-        v-model:movable="config.movable"
         v-model:showArrow="config.showArrow"
         v-model:arrowZoomRatio="config.arrowZoomRatio"
         v-model:midArrow="config.midArrow"
@@ -70,7 +68,6 @@ export default {
             config: {
                 draggable: ref(false),
                 linkable: ref(false),
-                movable: ref(false),
                 zoomable: ref(false),
                 zoomScale: ref(1),
                 minZoomScale: ref(0.1),
