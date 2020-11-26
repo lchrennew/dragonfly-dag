@@ -17,7 +17,7 @@
                       :max="5"
                       :step="0.01"
                       range
-                      @change="()=>{$emit('update:minZoomScale', $event[0]);$emit('update:maxZoomScale', $event[1])}"/>
+                      @change="value=>{$emit('update:minZoomScale', value[0]);$emit('update:maxZoomScale', value[1])}"/>
         </p>
         <p>
             显示箭头
