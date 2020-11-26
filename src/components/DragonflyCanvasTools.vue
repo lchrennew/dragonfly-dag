@@ -1,5 +1,5 @@
 <template>
-    <div class="dragonfly-tools">
+    <div class="dragonfly-tools" @mousedown.stop>
         <button @click="toggleCanvasDraggingBehavior('off')"
                 :class="{active: canvasDraggingBehavior==='off'}">锁定
         </button>

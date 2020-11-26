@@ -217,11 +217,13 @@ export default {
                 this.width / this.height >= this.width / this.height
                     ? this.height / height
                     : this.width / width
-            this.offsetY += top * this.scale
-            this.offsetX += left * this.scale
+
             this.scale *= zoomRatio
             if (this.scale > this.maxZoomScale) this.scale = this.maxZoomScale
             else if (this.scale < this.minZoomScale) this.scale = this.minZoomScale
+
+            this.offsetY = -top * this.scale
+            this.offsetX = -left * this.scale
         },
 
         generateLayout() {
