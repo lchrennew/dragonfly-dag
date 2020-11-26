@@ -189,6 +189,8 @@ export default {
     z-index: 3;
     border: solid 1px transparent;
     box-sizing: border-box;
+    width: fit-content;
+    height: fit-content;
 
     &.selected {
         border: dashed 1px #777;
