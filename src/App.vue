@@ -20,6 +20,8 @@
             :before-add-edge-hook="onAddingEdge"
             :endpoint-group="{linkIn: false, linkOut: true}"
             :node-group="{linkIn: true, linkOut: false}"
+            v-model:canvas-dragging="config.canvasDragging"
+            v-model:node-dragging="config.nodeDragging"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -41,6 +43,8 @@
         v-model:zoom-scale="config.zoomScale"
         v-model:min-zoom-scale="config.minZoomScale"
         v-model:max-zoom-scale="config.maxZoomScale"
+        v-model:canvas-dragging="config.canvasDragging"
+        v-model:node-dragging="config.nodeDragging"
     />
     <canvas-data :nodes="nodes" :edges="edges"/>
 </template>
@@ -80,6 +84,8 @@ export default {
                 showArrow: ref(false),
                 arrowZoomRatio: ref(1),
                 midArrow: ref(false),
+                canvasDragging: ref('off'),
+                nodeDragging: ref('off'),
             },
             feed: 3,
             nodes: [{id: '1'}, {id: '2'}],
@@ -94,10 +100,10 @@ export default {
         async onAddingEdge({source, target, sourceEndpoint, targetEndpoint}) {
             return new Promise(resolve => {
                 setTimeout(() => {
-                    // resolve({id: 'xxx', source, target, sourceEndpoint, targetEndpoint})
-                    // resolve(false)
-                    resolve(undefined)
-                }, 1000)
+                    // resolve({id: 'xxx', source, target, sourceEndpoint, targetEndpoint}) // 用自定义数据连接
+                    // resolve(false)   // 取消连接
+                    resolve(undefined)  // 用默数据连接
+                }, 100)
             })
         }
     }

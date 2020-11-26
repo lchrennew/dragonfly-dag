@@ -101,8 +101,8 @@ export default {
             selectingTarget: {x: 0, y: 0},
             selectingSelected: {},
             linking: false,
-            nodeDraggingBehavior: this.defaultNodeDraggingBehavior,
-            canvasDraggingBehavior: this.defaultCanvasDraggingBehavior,
+            nodeDraggingBehavior: this.nodeDragging,
+            canvasDraggingBehavior: this.canvasDragging,
         }
     },
     props: {
@@ -158,8 +158,8 @@ export default {
         beforeAddEdgeHook: {type: Function,}, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
         nodeGroup: {type: [String, Object, Function]},
         endpointGroup: {type: [String, Object, Function]},
-        defaultCanvasDraggingBehavior: {type: String, default: 'off'},
-        defaultNodeDraggingBehavior: {type: String, default: 'off'},
+        canvasDragging: {type: String, default: 'off'},
+        nodeDragging: {type: String, default: 'off'},
     },
     computed: {
         canvasStyle() {
@@ -375,7 +375,20 @@ export default {
         },
         scale(value) {
             this.$emit('update:zoomScale', value)
+        },
+        nodeDragging(value) {
+            this.nodeDraggingBehavior = value
+        },
+        nodeDraggingBehavior(value){
+            this.$emit('update:nodeDragging', value)
+        },
+        canvasDragging(value){
+            this.canvasDraggingBehavior = value
+        },
+        canvasDraggingBehavior(value){
+            this.$emit('update:canvasDragging', value)
         }
+
     }
 }
 </script>
