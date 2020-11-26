@@ -16,7 +16,12 @@ const canvasWheelingBehaviorHandlers = {
             this.$emit('updated:zoomScale', scale)
         }
     },
-    scroll: {},
-    off:{},
+    scroll: {
+        wheel(event) {
+            this.offsetX -= event.deltaX
+            this.offsetY -= event.deltaY
+        }
+    },
+    off: {},
 }
 export default canvasWheelingBehaviorHandlers

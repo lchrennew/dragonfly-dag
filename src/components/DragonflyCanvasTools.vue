@@ -31,7 +31,7 @@
         <button @click="toggleCanvasWheelingBehavior('zoom')"
                 :class="{active: canvasWheelingBehavior==='zoom'}">缩放
         </button>
-        <button @click="toggleNodeDraggingBehavior('scroll')"
+        <button @click="toggleCanvasWheelingBehavior('scroll')"
                 :class="{active: canvasWheelingBehavior==='scroll'}">滚动
         </button>
     </div>
