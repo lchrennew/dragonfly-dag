@@ -5,7 +5,7 @@
          @mouseleave="onCanvasDragging"
          @mousemove="onCanvasDragging"
          @mouseup="onCanvasDragging"
-         @wheel.prevent="onZoom">
+         @wheel.prevent="onCanvasWheeling">
         <dragonfly-canvas-tools
             v-model:canvas-dragging-behavior="canvasDraggingBehavior"
             v-model:node-dragging-behavior="nodeDraggingBehavior"
@@ -15,15 +15,16 @@
              :style="canvasStyle"
              class="dragonfly-canvas"
         >
-            <div v-if="canvasDraggingBehavior==='select' && draggingCanvas"
-                 :style="selectingStyle"
-                 class="selecting"/>
+            <div v-if="dragging"
+                 :style="draggingAreaStyle"
+                 :class="canvasDraggingBehavior"
+                 class="area"/>
             <dragonfly-node
                 v-for="node in nodes"
                 :key="node.id"
                 :group="normalizedNodeGroup(node)"
                 :node="node"
-                :selected="selectingSelected[node.id] ?? selected[node.id]"
+                :selected="preSelected[node.id] ?? selected[node.id]"
                 @select="onNodeSelected"
                 @unselect="onNodeUnselected"
             >
@@ -88,7 +89,7 @@ export default {
     components: {DragonflyCanvasTools, ZigZagLine, StraightLine, DragonflyNode, DragonflyCanvasEdgesLayer},
     data() {
         return {
-            draggingCanvas: false,
+            dragging: false,
             scale: this.zoomScale ?? 1,
             offsetX: 0,
             offsetY: 0,
@@ -99,9 +100,9 @@ export default {
             selected: {},
             linkingSource: {x: 0, y: 0},
             linkingTarget: {x: 0, y: 0},
-            selectingSource: {x: 0, y: 0},
-            selectingTarget: {x: 0, y: 0},
-            selectingSelected: {},
+            draggingSource: {x: 0, y: 0},
+            draggingTarget: {x: 0, y: 0},
+            preSelected: {},
             linking: false,
             nodeDraggingBehavior: this.nodeDragging,
             canvasDraggingBehavior: this.canvasDragging,
@@ -157,11 +158,18 @@ export default {
                 left: `${this.offsetX}px`
             }
         },
-        selectingStyle() {
-            const width = `${Math.abs(this.selectingSource.x - this.selectingTarget.x)}px`
-            const height = `${Math.abs(this.selectingSource.y - this.selectingTarget.y)}px`
-            const top = `${Math.min(this.selectingSource.y, this.selectingTarget.y)}px`
-            const left = `${Math.min(this.selectingSource.x, this.selectingTarget.x)}px`
+        draggingArea() {
+            const width = Math.abs(this.draggingSource.x - this.draggingTarget.x)
+            const height = Math.abs(this.draggingSource.y - this.draggingTarget.y)
+            const top = Math.min(this.draggingSource.y, this.draggingTarget.y)
+            const left = Math.min(this.draggingSource.x, this.draggingTarget.x)
+            return {width, height, top, left,}
+        },
+        draggingAreaStyle() {
+            const width = `${this.draggingArea.width}px`
+            const height = `${this.draggingArea.height}px`
+            const top = `${this.draggingArea.top}px`
+            const left = `${this.draggingArea.left}px`
             return {width, height, top, left,}
         },
         multipleSelected() {
@@ -179,6 +187,43 @@ export default {
         }
     },
     methods: {
+        onCanvasWheeling(event) {
+            canvasWheelingBehaviorHandlers[this.canvasWheelingBehavior]?.[event.type]?.call?.(this, event)
+        },
+        onCanvasDragging(event) {
+            canvasDraggingBehaviorHandlers[event.type]?.call?.(this, event)
+        },
+        scrollDragging(event) {
+            this.offsetX += event.movementX
+            this.offsetY += event.movementY
+        },
+        selectDragging(event) {
+            this.draggingTarget.x += event.movementX / this.scale
+            this.draggingTarget.y += event.movementY / this.scale
+            this.preSelect(event.shiftKey)
+        },
+        zoomDragging(event) {
+            this.draggingTarget.x += event.movementX / this.scale
+            this.draggingTarget.y += event.movementY / this.scale
+        },
+
+        selectDraggingEnd(event) {
+            this.selected = {...this.preSelected}
+            this.preSelected = {}
+        },
+        zoomDraggingEnd(event) {
+            const {width, height, top, left} = this.draggingArea
+            let zoomRatio =
+                this.width / this.height >= this.width / this.height
+                    ? this.height / height
+                    : this.width / width
+            this.offsetY += top * this.scale
+            this.offsetX += left * this.scale
+            this.scale *= zoomRatio
+            if (this.scale > this.maxZoomScale) this.scale = this.maxZoomScale
+            else if (this.scale < this.minZoomScale) this.scale = this.minZoomScale
+        },
+
         generateLayout() {
             const layout = dagreLayout(this.nodes, this.positions, this.edges, this.layoutConfig)
             const positions = layout._nodes
@@ -190,45 +235,16 @@ export default {
             }
             this.positions = positions
         },
-        onZoom(event) {
-            canvasWheelingBehaviorHandlers[this.canvasWheelingBehavior]?.[event.type]?.call?.(this, event)
-        },
-        onCanvasDragging(event) {
-            (canvasDraggingBehaviorHandlers[this.canvasDraggingBehavior]
-                ?? canvasDraggingBehaviorHandlers.default)?.[event.type]?.call?.(this, event)
-        },
-        onMove(event) {
-            if (this.draggingCanvas) {
-                event.preventDefault()  // hacking: 避免移动时选择外部文本
-                this.offsetX += event.movementX
-                this.offsetY += event.movementY
-            }
-        },
-        syncSelectingSelected(shiftKey) {
+
+        preSelect(shiftKey) {
             for (const nodeId in this.positions) {
                 const selected = this.selected[nodeId]
                 const {x, y} = this.positions[nodeId]
-                const xBetween = (x <= this.selectingTarget.x && x >= this.selectingSource.x) || (x >= this.selectingTarget.x && x <= this.selectingSource.x)
-                const yBetween = (y <= this.selectingTarget.y && y >= this.selectingSource.y) || (y >= this.selectingTarget.y && y <= this.selectingSource.y)
+                const xBetween = (x <= this.draggingTarget.x && x >= this.draggingSource.x) || (x >= this.draggingTarget.x && x <= this.draggingSource.x)
+                const yBetween = (y <= this.draggingTarget.y && y >= this.draggingSource.y) || (y >= this.draggingTarget.y && y <= this.draggingSource.y)
                 const selecting = xBetween && yBetween
-                this.selectingSelected[nodeId] = shiftKey ? shiftStrategies.reverse(selected, selecting) : selecting
+                this.preSelected[nodeId] = shiftKey ? shiftStrategies.reverse(selected, selecting) : selecting
             }
-        },
-        syncSelectedFromSelectingSelected() {
-            this.selected = {...this.selectingSelected}
-            this.selectingSelected = {}
-            this.draggingCanvas = false
-        },
-        onSelecting(event) {
-            if (this.draggingCanvas) {
-                event.preventDefault()  // hacking: 避免移动时选择外部文本
-                this.selectingTarget.x += event.movementX / this.scale
-                this.selectingTarget.y += event.movementY / this.scale
-                this.syncSelectingSelected(event.shiftKey)
-            }
-        },
-        onMouseUpOutside() {
-            canvasDraggingBehaviorHandlers[this.canvasDraggingBehavior]?.mouseupOutside?.call?.(this)
         },
         onNodeSelected({nodeId, multiple}) {
             multiple
@@ -385,12 +401,20 @@ export default {
         height: 100%;
         transform-origin: 0 0 0; // 左上角缩放
 
-        .selecting {
-            border: none;
-            background-color: #80d4ff;
-            opacity: 0.3;
+        & > .area {
             position: absolute;
             z-index: 6;
+
+            &.select {
+                border: none;
+                background-color: #80d4ff;
+                opacity: 0.3;
+            }
+
+            &.zoom {
+                background-color: transparent;
+                border: dashed 1px #777777;
+            }
         }
     }
 }

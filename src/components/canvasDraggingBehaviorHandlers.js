@@ -1,81 +1,67 @@
-const canvasDraggingBehaviorHandlers = {
-    scroll: {
-        mousedown(event) {
-            this.draggingCanvas = true
-            this.clearSelection()
-        },
-        mouseleave(event) {
-            if (this.draggingCanvas) {
-                document.addEventListener('mousemove', this.onMove, false)
-                document.addEventListener('mouseup', this.onMouseUpOutside, {once: true})
-            }
-        },
-        mouseenter(event) {
-            if (this.draggingCanvas) {
-                document.removeEventListener('mousemove', this.onMove)
-                document.removeEventListener('mouseup', this.onMouseUpOutside)
-            }
-        },
-        mousemove(event) {
-            this.onMove(event)
-        },
-        mouseup(event) {
-            this.draggingCanvas = false
-        },
-        mouseupOutside() {
-            if (this.draggingCanvas) {
-                document.removeEventListener('mousemove', this.onMove)
-                document.removeEventListener('mouseup', this.onMouseUpOutside)
-                this.draggingCanvas = false
-            }
-        }
-    },
-    select: {
-        mousedown(event) {
-            const fromCanvas = event.target === this.$refs.canvas
-            const insideCanvas = !fromCanvas && event.path.includes(this.$refs.canvas)
-            if (!insideCanvas) {
-                event.preventDefault()
-                if (!event.shiftKey) this.clearSelection()
-                this.draggingCanvas = true
-                // hacking: 如果在canvas内开始选择，就不再需要去掉canvas相对于viewport的偏移
-                this.selectingSource.x = this.selectingTarget.x = event.offsetX / (fromCanvas ? 1 : this.scale) - (fromCanvas ? 0 : this.offsetX / this.scale)
-                this.selectingSource.y = this.selectingTarget.y = event.offsetY / (fromCanvas ? 1 : this.scale) - (fromCanvas ? 0 : this.offsetY / this.scale)
-            }
-        },
-        mouseleave(event) {
-            if (this.draggingCanvas) {
-                document.addEventListener('mousemove', this.onSelecting, false)
-                document.addEventListener('mouseup', this.onMouseUpOutside, {once: true})
-            }
-        },
-        mouseenter(event) {
-            if (this.draggingCanvas) {
-                document.removeEventListener('mousemove', this.onSelecting)
-                document.removeEventListener('mouseup', this.onMouseUpOutside)
-            }
-        },
-        mousemove(event) {
-            this.onSelecting(event)
-        },
-        mouseup(event) {
-            if (this.draggingCanvas) {
-                this.syncSelectedFromSelectingSelected()
-            }
-        },
-        mouseupOutside() {
-            if (this.draggingCanvas) {
-                document.removeEventListener('mousemove', this.onSelecting)
-                document.removeEventListener('mouseup', this.onMouseUpOutside)
-                this.syncSelectedFromSelectingSelected()
-            }
-        },
-    },
-    default: {
-        mousedown(event) {
-            this.clearSelection()
-        },
+const mouseupOutside = function (event) {
+    if (this.dragging) {
+        document.removeEventListener('mousemove', mousemoveOutsideHandler)
+        document.removeEventListener('mouseup', mouseupOutsideHandler)
+        mouseupOutsideHandler = null
+        mousemoveOutsideHandler = null
+        mouseup.call(this, event)
     }
 }
 
-export default canvasDraggingBehaviorHandlers
+let mouseupOutsideHandler
+let mousemoveOutsideHandler
+
+const mousedown = function (event) {
+    if (!event.shiftKey) this.clearSelection()
+    const fromCanvas = event.target === this.$refs.canvas
+    const insideCanvas = !fromCanvas && event.path.includes(this.$refs.canvas)
+    if (!insideCanvas) {
+        event.preventDefault()
+
+        this.dragging = true
+        // hacking: 如果在canvas内开始选择，就不再需要去掉canvas相对于viewport的偏移
+        this.draggingSource.x = this.draggingTarget.x = event.offsetX / (fromCanvas ? 1 : this.scale) - (fromCanvas ? 0 : this.offsetX / this.scale)
+        this.draggingSource.y = this.draggingTarget.y = event.offsetY / (fromCanvas ? 1 : this.scale) - (fromCanvas ? 0 : this.offsetY / this.scale)
+        this[`${this.canvasDraggingBehavior}DraggingStart`]?.(event)
+    }
+}
+
+const mouseleave = function (event) {
+    if (this.dragging) {
+        mouseupOutsideHandler = mouseupOutside.bind(this)
+        mousemoveOutsideHandler = mousemove.bind(this)
+        document.addEventListener('mousemove', mousemoveOutsideHandler, false)
+        document.addEventListener('mouseup', mouseupOutsideHandler, {once: true})
+    }
+}
+
+const mouseenter = function (event) {
+    if (this.dragging) {
+        document.removeEventListener('mousemove', mousemoveOutsideHandler)
+        document.removeEventListener('mouseup', mouseupOutsideHandler)
+        mouseupOutsideHandler = null
+        mousemoveOutsideHandler = null
+    }
+}
+
+const mousemove = function (event) {
+    if (this.dragging) {
+        event.preventDefault()  // hacking: 避免移动时选择外部文本
+        this[`${this.canvasDraggingBehavior}Dragging`]?.(event)
+    }
+}
+
+const mouseup = function (event) {
+    if (this.dragging) {
+        this.dragging = false
+        this[`${this.canvasDraggingBehavior}DraggingEnd`]?.(event)
+    }
+}
+
+export default {
+    mousedown,
+    mouseleave,
+    mouseenter,
+    mousemove,
+    mouseup,
+}
