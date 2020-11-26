@@ -214,16 +214,16 @@ export default {
         zoomDraggingEnd(event) {
             const {width, height, top, left} = this.draggingArea
             let zoomRatio =
-                this.width / this.height >= this.width / this.height
+                this.width / this.height >= width / height
                     ? this.height / height
                     : this.width / width
+            let scale = this.scale * zoomRatio
+            if (scale > this.maxZoomScale) scale = this.maxZoomScale
+            if (scale < this.minZoomScale) scale = this.minZoomScale
 
-            this.scale *= zoomRatio
-            if (this.scale > this.maxZoomScale) this.scale = this.maxZoomScale
-            else if (this.scale < this.minZoomScale) this.scale = this.minZoomScale
-
-            this.offsetY = -top * this.scale
-            this.offsetX = -left * this.scale
+            this.offsetY = -top * scale
+            this.offsetX = -left * scale
+            this.scale = scale
         },
 
         generateLayout() {

@@ -93,14 +93,14 @@ export default {
             }
         },
         groupLinkIn() {
-            let {linkIn} = this.group ?? {}
+            let {linkIn, name} = this.group ?? {}
 
             if (typeof this.group === 'string') {
                 return ({sourceGroup}) => sourceGroup === this.group
             } else if (linkIn === false) {
                 return () => false
             } else if (linkIn === undefined) {
-                return ({sourceGroup}) => name === sourceGroup
+                return ({sourceGroup}) => name === undefined || name === sourceGroup
             } else if (typeof linkIn === 'string') {
                 return ({sourceGroup}) => linkIn === sourceGroup
             } else if (linkIn instanceof Array) {
@@ -125,7 +125,7 @@ export default {
         draggable() {
             switch (this.nodeDraggingBehavior.value) {
                 case 'move':
-                    return this.node.draggable ?? true
+                    return this.node.movable ?? true
                 case 'link':
                     return (this.node.linkable ?? true) && this.groupLinkOut(this.node)
                 default:
