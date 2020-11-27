@@ -46,8 +46,8 @@ yarn dev
 | arrowZoomRatio    | `Number`                     | `1`         | N    | N            | 箭头缩放比例                                                                                          |
 | midArrow          | `Boolean`                    | `false`     | N    | N            | 居中显示箭头                                                                                          |
 | beforeAddEdgeHook | `Function`                   | `undefined` | N    | N            | 添加边预处理钩子                                                                                      |
-| nodeGroup         | `String`,`Object`,`Function` | `undefined` | N    | N            | 节点组控配置，组控配置方式参见[组控配置](#组控配置)                                                   |
-| endpointGroup     | `String`,`Object`,`Function` | `undefined` | N    | N            | 锚点组控配置                                                                                          |
+| nodeGroup         | `String`<br>`Object`<br>`Function` | `undefined` | N    | N            | 节点组控配置，组控配置方式参见[组控配置](#组控配置)                                                   |
+| endpointGroup     | `String`<br>`Object`<br>`Function` | `undefined` | N    | N            | 锚点组控配置                                                                                          |
 | canvasDragging    | `String`                     | `'off'`     | N    | Y            | 画布拖拽行为，可选值：<br>`off`：禁用<br>`select`：节点圈选<br>`zoom`：选区放大<br>`scroll`：画布滚屏 |
 | nodeDragging      | `String`                     | `'off'`     | N    | Y            | 节点拖拽行为，可选值：`off`：禁用<br>`move`：移动节点<br>`link`：连接节点                             |
 | canvasWheeling    | `String`                     | `'off'`     | N    | Y            | 画布滚轮行为，可选值：`off`：禁用<br>`zoom`：滚轮缩放<br>`scroll`：滚屏                               |
@@ -61,7 +61,7 @@ yarn dev
 | leftEndpoints   | `node`                         | 无           | 左侧锚点                                                        |
 | rightEndpoints  | `node`                         | 无           | 右侧锚点                                                        |
 | bottomEndpoints | `node`                         | 无           | 底部锚点                                                        |
-| edgeRenderer    | `source`：起点信息<br>`target` | 直线连接线   | 自定义连接线渲染，连线端点数据结构参见[数据类型](#连线端点信息) |
+| edgeRenderer    | `source`：起点信息<br>`target`：终点信息 | 直线连接线   | 自定义连接线渲染，连线端点数据结构参见[数据类型](#连线端点信息) |
 
 ### 端点 `DragonflyEndpoint`
 WIP
@@ -85,7 +85,7 @@ WIP
 | movable   | `Boolean`         | N    | true       | 节点是否可以拖拽移动                              |
 | linkable  | `Boolean`         | N    | true       | 节点是否可连线（无论连入还是连出）                |
 | endpoints | `Array`           | N    | undefined  | 节点的锚点列表，数据结构参见[数据类型](#锚点信息) |
-| group     | `String`,`Object` | N    | undefined  | 节点组控规则                                      |
+| group     | `String`<br>`Object` | N    | undefined  | 节点组控规则                                      |
 
 ### 锚点信息 `Endpoint`
 
