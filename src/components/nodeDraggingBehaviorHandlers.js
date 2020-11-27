@@ -25,7 +25,6 @@ const nodeDraggingBehaviorHandlers = {
     link: {
         dragstart(event) {
             if (this.draggable) {
-                console.log('dragstart')
                 event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
                 this.groupLinkOut(this.node) && this.startNodeLinking({
                     source: this.node.id,
@@ -63,7 +62,6 @@ const nodeDraggingBehaviorHandlers = {
         drop(event) {
             this.targeted = false
             const target = this.node.id
-            console.log(this.linkableIn)
             if (this.linkableIn) {
                 this.link(target)
             }

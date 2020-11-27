@@ -25,11 +25,9 @@
                       @change="$emit('update:arrowZoomRatio', $event)"/>
         </p>
         <p>
-            箭头居中
-            <a-switch
-                :default-checked="midArrow"
-                @change="$emit('update:midArrow', $event)"
-            />
+            箭头位置
+            <a-slider :value="arrowPosition" :min="0" :max="100" :step="1"
+                      @change="$emit('update:arrowPosition', $event)"/>
         </p>
         <p>画布滚屏行为
             <a-radio-group :value="canvasWheeling" size="small"
@@ -82,7 +80,7 @@
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['showArrow', 'arrowZoomRatio', 'midArrow','zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging', 'canvasWheeling'],
+    props: ['showArrow', 'arrowZoomRatio', 'arrowPosition','zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging', 'canvasWheeling'],
 }
 </script>
 

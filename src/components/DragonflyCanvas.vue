@@ -52,13 +52,12 @@
                 :linking-source="linkingSource"
                 :linking-target="linkingTarget"
                 :positions="positions"
-                :show-arrow="showArrow"
             >
                 <template #default="{target, source}">
                     <slot :source="source" :target="target" name="edgeRenderer">
-                        <straight-line v-if="source && target"
-                                       :source="source"
-                                       :target="target"
+                        <zig-zag-line v-if="source && target"
+                                      :source="source"
+                                      :target="target"
                         />
                     </slot>
                 </template>
@@ -144,7 +143,7 @@ export default {
         },
         showArrow: {type: Boolean, default: true,},
         arrowZoomRatio: {type: Number, default: 1}, // 箭头显示大小的倍率
-        midArrow: {type: Boolean, default: false},
+        arrowPosition: {type: Number, default: 100},
         beforeAddEdgeHook: {type: Function,}, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
         nodeGroup: {type: [String, Object, Function]},
         endpointGroup: {type: [String, Object, Function]},
@@ -349,7 +348,8 @@ export default {
             endpointReposition: this.endpointReposition,
             link: this.link,
             positions: computed(() => this.positions),
-            midArrow: computed(() => this.midArrow),
+            arrowPosition: computed(() => this.arrowPosition),
+            showArrow: computed(() => this.showArrow),
             linkSource: computed(() => linkSource.value),
             nodeGroup: computed(() => this.normalizedNodeGroup),
             endpointGroup: computed(() => this.normalizedEndpointGroup),

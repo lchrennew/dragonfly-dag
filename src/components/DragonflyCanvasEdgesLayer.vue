@@ -2,15 +2,16 @@
     <svg xmlns="http://www.w3.org/2000/svg" class="dragonfly-edges-layer">
         <defs v-if="showArrow">
             <marker id="arrow"
-                    markerwidth="6"
-                    markerHeight="6"
-                    refX="6"
-                    refY="3"
+                    markerwidth="18"
+                    markerHeight="18"
+                    refX="18"
+                    refY="9"
                     orient="auto"
                     overflow="visible"
+                    markerUnits="userSpaceOnUse"
                     :viewBox="`0 0 ${6/arrowZoomRatio} ${6/arrowZoomRatio}`"
             >
-                <polygon points="0 0, 0 6, 6 3" class="arrow"/>
+                <polygon points="0 0, 0 18, 18 9" class="arrow"/>
             </marker>
 
         </defs>
@@ -43,6 +44,7 @@ import DragonflyLinkingEdge from "./DragonflyLinkingEdge.vue";
 export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {DragonflyLinkingEdge, DragonflyEdge},
-    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'showArrow', 'arrowZoomRatio'],
+    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio'],
+    inject: ['showArrow']
 }
 </script>

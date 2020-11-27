@@ -1,9 +1,7 @@
 <template>
-    <polyline
-        :points="points"
-        :marker-end="midArrow.value?'':'url(#arrow)'"
-        :marker-mid="midArrow.value?'url(#arrow)':''"
-        :class="{linking}"
+    <path
+        :d="points"
+        :class="{linking, selected}"
     />
 </template>
 
@@ -11,7 +9,7 @@
 export default {
     name: "StraightLine",
     props: ['source', 'target'],
-    inject: ['linking', 'midArrow'],
+    inject: ['linking', 'selected'],
     computed: {
         k() {
             return Math.abs((this.source.y - this.target.y) / (this.source.x - this.target.x))
@@ -40,12 +38,6 @@ export default {
             y += vector.y * height * vectorK.y || 0
             return {x, y}
         },
-        center() {
-            return {
-                x: (this.start.x + this.end.x) / 2,
-                y: (this.start.y + this.end.y) / 2,
-            }
-        },
         end() {
             let {x, y, width, height} = this.target
             width /= 2
@@ -68,15 +60,12 @@ export default {
         startPoint() {
             return `${this.start.x},${this.start.y}`
         },
-        middlePoint() {
-            return `${this.center.x},${this.center.y}`
-        },
         endPoint() {
             return `${this.end.x},${this.end.y}`
         },
         points() {
-            return [this.startPoint, this.middlePoint, this.endPoint].join(' ')
+            return `M ${this.startPoint} L ${this.endPoint} L ${this.endPoint}`
         },
-    }
+    },
 }
 </script>

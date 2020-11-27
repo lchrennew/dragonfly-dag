@@ -1,16 +1,3 @@
-<template>
-    <polyline
-        :points="pointsA"
-        :class="{linking}"
-        :marker-end="midArrow.value?'url(#arrow)':''"
-    />
-    <polyline
-        :points="pointsB"
-        :marker-end="midArrow.value?'':'url(#arrow)'"
-        :class="{linking}"
-    />
-</template>
-
 <script>
 import StraightLine from "./StraightLine.vue";
 
@@ -27,7 +14,11 @@ export default {
     extends: StraightLine,
     computed: {
         startPoint() {
-            return `${this.source.x},${this.source.y}`
+            let {x, y, width, height, orientation = 'right'} = this.source
+            const vector = vectors[orientation]
+            x += vector[0] * width / 2
+            y += vector[1] * height / 2
+            return `${x},${y}`
         },
         endPoint() {
             let {x, y, width, height, orientation = 'left'} = this.target
@@ -46,11 +37,6 @@ export default {
         zigPoint() {
             return `${this.zig.x},${this.zig.y}`
         },
-        middlePoint() {
-            const x = (this.zig.x + this.zag.x) / 2
-            const y = (this.zig.y + this.zag.y) / 2
-            return `${x},${y}`
-        },
         zag() {
             let {x, y, width, height, orientation = 'left'} = this.target
             const vector = vectors[orientation]
@@ -61,13 +47,9 @@ export default {
         zagPoint() {
             return `${this.zag.x},${this.zag.y}`
         },
-        pointsA() {
-            return [this.startPoint, this.zigPoint, this.middlePoint].join(' ')
-        },
-        pointsB() {
-            return [this.middlePoint, this.zagPoint, this.endPoint].join(' ')
+        points() {
+            return `M ${this.startPoint} L ${this.zigPoint} L ${this.zagPoint} L ${this.endPoint}`
         }
     },
-    inject: ['linking', 'midArrow'],
 }
 </script>

@@ -13,7 +13,7 @@
             v-model:zoom-scale="config.zoomScale"
             :arrow-zoom-ratio="config.arrowZoomRatio"
             :show-arrow="config.showArrow"
-            :mid-arrow="config.midArrow"
+            :arrow-position="config.arrowPosition"
             :before-add-edge-hook="onAddingEdge"
             :endpoint-group="{linkIn: false, linkOut: true}"
             :node-group="{linkIn: true, linkOut: false}"
@@ -32,9 +32,9 @@
         </dragonfly-canvas>
     </div>
     <canvas-config
-        v-model:showArrow="config.showArrow"
+        v-model:show-arrow="config.showArrow"
         v-model:arrowZoomRatio="config.arrowZoomRatio"
-        v-model:midArrow="config.midArrow"
+        v-model:arrow-position="config.arrowPosition"
         v-model:zoom-scale="config.zoomScale"
         v-model:min-zoom-scale="config.minZoomScale"
         v-model:max-zoom-scale="config.maxZoomScale"
@@ -75,7 +75,7 @@ export default {
                 },
                 showArrow: ref(false),
                 arrowZoomRatio: ref(1),
-                midArrow: ref(false),
+                arrowPosition: ref(100),
                 canvasDragging: ref('select'),
                 nodeDragging: ref('move'),
                 canvasWheeling: ref('zoom'),
