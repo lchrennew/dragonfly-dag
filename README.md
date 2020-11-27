@@ -33,24 +33,25 @@ yarn dev
 
 #### 画布属性
 
-| 属性              | 类型                               | 默认值      | 必填 | 支持双向绑定 | 说明                                                                                                  |
-| ----------------- | ---------------------------------- | ----------- | ---- | ------------ | ----------------------------------------------------------------------------------------------------- |
-| nodes             | `Array`                            | `[]`        | N    | Y            | 显示的节点，节点数据结构参见[节点信息](#节点信息-node)                                                |
-| edges             | `Array`                            | `[]`        | N    | Y            | 显示的边，边数据结构参见[边信息](#边信息-edge)                                                        |
-| zoomSensitivity   | `Number`                           | `0.001`     | N    | N            | 缩放敏感度                                                                                            |
-| zoomScale         | `Number`                           | `1`         | N    | Y            | 缩放比例                                                                                              |
-| maxZoomScale      | `Number`                           | `5`         | N    | N            | 最大缩放比例                                                                                          |
-| minZoomScale      | `Number`                           | `0.1`       | N    | N            | 最小缩放比例                                                                                          |
-| layoutConfig      | `Object`                           | `{}`        | N    | N            | 布局配置，边数据结构参见[Dagre 布局](#dagre布局)                                                      |
-| showArrow         | `Boolean`                          | `true`      | N    | N            | 连线显示箭头                                                                                          |
-| arrowZoomRatio    | `Number`                           | `1`         | N    | N            | 箭头缩放比例                                                                                          |
-| arrowPosition     | `Number`                           | `100`       | N    | N            | 箭头显示百分比位置，范围`0-100`，`0`为起点，`100`为终点                                               |
-| beforeAddEdgeHook | `Function`                         | `undefined` | N    | N            | 添加边预处理钩子                                                                                      |
-| nodeGroup         | `String`<br>`Object`<br>`Function` | `undefined` | N    | N            | 节点组控配置，组控配置方式参见[组控策略](#组控策略-group)                                             |
-| endpointGroup     | `String`<br>`Object`<br>`Function` | `undefined` | N    | N            | 锚点组控配置                                                                                          |
-| canvasDragging    | `String`                           | `'off'`     | N    | Y            | 画布拖拽行为，可选值：<br>`off`：禁用<br>`select`：节点圈选<br>`zoom`：选区放大<br>`scroll`：画布滚屏 |
-| nodeDragging      | `String`                           | `'off'`     | N    | Y            | 节点拖拽行为，可选值：`off`：禁用<br>`move`：移动节点<br>`link`：连接节点                             |
-| canvasWheeling    | `String`                           | `'off'`     | N    | Y            | 画布滚轮行为，可选值：`off`：禁用<br>`zoom`：滚轮缩放<br>`scroll`：滚屏                               |
+| 属性              | 类型                               | 默认值         | 必填 | 支持双向绑定 | 说明                                                                                                  |
+| ----------------- | ---------------------------------- | -------------- | ---- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| nodes             | `Array`                            | `[]`           | N    | Y            | 显示的节点，节点数据结构参见[节点信息](#节点信息-node)                                                |
+| edges             | `Array`                            | `[]`           | N    | Y            | 显示的边，边数据结构参见[边信息](#边信息-edge)                                                        |
+| zoomSensitivity   | `Number`                           | `0.001`        | N    | N            | 缩放敏感度                                                                                            |
+| zoomScale         | `Number`                           | `1`            | N    | Y            | 缩放比例                                                                                              |
+| maxZoomScale      | `Number`                           | `5`            | N    | N            | 最大缩放比例                                                                                          |
+| minZoomScale      | `Number`                           | `0.1`          | N    | N            | 最小缩放比例                                                                                          |
+| layoutConfig      | `Object`                           | `{}`           | N    | N            | 布局配置，边数据结构参见[Dagre 布局](#dagre布局)                                                      |
+| showArrow         | `Boolean`                          | `true`         | N    | N            | 连线显示箭头                                                                                          |
+| arrowZoomRatio    | `Number`                           | `1`            | N    | N            | 箭头缩放比例                                                                                          |
+| arrowPosition     | `Number`                           | `100`          | N    | N            | 箭头显示百分比位置，范围`0-100`，`0`为起点，`100`为终点                                               |
+| beforeAddEdgeHook | `Function`                         | `undefined`    | N    | N            | 添加边预处理钩子                                                                                      |
+| nodeGroup         | `String`<br>`Object`<br>`Function` | `undefined`    | N    | N            | 节点组控配置，组控配置方式参见[组控策略](#组控策略-group)                                             |
+| endpointGroup     | `String`<br>`Object`<br>`Function` | `undefined`    | N    | N            | 锚点组控配置                                                                                          |
+| canvasDragging    | `String`                           | `'off'`        | N    | Y            | 画布拖拽行为，可选值：<br>`off`：禁用<br>`select`：节点圈选<br>`zoom`：选区放大<br>`scroll`：画布滚屏 |
+| nodeDragging      | `String`                           | `'off'`        | N    | Y            | 节点拖拽行为，可选值：`off`：禁用<br>`move`：移动节点<br>`link`：连接节点                             |
+| canvasWheeling    | `String`                           | `'off'`        | N    | Y            | 画布滚轮行为，可选值：`off`：禁用<br>`zoom`：滚轮缩放<br>`scroll`：滚屏                               |
+| lineShap          | `Object`                           | `StraightLine` | N    | N            | 连线形状                                                                                              |
 
 #### 画布插槽
 
@@ -174,4 +175,5 @@ yarn dev
 | `Function`类型 | 函数入参为当前节点信息（或锚点所在节点）和锚点信息（如果源为节点，锚点信息则为`undefined`），函数返回`Boolean`类型的值为`true`时允许连出，`false`不允许连出 |
 
 ## Dagre 布局
-参见[Dagre布局配置](https://github.com/dagrejs/dagre/wiki#configuring-the-layout)
+
+参见[Dagre 布局配置](https://github.com/dagrejs/dagre/wiki#configuring-the-layout)

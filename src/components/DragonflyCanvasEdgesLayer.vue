@@ -23,6 +23,7 @@
             :target-node="positions[edge.target]"
             :source-endpoint="endpointPositions[edge.sourceEndpoint]"
             :target-endpoint="endpointPositions[edge.targetEndpoint]"
+            :line-shape="lineShape"
             #default="{source, target}"
         >
             <slot :source="source" :target="target"/>
@@ -45,6 +46,6 @@ export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {DragonflyLinkingEdge, DragonflyEdge},
     props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio'],
-    inject: ['showArrow']
+    inject: ['showArrow','lineShape']
 }
 </script>

@@ -53,14 +53,6 @@
                 :linking-target="linkingTarget"
                 :positions="positions"
             >
-                <template #default="{target, source}">
-                    <slot :source="source" :target="target" name="edgeRenderer">
-                        <zig-zag-line v-if="source && target"
-                                      :source="source"
-                                      :target="target"
-                        />
-                    </slot>
-                </template>
                 <template #linking="{target, source}">
                     <straight-line :source="source" :target="target"/>
                 </template>
@@ -150,6 +142,7 @@ export default {
         canvasDragging: {type: String, default: 'off'},
         nodeDragging: {type: String, default: 'off'},
         canvasWheeling: {type: String, default: 'off'},
+        lineShape: {required: true, default: StraightLine}
     },
     computed: {
         canvasStyle() {
@@ -354,6 +347,7 @@ export default {
             nodeGroup: computed(() => this.normalizedNodeGroup),
             endpointGroup: computed(() => this.normalizedEndpointGroup),
             nodeDraggingBehavior: computed(() => this.nodeDraggingBehavior),
+            lineShape: computed(() => this.lineShape),
         }
     },
     mounted() {

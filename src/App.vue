@@ -20,6 +20,7 @@
             v-model:canvas-dragging="config.canvasDragging"
             v-model:node-dragging="config.nodeDragging"
             v-model:canvas-wheeling="config.canvasWheeling"
+            :line-shape="config.lineShape"
             ref="canvas"
         >
             <template #nodeRenderer="{node}">
@@ -49,9 +50,10 @@
 
 import DragonflyCanvas from "./components/DragonflyCanvas.vue";
 import CanvasConfig from "./CanvasConfig.vue";
-import {ref} from 'vue'
+import {ref, shallowRef} from 'vue'
 import CanvasData from "./CanvasData.vue";
 import DragonflyEndpoint from "./components/DragonflyEndpoint.vue";
+import StraightLine from "./components/edge/StraightLine.vue";
 
 export default {
     name: 'App',
@@ -79,6 +81,7 @@ export default {
                 canvasDragging: ref('select'),
                 nodeDragging: ref('move'),
                 canvasWheeling: ref('zoom'),
+                lineShape: shallowRef(StraightLine),
             },
             feed: 3,
             nodes: [{id: '1'}, {id: '2'}],
@@ -99,7 +102,7 @@ export default {
                 }, 100)
             })
         },
-        autoLayout(){
+        autoLayout() {
             this.$refs.canvas.resetLayout()
         }
     }

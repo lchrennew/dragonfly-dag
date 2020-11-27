@@ -1,6 +1,6 @@
 <template>
-    <slot :source="source" :target="target"/>
-    <line v-if="showArrow.value"
+    <component ref="path" :source="source" :target="target" :is="lineShape.value"/>
+    <line v-if="showArrow.value && pathLength"
           marker-end="url(#arrow)"
           :x1="arrowPoint1.x"
           :x2="arrowPoint2.x"
@@ -15,11 +15,11 @@ import {computed} from 'vue'
 
 export default {
     name: "DragonflyEdge",
-    props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'selected'],
-    inject: ['showArrow', 'arrowPosition',],
+    props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'selected', 'lineShape'],
+    inject: ['showArrow', 'arrowPosition'],
     data() {
         return {
-            path: null,
+            pathLength: 0,
         }
     },
     computed: {
@@ -46,10 +46,8 @@ export default {
             }
             return this.targetNode
         },
-        pathLength() {
-            if (this.path && this.showArrow.value && this.target && this.source) {
-                return this.path.getTotalLength()
-            } else return 0
+        lineEnds() {
+            return {source: this.source, target: this.target}
         },
         arrowPositionPercent() {
             return this.arrowPosition.value / 100
@@ -58,10 +56,23 @@ export default {
             return this.pathLength * this.arrowPositionPercent
         },
         arrowPoint1() {
-            return this.path?.getPointAtLength?.(Math.max(this.arrowPointLength - 1, 0)) ?? {x: 0, y: 0}
+            const length = Math.max(this.arrowPointLength - 1, 0)
+            return this.$refs.path?.$el?.getPointAtLength?.(length) ?? {x: 0, y: 0}
         },
         arrowPoint2() {
-            return this.path?.getPointAtLength?.(this.arrowPointLength) ?? {x: 0, y: 0}
+            const length = this.arrowPointLength
+            return this.$refs.path?.$el?.getPointAtLength?.(length) ?? {x: 0, y: 0}
+        },
+    },
+    methods: {
+        generateLength() {
+            if (this.$refs.path?.$el && this.showArrow.value) {
+                this.$nextTick(() => {
+                    this.pathLength = this.$refs.path?.$el?.getTotalLength?.() ?? 0
+                })
+            } else {
+                this.pathLength = 0
+            }
         }
     },
     provide() {
@@ -71,7 +82,11 @@ export default {
         }
     },
     mounted() {
-        this.path = this.$el.nextElementSibling
+        this.generateLength()
+    },
+    watch: {
+        lineEnds: 'generateLength',
+        'showArrow.value': 'generateLength',
     }
 }
 </script>
