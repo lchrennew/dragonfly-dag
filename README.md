@@ -35,18 +35,18 @@ yarn dev
 
 | 属性              | 类型                               | 默认值      | 必填 | 支持双向绑定 | 说明                                                                                                  |
 | ----------------- | ---------------------------------- | ----------- | ---- | ------------ | ----------------------------------------------------------------------------------------------------- |
-| nodes             | `Array`                            | `[]`        | N    | Y            | 显示的节点，节点数据结构参见[数据类型](#节点信息)                                                     |
-| edges             | `Array`                            | `[]`        | N    | Y            | 显示的边，边数据结构参见[数据类型](#边信息)                                                           |
+| nodes             | `Array`                            | `[]`        | N    | Y            | 显示的节点，节点数据结构参见[节点信息](#节点信息-node)                                                |
+| edges             | `Array`                            | `[]`        | N    | Y            | 显示的边，边数据结构参见[边信息](#边信息-edge)                                                        |
 | zoomSensitivity   | `Number`                           | `0.001`     | N    | N            | 缩放敏感度                                                                                            |
 | zoomScale         | `Number`                           | `1`         | N    | Y            | 缩放比例                                                                                              |
 | maxZoomScale      | `Number`                           | `5`         | N    | N            | 最大缩放比例                                                                                          |
 | minZoomScale      | `Number`                           | `0.1`       | N    | N            | 最小缩放比例                                                                                          |
-| layoutConfig      | `Object`                           | `{}`        | N    | N            | 布局配置，边数据结构参见[布局配置](#Dagre布局)                                                        |
+| layoutConfig      | `Object`                           | `{}`        | N    | N            | 布局配置，边数据结构参见[Dagre 布局](#dagre布局)                                                      |
 | showArrow         | `Boolean`                          | `true`      | N    | N            | 连线显示箭头                                                                                          |
 | arrowZoomRatio    | `Number`                           | `1`         | N    | N            | 箭头缩放比例                                                                                          |
 | arrowPosition     | `Number`                           | `100`       | N    | N            | 箭头显示百分比位置，范围`0-100`，`0`为起点，`100`为终点                                               |
 | beforeAddEdgeHook | `Function`                         | `undefined` | N    | N            | 添加边预处理钩子                                                                                      |
-| nodeGroup         | `String`<br>`Object`<br>`Function` | `undefined` | N    | N            | 节点组控配置，组控配置方式参见[组控配置](#组控配置)                                                   |
+| nodeGroup         | `String`<br>`Object`<br>`Function` | `undefined` | N    | N            | 节点组控配置，组控配置方式参见[组控策略](#组控策略-group)                                             |
 | endpointGroup     | `String`<br>`Object`<br>`Function` | `undefined` | N    | N            | 锚点组控配置                                                                                          |
 | canvasDragging    | `String`                           | `'off'`     | N    | Y            | 画布拖拽行为，可选值：<br>`off`：禁用<br>`select`：节点圈选<br>`zoom`：选区放大<br>`scroll`：画布滚屏 |
 | nodeDragging      | `String`                           | `'off'`     | N    | Y            | 节点拖拽行为，可选值：`off`：禁用<br>`move`：移动节点<br>`link`：连接节点                             |
@@ -54,41 +54,50 @@ yarn dev
 
 #### 画布插槽
 
-| 插槽            | scope                                    | 默认内容     | 说明                                                            |
-| --------------- | ---------------------------------------- | ------------ | --------------------------------------------------------------- |
-| nodeRenderer    | `node`                                   | 节点 ID 文本 | 自定义节点渲染                                                  |
-| topEndpoints    | `node`                                   | 无           | 顶部锚点                                                        |
-| leftEndpoints   | `node`                                   | 无           | 左侧锚点                                                        |
-| rightEndpoints  | `node`                                   | 无           | 右侧锚点                                                        |
-| bottomEndpoints | `node`                                   | 无           | 底部锚点                                                        |
-| edgeRenderer    | `source`：起点信息<br>`target`：终点信息 | 直线连接线   | 自定义连接线渲染，连线端点数据结构参见[数据类型](#连线端点信息) |
+| 插槽            | scope                                    | 默认内容     | 说明                                                                        |
+| --------------- | ---------------------------------------- | ------------ | --------------------------------------------------------------------------- |
+| nodeRenderer    | `node`                                   | 节点 ID 文本 | 自定义节点渲染                                                              |
+| topEndpoints    | `node`                                   | 无           | 顶部锚点                                                                    |
+| leftEndpoints   | `node`                                   | 无           | 左侧锚点                                                                    |
+| rightEndpoints  | `node`                                   | 无           | 右侧锚点                                                                    |
+| bottomEndpoints | `node`                                   | 无           | 底部锚点                                                                    |
+| edgeRenderer    | `source`：起点信息<br>`target`：终点信息 | 直线连接线   | 自定义连接线渲染，连线端点数据结构参见[连线端点信息](#连线端点信息-lineend) |
 
-### 端点 `DragonflyEndpoint`
+### 锚点 `DragonflyEndpoint`
 
-WIP
+| 属性     | 类型                 | 默认值      | 必填 | 支持双向绑定 | 说明                                         |
+| -------- | -------------------- | ----------- | ---- | ------------ | -------------------------------------------- |
+| endpoint | `Object`             | -           | Y    | N            | 锚点信息，参考[锚点信息](#锚点信息-endpoint) |
+| group    | `String`<br>`Object` | `undefined` | N    | N            | 节点组控规则                                 |
 
 ### 直线 `StraightLine`
 
-WIP
+| 属性   | 类型     | 默认值 | 必填 | 支持双向绑定 | 说明                                                                    |
+| ------ | -------- | ------ | ---- | ------------ | ----------------------------------------------------------------------- |
+| source | `Object` | -      | Y    | N            | 连线起点，连线端点信息数据结构参见[连线端点信息](#连线端点信息-lineend) |
+| target | `Object` | -      | Y    | N            | 连线终点，连线端点信息数据结构参见[连线端点信息](#连线端点信息-lineend) |
 
 ### 之字线 `ZigZagLine`
 
-WIP
+| 属性   | 类型     | 默认值 | 必填 | 支持双向绑定 | 说明                                                                    |
+| ------ | -------- | ------ | ---- | ------------ | ----------------------------------------------------------------------- |
+| source | `Object` | -      | Y    | N            | 连线起点，连线端点信息数据结构参见[连线端点信息](#连线端点信息-lineend) |
+| target | `Object` | -      | Y    | N            | 连线终点，连线端点信息数据结构参见[连线端点信息](#连线端点信息-lineend) |
 
 ## 数据类型
 
 ### 节点信息 `Node`
 
-| 字段      | 类型                 | 必填 | 默认值     | 说明                                              |
-| --------- | -------------------- | ---- | ---------- | ------------------------------------------------- |
-| id        | `String`             | Y    | -          | 节点唯一标识 ID                                   |
-| label     | `String`             | N    | undefined  | 节点显示标签                                      |
-| x         | `Number`             | N    | 布局计算值 | 节点中心 x 坐标，优先于布局计算值                 |
-| y         | `Number`             | N    | 布局计算值 | 节点中心 y 坐标，优先于布局计算值                 |
-| movable   | `Boolean`            | N    | true       | 节点是否可以拖拽移动                              |
-| linkable  | `Boolean`            | N    | true       | 节点是否可连线（无论连入还是连出）                |
-| endpoints | `Array`              | N    | undefined  | 节点的锚点列表，数据结构参见[数据类型](#锚点信息) |
-| group     | `String`<br>`Object` | N    | undefined  | 节点组控规则                                      |
+| 字段      | 类型                 | 必填 | 默认值     | 说明                                                       |
+| --------- | -------------------- | ---- | ---------- | ---------------------------------------------------------- |
+| id        | `String`             | Y    | -          | 节点唯一标识 ID                                            |
+| label     | `String`             | N    | undefined  | 节点显示标签                                               |
+| x         | `Number`             | N    | 布局计算值 | 节点中心 x 坐标，优先于布局计算值                          |
+| y         | `Number`             | N    | 布局计算值 | 节点中心 y 坐标，优先于布局计算值                          |
+| movable   | `Boolean`            | N    | true       | 节点是否可以拖拽移动                                       |
+| linkable  | `Boolean`            | N    | true       | 节点是否可连线（无论连入还是连出）                         |
+| endpoints | `Array`              | N    | undefined  | 节点的锚点列表，数据结构参见[锚点信息](#锚点信息-endpoint) |
+| group     | `String`<br>`Object` | N    | undefined  | 节点组控规则，参见 [组控策略](#组控策略-group)             |
 
 ### 锚点信息 `Endpoint`
 
@@ -98,7 +107,7 @@ WIP
 | label       | `String`             | N    | -         | 锚点显示标签                                           |
 | orientation | `String`             | Y    | -         | 锚点显示位置，可选值为`top`、`bottom`、`left`、`right` |
 | linkable    | `Boolean`            | N    | true      | 锚点是否可连线（无论连入还是连出）                     |
-| group       | `String`<br>`Object` | N    | undefined | 锚点组控规则                                           |
+| group       | `String`<br>`Object` | N    | undefined | 锚点组控规则，参见 [组控策略](#组控策略-group)         |
 
 ### 边信息 `Edge`
 
@@ -128,24 +137,24 @@ WIP
 
 直接用字符串做组控策略时，字符串为组名，组名完全相同的节点/锚点可以连入。（连出能否成功取决于目标节点/锚点的组策略）
 
-### 对象组控策略
+#### 对象组控策略
 
-| 字段    | 类型                                           | 必填 | 默认值      | 说明                  |
-| ------- | ---------------------------------------------- | ---- | ----------- | --------------------- |
-| name    | `String`                                       | N    | `undefined` | 当前节点/锚点所属组名 |
-| linkIn  | `String`<br>`Array`<br>`Function`<br>`Boolean` | N    | `undefined` | 连入规则，见下方      |
-| linkOut | `Boolean`                                      | N    | `undefined` | 连出规则，见下方：    |
+| 字段    | 类型                                           | 必填 | 默认值      | 说明                                         |
+| ------- | ---------------------------------------------- | ---- | ----------- | -------------------------------------------- |
+| name    | `String`                                       | N    | `undefined` | 当前节点/锚点所属组名                        |
+| linkIn  | `String`<br>`Array`<br>`Function`<br>`Boolean` | N    | `undefined` | 连入规则，参见 [连入规则](#连入规则-linkin)  |
+| linkOut | `Boolean`                                      | N    | `undefined` | 连出规则，参见 [连出规则](#连出规则-linkout) |
 
-#### 连入规则 `linkIn`
+##### 连入规则 `linkIn`
 
 | 情形           | 逻辑                                                                                                      |
 | -------------- | --------------------------------------------------------------------------------------------------------- |
 | `undefined`    | 当前节点/锚点组名也是`undefined`时允许任何节点/锚点连入，否则只允许和当前节点/锚点组名一致的节点/锚点连入 |
 | `String`类型   | 源节点/锚点具有相同组名时可接入                                                                           |
 | `Array`类型    | 数组包含源节点/锚点的组名时可连入                                                                         |
-| `Function`类型 | 函数返回`true`允许连入，`false`不允许连入，输入参数见下方说明                                             |
+| `Function`类型 | 函数返回`true`允许连入，`false`不允许连入，输入参数参见 [函数形式的输入参数](#函数形式的输入参数)         |
 
-#### 函数形式的`linkIn`的输入参数
+###### 函数形式的输入参数
 
 ```javascript
 // 输入参数为一个对象，解构如下：
@@ -156,10 +165,13 @@ WIP
 }
 ```
 
-#### 连出规则 `linkOut`
+##### 连出规则 `linkOut`
 
 | 情形           | 逻辑                                                                                                                                                        |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `undefined`    | 当前节点可以连出                                                                                                                                            |
 | `Boolean`类型  | 为`true`时可以连出，`false`不允许连出                                                                                                                       |
 | `Function`类型 | 函数入参为当前节点信息（或锚点所在节点）和锚点信息（如果源为节点，锚点信息则为`undefined`），函数返回`Boolean`类型的值为`true`时允许连出，`false`不允许连出 |
+
+## Dagre 布局
+参见[Dagre布局配置](https://github.com/dagrejs/dagre/wiki#configuring-the-layout)
