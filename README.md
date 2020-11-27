@@ -95,7 +95,7 @@ WIP
 | label       | `String`          | N    | -         | 锚点显示标签                                           |
 | orientation | `String`          | Y    | -         | 锚点显示位置，可选值为`top`、`bottom`、`left`、`right` |
 | linkable    | `Boolean`         | N    | true      | 锚点是否可连线（无论连入还是连出）                     |
-| group       | `String`,`Object` | N    | undefined | 锚点组控规则                                           |
+| group       | `String`<br>`Object` | N    | undefined | 锚点组控规则                                           |
 
 ### 边信息 `Edge`
 
@@ -130,7 +130,7 @@ WIP
 | 字段    | 类型                                  | 必填 | 默认值      | 说明                                                                                                                                                                                                                                                                                                                     |
 | ------- | ------------------------------------- | ---- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | name    | `String`                              | N    | `undefined` | 当前节点/锚点所属组名                                                                                                                                                                                                                                                                                                    |
-| linkIn  | `String`,`Array`,`Function`,`Boolean` | N    | `undefined` | 连入规则：<br>`undefined`：当前节点/锚点组名也是`undefined`时允许任何节点/锚点连入，否则只允许和当前节点/锚点组名一致的节点/锚点连入<br>`String`类型：源节点/锚点具有相同组名时可接入<br>`Array`类型：数组包含源节点/锚点的组名时可连入<br>`Function`类型：函数返回`true`允许连入，`false`不允许连入，输入参数见下方说明 |
+| linkIn  | `String`<br>`Array`<br>`Function`<br>`Boolean` | N    | `undefined` | 连入规则：<br>`undefined`：当前节点/锚点组名也是`undefined`时允许任何节点/锚点连入，否则只允许和当前节点/锚点组名一致的节点/锚点连入<br>`String`类型：源节点/锚点具有相同组名时可接入<br>`Array`类型：数组包含源节点/锚点的组名时可连入<br>`Function`类型：函数返回`true`允许连入，`false`不允许连入，输入参数见下方说明 |
 | linkOut | `Number`                              | N    | `undefined` | 连出规则：<br>`undefined`：当前节点可以连出<br>`Boolean`类型：为`true`时可以连出，`false`不允许连出<br>`Function`类型：函数入参为当前节点信息（或锚点所在节点）和锚点信息（如果源为节点，锚点信息则为`undefined`），函数返回`Boolean`类型的值为`true`时允许连出，`false`不允许连出                                       |     |
 
 #### 函数形式的`linkIn`的输入参数
