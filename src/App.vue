@@ -54,6 +54,7 @@ import {ref, shallowRef} from 'vue'
 import CanvasData from "./CanvasData.vue";
 import DragonflyEndpoint from "./components/DragonflyEndpoint.vue";
 import StraightLine from "./components/edge/StraightLine.vue";
+import ZigZagLine from "./components/edge/ZigZagLine.vue";
 
 export default {
     name: 'App',
@@ -81,7 +82,7 @@ export default {
                 canvasDragging: ref('select'),
                 nodeDragging: ref('move'),
                 canvasWheeling: ref('zoom'),
-                lineShape: shallowRef(StraightLine),
+                lineShape: shallowRef(ZigZagLine),
             },
             feed: 3,
             nodes: [{id: '1'}, {id: '2'}],

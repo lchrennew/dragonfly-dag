@@ -1,6 +1,6 @@
 <template>
     <component ref="path" :source="source" :target="target" :is="lineShape.value"/>
-    <line v-if="showArrow.value && pathLength"
+    <line v-if="showArrow.value"
           marker-end="url(#arrow)"
           :x1="arrowPoint1.x"
           :x2="arrowPoint2.x"
@@ -19,7 +19,8 @@ export default {
     inject: ['showArrow', 'arrowPosition'],
     data() {
         return {
-            pathLength: 0,
+            arrowPoint1: {x: 0, y: 0},
+            arrowPoint2: {x: 0, y: 0},
         }
     },
     computed: {
@@ -52,26 +53,20 @@ export default {
         arrowPositionPercent() {
             return this.arrowPosition.value / 100
         },
-        arrowPointLength() {
-            return this.pathLength * this.arrowPositionPercent
-        },
-        arrowPoint1() {
-            const length = Math.max(this.arrowPointLength - 1, 0)
-            return this.$refs.path?.$el?.getPointAtLength?.(length) ?? {x: 0, y: 0}
-        },
-        arrowPoint2() {
-            const length = this.arrowPointLength
-            return this.$refs.path?.$el?.getPointAtLength?.(length) ?? {x: 0, y: 0}
-        },
     },
     methods: {
         generateLength() {
-            if (this.$refs.path?.$el && this.showArrow.value) {
+            const path = this.$refs.path?.$el
+            const origin = {x: 0, y: 0}
+            if (path && this.showArrow.value) {
                 this.$nextTick(() => {
-                    this.pathLength = this.$refs.path?.$el?.getTotalLength?.() ?? 0
+                    const pathLength = path.getTotalLength() ?? 0
+                    const arrowPointLength = pathLength * this.arrowPositionPercent
+                    this.arrowPoint1 = path.getPointAtLength(Math.max(arrowPointLength - 1, 0)) ?? origin
+                    this.arrowPoint2 = path.getPointAtLength?.(arrowPointLength) ?? origin
                 })
             } else {
-                this.pathLength = 0
+                this.arrowPoint1 = this.arrowPoint2 = origin
             }
         }
     },
