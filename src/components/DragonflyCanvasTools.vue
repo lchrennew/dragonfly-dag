@@ -77,32 +77,3 @@ export default {
     }
 }
 </script>
-
-<style scoped lang="less">
-.dragonfly-tools {
-    display: flex;
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 4;
-    flex-direction: row;
-    box-shadow: rgba(0, 0, 0, 0.5) 0 0 20px 0;
-    background-color: #fff;
-
-    button {
-        border: none;
-        padding: 0 1em;
-        margin: 0;
-        background-color: #fff;
-        outline: none;
-
-        &:hover {
-            background-color: #eeeeee;
-        }
-
-        &.active {
-            background-color: #9cdfff;
-        }
-    }
-}
-</style>

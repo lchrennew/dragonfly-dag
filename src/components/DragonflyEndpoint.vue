@@ -185,19 +185,3 @@ export default {
     }
 }
 </script>
-
-<style scoped lang="less">
-.dragonfly-endpoint {
-    display: block;
-    width: 10px;
-    height: 10px;
-    border-radius: 10px;
-    border: solid 2px #777777;
-    background-color: #fff;
-    position: relative;
-
-    &.targeted {
-        border-color: #f00;
-    }
-}
-</style>

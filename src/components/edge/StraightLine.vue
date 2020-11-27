@@ -42,8 +42,8 @@ export default {
         },
         center() {
             return {
-                x: (this.source.x + this.target.x) / 2,
-                y: (this.source.y + this.target.y) / 2,
+                x: (this.start.x + this.end.x) / 2,
+                y: (this.start.y + this.end.y) / 2,
             }
         },
         end() {

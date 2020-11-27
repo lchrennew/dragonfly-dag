@@ -46,35 +46,3 @@ export default {
     props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'showArrow', 'arrowZoomRatio'],
 }
 </script>
-
-<style lang="less">
-.dragonfly-edges-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 1px;
-    height: 1px;
-    z-index: 2;
-    overflow: visible !important;
-    color: #777;
-
-    * {
-        stroke-width: 2;
-        stroke: currentColor;
-        pointer-events: none;
-        fill: transparent;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-
-        &.linking {
-            stroke-dasharray: 2 5;
-            stroke-dashoffset: -10;
-        }
-    }
-
-    .arrow {
-        stroke-width: 0;
-        fill: currentColor;
-    }
-}
-</style>

@@ -1,6 +1,7 @@
 <template>
     <div>
         <a-button @click="addNode">添加节点</a-button>
+        <a-button @click="autoLayout">自动布局</a-button>
     </div>
     <div style="width: 800px; height: 100%; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
         <dragonfly-canvas
@@ -19,6 +20,7 @@
             v-model:canvas-dragging="config.canvasDragging"
             v-model:node-dragging="config.nodeDragging"
             v-model:canvas-wheeling="config.canvasWheeling"
+            ref="canvas"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -96,6 +98,9 @@ export default {
                     resolve(undefined)  // 用默数据连接
                 }, 100)
             })
+        },
+        autoLayout(){
+            this.$refs.canvas.resetLayout()
         }
     }
 }

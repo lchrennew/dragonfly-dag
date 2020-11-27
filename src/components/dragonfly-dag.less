@@ -1,0 +1,208 @@
+// variables
+@select-area-border: none;
+@select-area-color: rgba(128, 212, 255, 0.3);
+@zoom-area-border: dashed 1px #777777;
+@zoom-area-color: transparent;
+
+@edge-default-color: #777;
+@edge-default-width: 2;
+
+@linking-stroke-dasharray: 2 5;
+@linking-stroke-dashoffset: -10;
+
+@node-selected-border: dashed 1px #777;
+@node-targeted-border: solid 1px #f00;
+
+@endpoint-size: 10px;
+@endpoint-border: solid 2px #777;
+@endpoint-color: #fff;
+
+// z-indices
+@tools-z-index: 3;
+@edges-layer-z-index: 2;
+@canvas-z-index: 1;
+
+@node-z-index: 1;
+@node-selected-z-index: 2;
+
+@node-endpoints-z-index: 2;
+@node-inner-z-index: 1;
+
+@endpoint-targeted-border-color: #f00;
+@endpoint-targeted-color: #fff;
+@endpoint-targeted-border-style: solid;
+@endpoint-targeted-border-width: 2px;
+@endpoint-targeted-border: @endpoint-targeted-border-color @endpoint-targeted-border-style @endpoint-targeted-border-width;
+
+
+.dragonfly-viewport {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  .dragonfly-tools {
+    background-color: #fff;
+    box-shadow: rgba(0, 0, 0, 0.5) 0 0 20px 0;
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: @tools-z-index;
+
+    button {
+      border: none;
+      padding: 0 1em;
+      margin: 0;
+      background-color: #fff;
+      outline: none;
+
+      &:hover {
+        background-color: #eeeeee;
+      }
+
+      &.active {
+        background-color: #9cdfff;
+      }
+    }
+  }
+
+  .dragonfly-edges-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    z-index: @edges-layer-z-index;
+    overflow: visible !important;
+    color: @edge-default-color;
+
+    * {
+      stroke-width: @edge-default-width;
+      stroke: currentColor;
+      pointer-events: none;
+      fill: transparent;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+
+      &.linking {
+        stroke-dasharray: @linking-stroke-dasharray;
+        stroke-dashoffset: @linking-stroke-dashoffset;
+      }
+    }
+
+    .arrow {
+      stroke-width: 0;
+      fill: currentColor;
+    }
+  }
+
+  .dragonfly-canvas {
+    position: relative;
+    overflow: visible;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 0 0; // 左上角缩放
+    z-index: @canvas-z-index;
+
+    .dragonfly-node {
+      position: absolute;
+      z-index: @node-z-index;
+      border: solid 1px transparent;
+      box-sizing: border-box;
+      width: fit-content;
+      height: fit-content;
+
+      &.selected {
+        border: @node-selected-border;
+        z-index: @node-selected-z-index;
+      }
+
+      &:not(.selected).targeted {
+        border: @node-targeted-border;
+      }
+
+      .dragonfly-node-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        z-index: @node-inner-z-index;
+      }
+
+      .dragonfly-endpoints {
+        position: absolute;
+        overflow: visible;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        z-index: @node-endpoints-z-index;
+
+        &.left {
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 0;
+          flex-direction: column;
+        }
+
+        &.right {
+          right: 0;
+          top: 0;
+          height: 100%;
+          width: 0;
+          flex-direction: column;
+        }
+
+        &.top {
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 0;
+          flex-direction: row;
+        }
+
+        &.bottom {
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 0;
+          flex-direction: row;
+        }
+
+        .dragonfly-endpoint {
+          display: block;
+          width: @endpoint-size;
+          height: @endpoint-size;
+          border-radius: @endpoint-size;
+          border: @endpoint-border;
+          background-color: @endpoint-color;
+          position: relative;
+
+          &.targeted {
+            border: @endpoint-targeted-border;
+            background-color: @endpoint-targeted-color;
+          }
+        }
+      }
+
+    }
+
+
+    & > .area {
+      position: absolute;
+      z-index: 6;
+
+      &.select {
+        border: @select-area-border;
+        background-color: @select-area-color;
+      }
+
+      &.zoom {
+        background-color: @zoom-area-color;
+        border: @zoom-area-border;
+      }
+    }
+  }
+}

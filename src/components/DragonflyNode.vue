@@ -182,33 +182,3 @@ export default {
     }
 }
 </script>
-
-<style scoped lang="less">
-.dragonfly-node {
-    position: absolute;
-    z-index: 3;
-    border: solid 1px transparent;
-    box-sizing: border-box;
-    width: fit-content;
-    height: fit-content;
-
-    &.selected {
-        border: dashed 1px #777;
-        z-index: 4;
-    }
-
-    &:not(.selected).targeted {
-        border: solid 1px #f00;
-    }
-
-    .dragonfly-node-inner {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        user-select: none;
-        z-index: 1;
-    }
-
-
-}
-</style>

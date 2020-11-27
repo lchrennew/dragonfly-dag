@@ -71,6 +71,8 @@
 </template>
 
 <script>
+import './dragonfly-dag.less'
+
 import DragonflyNode from "./DragonflyNode.vue";
 import StraightLine from "./edge/StraightLine.vue";
 import {computed, ref} from 'vue'
@@ -226,7 +228,7 @@ export default {
             this.scale = scale
         },
 
-        generateLayout() {
+        resetLayout() {
             const layout = dagreLayout(this.nodes, this.positions, this.edges, this.layoutConfig)
             const positions = layout._nodes
             for (let {id, x, y} of this.nodes) {
@@ -333,7 +335,7 @@ export default {
         },
         endpointReposition(id, x, y, width, height, orientation) {
             this.endpointPositions[id] = {x, y, width, height, orientation}
-        }
+        },
     },
     provide() {
         return {
@@ -357,7 +359,7 @@ export default {
     mounted() {
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
-        this.generateLayout()
+        this.resetLayout()
     },
     watch: {
         zoomScale(value) {
@@ -388,36 +390,3 @@ export default {
     }
 }
 </script>
-
-<style lang="less" scoped>
-.dragonfly-viewport {
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    position: relative;
-
-    .dragonfly-canvas {
-        position: relative;
-        overflow: visible;
-        width: 100%;
-        height: 100%;
-        transform-origin: 0 0 0; // 左上角缩放
-
-        & > .area {
-            position: absolute;
-            z-index: 6;
-
-            &.select {
-                border: none;
-                background-color: #80d4ff;
-                opacity: 0.3;
-            }
-
-            &.zoom {
-                background-color: transparent;
-                border: dashed 1px #777777;
-            }
-        }
-    }
-}
-</style>
