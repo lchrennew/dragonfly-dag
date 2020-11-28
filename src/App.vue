@@ -5,23 +5,25 @@
     </div>
     <div style="width: 800px; height: 100%; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
         <dragonfly-canvas
-            v-model:nodes="nodes"
+            ref="canvas"
+            v-model:canvas-dragging="config.canvasDragging"
+            v-model:canvas-wheeling="config.canvasWheeling"
             v-model:edges="edges"
-            :layout-config="config.layout"
-            :min-zoom-scale="config.minZoomScale"
-            :max-zoom-scale="config.maxZoomScale"
+            v-model:node-dragging="config.nodeDragging"
+            v-model:nodes="nodes"
+            v-model:positions="positions"
             v-model:zoom-scale="config.zoomScale"
-            :arrow-zoom-ratio="config.arrowZoomRatio"
-            :show-arrow="config.showArrow"
             :arrow-position="config.arrowPosition"
+            :arrow-zoom-ratio="config.arrowZoomRatio"
             :before-add-edge-hook="onAddingEdge"
             :endpoint-group="{linkIn: false, linkOut: true}"
-            :node-group="{linkIn: true, linkOut: false}"
-            v-model:canvas-dragging="config.canvasDragging"
-            v-model:node-dragging="config.nodeDragging"
-            v-model:canvas-wheeling="config.canvasWheeling"
+            :layout-config="config.layout"
             :line-shape="config.lineShape"
-            ref="canvas"
+            :max-zoom-scale="config.maxZoomScale"
+            :min-zoom-scale="config.minZoomScale"
+            :node-group="{linkIn: true, linkOut: false}"
+            :show-arrow="config.showArrow"
+            :show-edge-labels="config.showEdgeLabels"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -30,20 +32,24 @@
                 <dragonfly-endpoint :endpoint="{id:`${node.id}-succeeded`}" class="succeeded-endpoint"/>
                 <dragonfly-endpoint :endpoint="{id:`${node.id}-failed`}" class="failed-endpoint"/>
             </template>
+            <template #edgeLabelRenderer="{edge}">
+                <div :class="`edge-label-${edge.label}`">{{ edge.label }}</div>
+            </template>
         </dragonfly-canvas>
     </div>
     <canvas-config
-        v-model:show-arrow="config.showArrow"
-        v-model:arrowZoomRatio="config.arrowZoomRatio"
         v-model:arrow-position="config.arrowPosition"
-        v-model:zoom-scale="config.zoomScale"
-        v-model:min-zoom-scale="config.minZoomScale"
-        v-model:max-zoom-scale="config.maxZoomScale"
+        v-model:arrowZoomRatio="config.arrowZoomRatio"
         v-model:canvas-dragging="config.canvasDragging"
-        v-model:node-dragging="config.nodeDragging"
         v-model:canvas-wheeling="config.canvasWheeling"
+        v-model:max-zoom-scale="config.maxZoomScale"
+        v-model:min-zoom-scale="config.minZoomScale"
+        v-model:node-dragging="config.nodeDragging"
+        v-model:show-arrow="config.showArrow"
+        v-model:show-edge-labels="config.showEdgeLabels"
+        v-model:zoom-scale="config.zoomScale"
     />
-    <canvas-data :nodes="nodes" :edges="edges"/>
+    <canvas-data :edges="edges" :nodes="nodes"/>
 </template>
 
 <script>
@@ -53,7 +59,6 @@ import CanvasConfig from "./CanvasConfig.vue";
 import {ref, shallowRef} from 'vue'
 import CanvasData from "./CanvasData.vue";
 import DragonflyEndpoint from "./components/DragonflyEndpoint.vue";
-import ZigZagLine from "./components/edge/ZigZagLine.vue";
 import SCurveLine from "./components/edge/SCurveLine.vue";
 
 export default {
@@ -83,10 +88,12 @@ export default {
                 nodeDragging: ref('move'),
                 canvasWheeling: ref('zoom'),
                 lineShape: shallowRef(SCurveLine),
+                showEdgeLabels: ref(false),
             },
             feed: 3,
             nodes: [{id: '1'}, {id: '2'}],
             edges: [],
+            positions: {},
         }
     },
     methods: {
@@ -97,9 +104,16 @@ export default {
         async onAddingEdge({source, target, sourceEndpoint, targetEndpoint}) {
             return new Promise(resolve => {
                 setTimeout(() => {
-                    // resolve({id: 'xxx', source, target, sourceEndpoint, targetEndpoint}) // 用自定义数据连接
+                    resolve({
+                        id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
+                        source,
+                        target,
+                        sourceEndpoint,
+                        targetEndpoint,
+                        label: (sourceEndpoint ?? source).split('-')[1]
+                    }) // 用自定义数据连接
                     // resolve(false)   // 取消连接
-                    resolve(undefined)  // 用默数据连接
+                    // resolve(undefined)  // 用默数据连接
                 }, 100)
             })
         },
@@ -114,7 +128,8 @@ export default {
     padding: 1em;
     background-color: #9cdfff;
 }
-.succeeded-label{
+
+.succeeded-label {
     background-color: #e6ffe6;
     border-radius: 4px;
     color: #bbb;
@@ -123,7 +138,8 @@ export default {
     left: 10px;
     top: -15px;
 }
-.failed-label{
+
+.failed-label {
     background-color: #ffe6e6;
     border-radius: 4px;
     color: #bbb;
@@ -133,10 +149,31 @@ export default {
     top: 5px;
 }
 
-.succeeded-endpoint{
+.succeeded-endpoint {
     border-color: #7acc7a !important;
 }
-.failed-endpoint{
+
+.failed-endpoint {
     border-color: #cc7a7a !important;
+}
+
+.edge-label-succeeded {
+    position: relative;
+    top: -1em;
+    background-color: #7acc7a;
+    border-radius: 4px;
+    color: #fff;
+    line-height: 1em;
+    padding: 2px 2px;
+}
+
+.edge-label-failed {
+    position: relative;
+    top: -1em;
+    background-color: #cc7a7a;
+    border-radius: 4px;
+    color: #fff;
+    line-height: 1em;
+    padding: 2px 2px;
 }
 </style>

@@ -13,6 +13,13 @@
                       @change="value=>{$emit('update:minZoomScale', value[0]);$emit('update:maxZoomScale', value[1])}"/>
         </p>
         <p>
+            显示连线标签
+            <a-switch
+                :default-checked="showEdgeLabels"
+                @change="$emit('update:showEdgeLabels', $event)"
+            />
+        </p>
+        <p>
             显示箭头
             <a-switch
                 :default-checked="showArrow"
@@ -80,7 +87,7 @@
 <script>
 export default {
     name: "CanvasConfig",
-    props: ['showArrow', 'arrowZoomRatio', 'arrowPosition','zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging', 'canvasWheeling'],
+    props: ['showArrow', 'arrowZoomRatio', 'arrowPosition', 'zoomScale', 'minZoomScale', 'maxZoomScale', 'canvasDragging', 'nodeDragging', 'canvasWheeling', 'showEdgeLabels'],
 }
 </script>
 

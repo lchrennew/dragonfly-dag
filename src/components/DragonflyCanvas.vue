@@ -9,18 +9,19 @@
     >
         <dragonfly-canvas-tools
             v-model:canvas-dragging-behavior="canvasDraggingBehavior"
-            v-model:node-dragging-behavior="nodeDraggingBehavior"
             v-model:canvas-wheeling-behavior="canvasWheelingBehavior"
+            v-model:node-dragging-behavior="nodeDraggingBehavior"
         />
-        <div ref="canvas"
+        <div :id="`dragonfly-canvas-${canvasId}`"
+             ref="canvas"
              :style="canvasStyle"
              class="dragonfly-canvas"
-             @keydown="onKeyDown"
              tabindex="-1"
+             @keydown="onKeyDown"
         >
             <div v-if="dragging"
-                 :style="draggingAreaStyle"
                  :class="canvasDraggingBehavior"
+                 :style="draggingAreaStyle"
                  class="area"/>
             <dragonfly-node
                 v-for="node in nodes"
@@ -51,11 +52,22 @@
                 :arrow-zoom-ratio="arrowZoomRatio"
                 :edges="edges"
                 :endpoint-positions="endpointPositions"
+                :label-positions="edgeLabelPositions"
                 :linking="linking"
                 :linking-source="linkingSource"
                 :linking-target="linkingTarget"
                 :positions="positions"
             />
+            <template v-if="showEdgeLabels">
+                <template v-for="edge in edges" :key="edge.id">
+                    <div v-if="(edge.showLabel ?? true) && edge.label && edgeLabelPositions[edge.id]"
+                         class="edge-label"
+                         :style="edgeLabelPositions[edge.id]"
+                    >
+                        <slot name="edgeLabelRenderer" :edge="edge">{{ edge.label }}</slot>
+                    </div>
+                </template>
+            </template>
         </div>
     </div>
 </template>
@@ -75,6 +87,7 @@ import shiftStrategies from "./shiftStrategies";
 import canvasWheelingBehaviorHandlers from "./canvasWheelingBehaviorHandlers";
 
 let linkSource = ref(null)
+let canvasId = 0
 
 export default {
     name: "DragonflyCanvas",
@@ -99,6 +112,8 @@ export default {
             nodeDraggingBehavior: this.nodeDragging,
             canvasDraggingBehavior: this.canvasDragging,
             canvasWheelingBehavior: this.canvasWheeling,
+            edgeLabelPositions: {},
+            canvasId: canvasId++,
         }
     },
     props: {
@@ -143,6 +158,7 @@ export default {
         canvasWheeling: {type: String, default: 'off'},
         lineShape: {default: StraightLine},
         linkingLineShape: {default: StraightLine},
+        showEdgeLabels: {type: Boolean, default: true},
     },
     computed: {
         canvasStyle() {
@@ -181,6 +197,14 @@ export default {
         }
     },
     methods: {
+        onKeyDown(event) {
+            if (event.target === this.$refs.canvas && ['Backspace', 'Delete'].includes(event.key)) {
+                const nodes = this.nodes.filter(({id}) => !this.selected[id])
+                const edges = this.edges.filter(({id, source, target}) => !this.selected[id] && !this.selected[source] && !this.selected[target])
+                this.$emit('update:nodes', nodes)
+                this.$emit('update:edges', edges)
+            }
+        },
         onCanvasWheeling(event) {
             canvasWheelingBehaviorHandlers[this.canvasWheelingBehavior]?.[event.type]?.call?.(this, event)
         },
@@ -328,13 +352,11 @@ export default {
         endpointReposition(id, x, y, width, height, orientation) {
             this.endpointPositions[id] = {x, y, width, height, orientation}
         },
-        onKeyDown(event) {
-            if (event.target === this.$refs.canvas && ['Backspace', 'Delete'].includes(event.key)) {
-                const nodes = this.nodes.filter(({id}) => !this.selected[id])
-                const edges = this.edges.filter(({id, source, target}) => !this.selected[id] && !this.selected[source] && !this.selected[target])
-                this.$emit('update:nodes', nodes)
-                this.$emit('update:edges', edges)
-            }
+        setEdgeLabelPosition(id, style) {
+            this.edgeLabelPositions[id] = style
+        },
+        deleteEdgeLabelPosition(id) {
+            delete this.edgeLabelPositions[id]
         }
     },
     provide() {
@@ -360,7 +382,11 @@ export default {
             dragging: computed(() => this.dragging),
             onSelect: this.onSelect,
             onUnselect: this.onUnselect,
-            selected: computed(() => this.selected)
+            selected: computed(() => this.selected),
+            showEdgeLabels: computed(() => this.showEdgeLabels),
+            canvasId: this.canvasId,
+            setEdgeLabelPosition: this.setEdgeLabelPosition,
+            deleteEdgeLabelPosition: this.deleteEdgeLabelPosition,
         }
     },
     mounted() {

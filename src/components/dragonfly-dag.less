@@ -241,10 +241,20 @@
 
     }
 
+    .edge-label {
+      position: absolute;
+      z-index: 6;
+      width: 0;
+      height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
 
     & > .area {
       position: absolute;
-      z-index: 6;
+      z-index: 7;
 
       &.select {
         border: @select-area-border;

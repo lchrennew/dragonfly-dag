@@ -33,7 +33,7 @@ export default {
             return `${this.end.x},${this.end.y}`
         },
         control() {
-            const offset = Math.abs(this.start.y - this.end.y) / 5
+            const offset = Math.min(Math.abs(this.start.y - this.end.y) / 8, 20)
             let {x, y, width, height, orientation = 'right'} = this.source
             const vector = vectors[orientation]
             x += vector[0] * width / 2 + vector[0] * offset

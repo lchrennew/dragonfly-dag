@@ -5,11 +5,11 @@
         :source="source"
         :target="target"/>
     <path ref="path"
-          class="edge"
           :class="{selected}"
           :d="definition"
           :marker-end="selected?'url(#anchor)':''"
           :marker-start="selected?'url(#anchor)':''"
+          class="edge"
     />
     <path
         :d="definition"
@@ -27,11 +27,12 @@
 </template>
 
 <script>
+const origin = {x: 0, y: 0}
 
 export default {
     name: "DragonflyEdge",
-    props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'lineShape', 'selected'],
-    inject: ['showArrow', 'arrowPosition', 'onSelect', 'onUnselect'],
+    props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'lineShape', 'selected', 'labelPosition'],
+    inject: ['showArrow', 'arrowPosition', 'onSelect', 'onUnselect', 'canvasId', 'showEdgeLabels', 'setEdgeLabelPosition', 'deleteEdgeLabelPosition'],
     data() {
         return {
             definition: '',
@@ -69,20 +70,38 @@ export default {
         arrowPositionPercent() {
             return this.arrowPosition.value / 100
         },
+        showLabel() {
+            return this.showEdgeLabels.value && (this.edge.showLabel ?? true) && this.edge.label
+        },
     },
     methods: {
-        generateLength() {
+        generatePoints() {
             const path = this.$refs.path
-            const origin = {x: 0, y: 0}
-            if (path && this.showArrow.value) {
+
+            if (path) {
                 this.$nextTick(() => {
                     const pathLength = path.getTotalLength() ?? 0
-                    const arrowPointLength = pathLength * this.arrowPositionPercent
-                    this.arrowPoint1 = path.getPointAtLength(Math.max(arrowPointLength - 1, 0)) ?? origin
-                    this.arrowPoint2 = path.getPointAtLength?.(arrowPointLength) ?? origin
+                    if (this.showArrow.value) {
+                        const arrowPointLength = pathLength * this.arrowPositionPercent
+                        this.arrowPoint1 = path.getPointAtLength(Math.max(arrowPointLength - 1, 0)) ?? origin
+                        this.arrowPoint2 = path.getPointAtLength(arrowPointLength) ?? origin
+                    } else {
+                        this.arrowPoint1 = this.arrowPoint2 = origin
+                    }
+
+                    if (this.showLabel) {
+                        const labelPointLength = pathLength / 2
+                        const {x: x1, y: y1} = path.getPointAtLength(Math.max(labelPointLength - 1, 0)) ?? origin
+                        const {x: x2, y: y2} = path.getPointAtLength(labelPointLength) ?? origin
+                        this.setEdgeLabelPosition(this.edge.id, {
+                            left: `${x1}px`,
+                            top: `${y1}px`,
+                            transform: `rotate(${Math.atan2(y2 - y1, x2 - x1)}rad)`
+                        })
+                    } else {
+                        this.deleteEdgeLabelPosition(this.edge.id)
+                    }
                 })
-            } else {
-                this.arrowPoint1 = this.arrowPoint2 = origin
             }
         },
         onMouseDown(event) {
@@ -94,12 +113,13 @@ export default {
         }
     },
     mounted() {
-        this.generateLength()
+        this.generatePoints()
     },
     watch: {
-        lineEnds: 'generateLength',
-        'showArrow.value': 'generateLength',
-        arrowPositionPercent: 'generateLength',
+        lineEnds: 'generatePoints',
+        'showArrow.value': 'generatePoints',
+        arrowPositionPercent: 'generatePoints',
+        'showEdgeLabels.value': 'generatePoints',
     }
 }
 </script>

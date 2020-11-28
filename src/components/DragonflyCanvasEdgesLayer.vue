@@ -1,47 +1,48 @@
 <template>
-    <svg xmlns="http://www.w3.org/2000/svg" class="dragonfly-edges-layer">
+    <svg class="dragonfly-edges-layer" xmlns="http://www.w3.org/2000/svg">
         <defs v-if="showArrow">
             <marker id="arrow"
-                    markerwidth="18"
+                    :viewBox="`0 0 ${6/arrowZoomRatio} ${6/arrowZoomRatio}`"
                     markerHeight="18"
-                    refX="18"
-                    refY="9"
+                    markerUnits="userSpaceOnUse"
+                    markerwidth="18"
                     orient="auto"
                     overflow="visible"
-                    markerUnits="userSpaceOnUse"
-                    :viewBox="`0 0 ${6/arrowZoomRatio} ${6/arrowZoomRatio}`"
+                    refX="18"
+                    refY="9"
             >
-                <path d="M 0,0 L 0,18 L 18,9 Z" class="arrow"/>
+                <path class="arrow" d="M 0,0 L 0,18 L 18,9 Z"/>
             </marker>
             <marker id="anchor"
-                    markerwidth="18"
+                    :viewBox="`0 0 6 6`"
                     markerHeight="18"
+                    markerUnits="userSpaceOnUse"
+                    markerwidth="18"
+                    overflow="visible"
                     refX="9"
                     refY="9"
-                    overflow="visible"
-                    markerUnits="userSpaceOnUse"
-                    :viewBox="`0 0 6 6`"
             >
-                <path d="M 0,0 L 0,18 L 18,18 L 18,0 Z" class="anchor"/>
+                <path class="anchor" d="M 0,0 L 0,18 L 18,18 L 18,0 Z"/>
             </marker>
 
         </defs>
         <dragonfly-edge
             v-for="edge in edges"
             :key="edge.id"
+            v-model:label-position="labelPositions[edge.id]"
             :edge="edge"
-            :source-node="positions[edge.source]"
-            :target-node="positions[edge.target]"
-            :source-endpoint="endpointPositions[edge.sourceEndpoint]"
-            :target-endpoint="endpointPositions[edge.targetEndpoint]"
             :line-shape="lineShape"
             :selected="selected.value[edge.id]"
+            :source-endpoint="endpointPositions[edge.sourceEndpoint]"
+            :source-node="positions[edge.source]"
+            :target-endpoint="endpointPositions[edge.targetEndpoint]"
+            :target-node="positions[edge.target]"
         />
         <dragonfly-linking-edge
             v-if="linking"
+            :line-shape="linkingLineShape.value"
             :source="linkingSource"
             :target="linkingTarget"
-            :line-shape="linkingLineShape.value"
         />
     </svg>
 </template>
@@ -53,7 +54,7 @@ import DragonflyLinkingEdge from "./DragonflyLinkingEdge.vue";
 export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {DragonflyLinkingEdge, DragonflyEdge},
-    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio'],
+    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio', 'labelPositions'],
     inject: ['showArrow', 'lineShape', 'linkingLineShape', 'selected']
 }
 </script>
