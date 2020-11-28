@@ -27,8 +27,8 @@
                 <div class="node">Hi, {{ node.id }}</div>
             </template>
             <template #rightEndpoints="{node}">
-                <dragonfly-endpoint :endpoint="{id:`${node.id}-succeeded`}"/>
-                <dragonfly-endpoint :endpoint="{id:`${node.id}-failed`}"/>
+                <dragonfly-endpoint :endpoint="{id:`${node.id}-succeeded`}" class="succeeded-endpoint"/>
+                <dragonfly-endpoint :endpoint="{id:`${node.id}-failed`}" class="failed-endpoint"/>
             </template>
         </dragonfly-canvas>
     </div>
@@ -53,7 +53,6 @@ import CanvasConfig from "./CanvasConfig.vue";
 import {ref, shallowRef} from 'vue'
 import CanvasData from "./CanvasData.vue";
 import DragonflyEndpoint from "./components/DragonflyEndpoint.vue";
-import StraightLine from "./components/edge/StraightLine.vue";
 import ZigZagLine from "./components/edge/ZigZagLine.vue";
 
 export default {
@@ -113,5 +112,30 @@ export default {
 .node {
     padding: 1em;
     background-color: #9cdfff;
+}
+.succeeded-label{
+    background-color: #e6ffe6;
+    border-radius: 4px;
+    color: #bbb;
+    line-height: 1em;
+    padding: 2px 2px;
+    left: 10px;
+    top: -15px;
+}
+.failed-label{
+    background-color: #ffe6e6;
+    border-radius: 4px;
+    color: #bbb;
+    line-height: 1em;
+    padding: 2px 2px;
+    left: 10px;
+    top: 5px;
+}
+
+.succeeded-endpoint{
+    border-color: #7acc7a !important;
+}
+.failed-endpoint{
+    border-color: #cc7a7a !important;
 }
 </style>

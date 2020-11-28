@@ -66,10 +66,12 @@ yarn dev
 
 ### 锚点 `DragonflyEndpoint`
 
-| 属性     | 类型                 | 默认值      | 必填 | 支持双向绑定 | 说明                                         |
-| -------- | -------------------- | ----------- | ---- | ------------ | -------------------------------------------- |
-| endpoint | `Object`             | -           | Y    | N            | 锚点信息，参考[锚点信息](#锚点信息-endpoint) |
-| group    | `String`<br>`Object` | `undefined` | N    | N            | 节点组控规则                                 |
+| 属性       | 类型                 | 默认值      | 必填 | 支持双向绑定 | 说明                                         |
+| ---------- | -------------------- | ----------- | ---- | ------------ | -------------------------------------------- |
+| endpoint   | `Object`             | -           | Y    | N            | 锚点信息，参考[锚点信息](#锚点信息-endpoint) |
+| group      | `String`<br>`Object` | `undefined` | N    | N            | 节点组控规则                                 |
+| labelClass | `String`             | `undefined` | N    | N            | 锚点标签样式                                 |
+| label      | `String`             | `undefined` | N    | N            | 锚点标签                                     |
 
 ### 直线 `StraightLine`
 
@@ -102,13 +104,16 @@ yarn dev
 
 ### 锚点信息 `Endpoint`
 
-| 字段        | 类型                 | 必填 | 默认值    | 说明                                                   |
-| ----------- | -------------------- | ---- | --------- | ------------------------------------------------------ |
-| id          | `String`             | Y    | -         | 锚点唯一标识 ID                                        |
-| label       | `String`             | N    | -         | 锚点显示标签                                           |
-| orientation | `String`             | Y    | -         | 锚点显示位置，可选值为`top`、`bottom`、`left`、`right` |
-| linkable    | `Boolean`            | N    | true      | 锚点是否可连线（无论连入还是连出）                     |
-| group       | `String`<br>`Object` | N    | undefined | 锚点组控规则，参见 [组控策略](#组控策略-group)         |
+| 字段           | 类型                 | 必填 | 默认值    | 说明                                                   |
+| -------------- | -------------------- | ---- | --------- | ------------------------------------------------------ |
+| id             | `String`             | Y    | -         | 锚点唯一标识 ID                                        |
+| label          | `String`             | N    | -         | 锚点显示标签                                           |
+| orientation    | `String`             | Y    | -         | 锚点显示位置，可选值为`top`、`bottom`、`left`、`right` |
+| linkable       | `Boolean`            | N    | true      | 锚点是否可连线（无论连入还是连出）                     |
+| group          | `String`<br>`Object` | N    | undefined | 锚点组控规则，参见 [组控策略](#组控策略-group)         |
+| className      | `String`             | N    | undefined | 锚点样式名                                             |
+| labelClassName | `String`             | N    | undefined | 锚点标签样式名                                         |
+| label          | `String`             | N    | undefined | 锚点标签                                               |
 
 ### 边信息 `Edge`
 

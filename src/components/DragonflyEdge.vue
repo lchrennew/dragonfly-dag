@@ -82,6 +82,7 @@ export default {
     watch: {
         lineEnds: 'generateLength',
         'showArrow.value': 'generateLength',
+        arrowPositionPercent: 'generateLength',
     }
 }
 </script>

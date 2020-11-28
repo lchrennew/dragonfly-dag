@@ -1,7 +1,7 @@
 <template>
     <div
         class="dragonfly-endpoint"
-        :class="{targeted}"
+        :class="{targeted,[endpoint.className]:endpoint.className}"
         @mousedown.stop="onMouseDown"
         :draggable="linkable"
         @dragstart="onDragStart"
@@ -11,6 +11,10 @@
         @dragleave.stop="onDragLeave"
         @drop="onDrop"
     >
+        <div v-if="endpoint.label || label" class="label"
+             :class="{[endpoint.labelClassName]:endpoint.labelClassName, [labelClass]:labelClass}">
+            {{ endpoint.label ?? label }}
+        </div>
         <slot/>
     </div>
 </template>
@@ -28,6 +32,12 @@ export default {
         },
         group: {
             type: [String, Object],
+        },
+        label: {
+            type: String
+        },
+        labelClass: {
+            type: String
         }
     },
     inject: [

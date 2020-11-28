@@ -78,17 +78,22 @@
     overflow: visible !important;
     color: @edge-default-color;
 
-    * {
+    path {
       stroke-width: @edge-default-width;
       stroke: currentColor;
-      pointer-events: none;
       fill: transparent;
       stroke-linecap: round;
       stroke-linejoin: round;
 
       &.linking {
+        pointer-events: none;
         stroke-dasharray: @linking-stroke-dasharray;
         stroke-dashoffset: @linking-stroke-dashoffset;
+      }
+
+      &:hover {
+        stroke: #ffa400;
+        cursor: pointer;
       }
     }
 
@@ -145,6 +150,9 @@
           height: 100%;
           width: 0;
           flex-direction: column;
+
+          .label {
+          }
         }
 
         &.right {
@@ -172,7 +180,9 @@
         }
 
         .dragonfly-endpoint {
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           width: @endpoint-size;
           height: @endpoint-size;
           border-radius: @endpoint-size;
@@ -183,6 +193,14 @@
           &.targeted {
             border: @endpoint-targeted-border;
             background-color: @endpoint-targeted-color;
+          }
+
+          & > .label {
+            position: absolute;
+            width: max-content;
+            font-size: 12px;
+            transform: scale(0.8) translateZ(1);
+            user-select: none;
           }
         }
       }
