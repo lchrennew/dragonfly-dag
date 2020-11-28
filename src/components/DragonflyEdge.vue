@@ -75,32 +75,37 @@ export default {
         },
     },
     methods: {
+        generateArrowPoints(pathLength) {
+            if (this.showArrow.value) {
+                const arrowPointLength = pathLength * this.arrowPositionPercent
+                this.arrowPoint1 = path.getPointAtLength(Math.max(arrowPointLength - 1, 0)) ?? origin
+                this.arrowPoint2 = path.getPointAtLength(arrowPointLength) ?? origin
+            } else {
+                this.arrowPoint1 = this.arrowPoint2 = origin
+            }
+        },
+        generateLabelStyle(pathLength) {
+            if (this.showLabel) {
+                const labelPointLength = pathLength / 2
+                const {x: x1, y: y1} = path.getPointAtLength(Math.max(labelPointLength - 1, 0)) ?? origin
+                const {x: x2, y: y2} = path.getPointAtLength(labelPointLength) ?? origin
+                this.setEdgeLabelPosition(this.edge.id, {
+                    left: `${x1}px`,
+                    top: `${y1}px`,
+                    transform: `rotate(${Math.atan2(y2 - y1, x2 - x1)}rad)`
+                })
+            } else {
+                this.deleteEdgeLabelPosition(this.edge.id)
+            }
+        },
         generatePoints() {
             const path = this.$refs.path
 
             if (path) {
                 this.$nextTick(() => {
                     const pathLength = path.getTotalLength() ?? 0
-                    if (this.showArrow.value) {
-                        const arrowPointLength = pathLength * this.arrowPositionPercent
-                        this.arrowPoint1 = path.getPointAtLength(Math.max(arrowPointLength - 1, 0)) ?? origin
-                        this.arrowPoint2 = path.getPointAtLength(arrowPointLength) ?? origin
-                    } else {
-                        this.arrowPoint1 = this.arrowPoint2 = origin
-                    }
-
-                    if (this.showLabel) {
-                        const labelPointLength = pathLength / 2
-                        const {x: x1, y: y1} = path.getPointAtLength(Math.max(labelPointLength - 1, 0)) ?? origin
-                        const {x: x2, y: y2} = path.getPointAtLength(labelPointLength) ?? origin
-                        this.setEdgeLabelPosition(this.edge.id, {
-                            left: `${x1}px`,
-                            top: `${y1}px`,
-                            transform: `rotate(${Math.atan2(y2 - y1, x2 - x1)}rad)`
-                        })
-                    } else {
-                        this.deleteEdgeLabelPosition(this.edge.id)
-                    }
+                    this.generateArrowPoints(pathLength)
+                    this.generateLabelStyle(pathLength)
                 })
             }
         },
