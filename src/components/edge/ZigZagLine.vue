@@ -1,5 +1,5 @@
 <script>
-import StraightLine from "./StraightLine.vue";
+import LineShapeBase from "./LineShapeBase.vue";
 
 const offset = 20
 const vectors = {
@@ -11,7 +11,7 @@ const vectors = {
 
 export default {
     name: "ZigZagLine",
-    extends: StraightLine,
+    extends: LineShapeBase,
     computed: {
         startPoint() {
             let {x, y, width, height, orientation = 'right'} = this.source
@@ -47,9 +47,11 @@ export default {
         zagPoint() {
             return `${this.zag.x},${this.zag.y}`
         },
-        points() {
+    },
+    methods: {
+        getDefinition() {
             return `M ${this.startPoint} L ${this.zigPoint} L ${this.zagPoint} L ${this.endPoint}`
         }
-    },
+    }
 }
 </script>

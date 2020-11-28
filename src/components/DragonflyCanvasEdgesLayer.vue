@@ -13,6 +13,18 @@
             >
                 <polygon points="0 0, 0 18, 18 9" class="arrow"/>
             </marker>
+            <marker id="anchor"
+                    markerwidth="18"
+                    markerHeight="18"
+                    refX="9"
+                    refY="9"
+                    orient="auto"
+                    overflow="visible"
+                    markerUnits="userSpaceOnUse"
+                    :viewBox="`0 0 6 6`"
+            >
+                <rect width="18" height="18" class="anchor"/>
+            </marker>
 
         </defs>
         <dragonfly-edge
@@ -28,13 +40,12 @@
         >
             <slot :source="source" :target="target"/>
         </dragonfly-edge>
-        <dragonfly-linking-edge v-if="linking">
-            <slot
-                name="linking"
-                :source="linkingSource"
-                :target="linkingTarget"
-            />
-        </dragonfly-linking-edge>
+        <dragonfly-linking-edge
+            v-if="linking"
+            :source="linkingSource"
+            :target="linkingTarget"
+            :line-shape="linkingLineShape.value"
+        />
     </svg>
 </template>
 
@@ -46,6 +57,6 @@ export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {DragonflyLinkingEdge, DragonflyEdge},
     props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio'],
-    inject: ['showArrow','lineShape']
+    inject: ['showArrow', 'lineShape', 'linkingLineShape']
 }
 </script>

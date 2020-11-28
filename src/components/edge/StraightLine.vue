@@ -1,15 +1,9 @@
-<template>
-    <path
-        :d="points"
-        :class="{linking, selected}"
-    />
-</template>
-
 <script>
+import LineShapeBase from "./LineShapeBase.vue";
+
 export default {
     name: "StraightLine",
-    props: ['source', 'target'],
-    inject: ['linking', 'selected'],
+    extends: LineShapeBase,
     computed: {
         k() {
             return Math.abs((this.source.y - this.target.y) / (this.source.x - this.target.x))
@@ -63,9 +57,11 @@ export default {
         endPoint() {
             return `${this.end.x},${this.end.y}`
         },
-        points() {
-            return `M ${this.startPoint} L ${this.endPoint} L ${this.endPoint}`
-        },
     },
+    methods: {
+        getDefinition() {
+            return `M ${this.startPoint} L ${this.endPoint} L ${this.endPoint}`
+        }
+    }
 }
 </script>

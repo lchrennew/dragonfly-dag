@@ -52,11 +52,7 @@
                 :linking-source="linkingSource"
                 :linking-target="linkingTarget"
                 :positions="positions"
-            >
-                <template #linking="{target, source}">
-                    <straight-line :source="source" :target="target"/>
-                </template>
-            </dragonfly-canvas-edges-layer>
+            />
         </div>
     </div>
 </template>
@@ -142,7 +138,8 @@ export default {
         canvasDragging: {type: String, default: 'off'},
         nodeDragging: {type: String, default: 'off'},
         canvasWheeling: {type: String, default: 'off'},
-        lineShape: {required: true, default: StraightLine}
+        lineShape: {default: StraightLine},
+        linkingLineShape: {default: StraightLine},
     },
     computed: {
         canvasStyle() {
@@ -348,6 +345,7 @@ export default {
             endpointGroup: computed(() => this.normalizedEndpointGroup),
             nodeDraggingBehavior: computed(() => this.nodeDraggingBehavior),
             lineShape: computed(() => this.lineShape),
+            linkingLineShape: computed(() => this.linkingLineShape)
         }
     },
     mounted() {

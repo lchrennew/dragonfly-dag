@@ -51,18 +51,18 @@ yarn dev
 | canvasDragging    | `String`                           | `'off'`        | N    | Y            | 画布拖拽行为，可选值：<br>`off`：禁用<br>`select`：节点圈选<br>`zoom`：选区放大<br>`scroll`：画布滚屏 |
 | nodeDragging      | `String`                           | `'off'`        | N    | Y            | 节点拖拽行为，可选值：`off`：禁用<br>`move`：移动节点<br>`link`：连接节点                             |
 | canvasWheeling    | `String`                           | `'off'`        | N    | Y            | 画布滚轮行为，可选值：`off`：禁用<br>`zoom`：滚轮缩放<br>`scroll`：滚屏                               |
-| lineShap          | `Object`                           | `StraightLine` | N    | N            | 连线形状                                                                                              |
+| lineShape         | `Object`                           | `StraightLine` | N    | N            | 连线形状                                                                                              |
+| linkingLineShape  | `Object`                           | `StraightLine` | N    | N            | 连线时的连线形状                                                                                      |
 
 #### 画布插槽
 
-| 插槽            | scope                                    | 默认内容     | 说明                                                                        |
-| --------------- | ---------------------------------------- | ------------ | --------------------------------------------------------------------------- |
-| nodeRenderer    | `node`                                   | 节点 ID 文本 | 自定义节点渲染                                                              |
-| topEndpoints    | `node`                                   | 无           | 顶部锚点                                                                    |
-| leftEndpoints   | `node`                                   | 无           | 左侧锚点                                                                    |
-| rightEndpoints  | `node`                                   | 无           | 右侧锚点                                                                    |
-| bottomEndpoints | `node`                                   | 无           | 底部锚点                                                                    |
-| edgeRenderer    | `source`：起点信息<br>`target`：终点信息 | 直线连接线   | 自定义连接线渲染，连线端点数据结构参见[连线端点信息](#连线端点信息-lineend) |
+| 插槽            | scope  | 默认内容     | 说明           |
+| --------------- | ------ | ------------ | -------------- |
+| nodeRenderer    | `node` | 节点 ID 文本 | 自定义节点渲染 |
+| topEndpoints    | `node` | 无           | 顶部锚点       |
+| leftEndpoints   | `node` | 无           | 左侧锚点       |
+| rightEndpoints  | `node` | 无           | 右侧锚点       |
+| bottomEndpoints | `node` | 无           | 底部锚点       |
 
 ### 锚点 `DragonflyEndpoint`
 
@@ -166,8 +166,8 @@ yarn dev
 // 输入参数为一个对象，解构如下：
 {
   source, // 源节点ID
-    sourceEndpoint, // 源锚点ID，如果值为undefined则表示源为ID为source值的节点，否则源为对应该ID的锚点
-    sourceGroup; // 源节点/锚点的组名
+  sourceEndpoint, // 源锚点ID，如果值为undefined则表示源为ID为source值的节点，否则源为对应该ID的锚点
+  sourceGroup; // 源节点/锚点的组名
 }
 ```
 
@@ -182,3 +182,16 @@ yarn dev
 ## Dagre 布局
 
 参见[Dagre 布局配置](https://github.com/dagrejs/dagre/wiki#configuring-the-layout)
+
+## 自定义
+
+### 自定义节点渲染
+
+### 自定义样式
+
+### 自定义连线形状
+extends: `LineShapeBase`
+implement: `getDefinition(): String`
+
+
+### 自定义锚点

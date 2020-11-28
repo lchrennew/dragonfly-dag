@@ -1,5 +1,10 @@
 <template>
-    <component ref="path" :source="source" :target="target" :is="lineShape.value"/>
+    <component
+        :source="source"
+        :target="target"
+        v-model:definition="definition"
+        :is="lineShape.value"/>
+    <path :d="definition" ref="path"/>
     <line v-if="showArrow.value"
           marker-end="url(#arrow)"
           :x1="arrowPoint1.x"
@@ -19,6 +24,7 @@ export default {
     inject: ['showArrow', 'arrowPosition'],
     data() {
         return {
+            definition: '',
             arrowPoint1: {x: 0, y: 0},
             arrowPoint2: {x: 0, y: 0},
         }
@@ -56,7 +62,7 @@ export default {
     },
     methods: {
         generateLength() {
-            const path = this.$refs.path?.$el
+            const path = this.$refs.path
             const origin = {x: 0, y: 0}
             if (path && this.showArrow.value) {
                 this.$nextTick(() => {
