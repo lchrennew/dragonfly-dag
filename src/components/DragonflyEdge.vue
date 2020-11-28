@@ -75,7 +75,7 @@ export default {
         },
     },
     methods: {
-        generateArrowPoints(pathLength) {
+        generateArrowPoints(pathLength, path) {
             if (this.showArrow.value) {
                 const arrowPointLength = pathLength * this.arrowPositionPercent
                 this.arrowPoint1 = path.getPointAtLength(Math.max(arrowPointLength - 1, 0)) ?? origin
@@ -84,7 +84,7 @@ export default {
                 this.arrowPoint1 = this.arrowPoint2 = origin
             }
         },
-        generateLabelStyle(pathLength) {
+        generateLabelStyle(pathLength, path) {
             if (this.showLabel) {
                 const labelPointLength = pathLength / 2
                 const {x: x1, y: y1} = path.getPointAtLength(Math.max(labelPointLength - 1, 0)) ?? origin
@@ -104,8 +104,8 @@ export default {
             if (path) {
                 this.$nextTick(() => {
                     const pathLength = path.getTotalLength() ?? 0
-                    this.generateArrowPoints(pathLength)
-                    this.generateLabelStyle(pathLength)
+                    this.generateArrowPoints(pathLength, path)
+                    this.generateLabelStyle(pathLength, path)
                 })
             }
         },
