@@ -1,27 +1,37 @@
 <template>
     <component
-        :source="source"
-        :target="target"
+        :is="lineShape.value"
         v-model:definition="definition"
-        :is="lineShape.value"/>
-    <path :d="definition" ref="path"/>
+        :source="source"
+        :target="target"/>
+    <path ref="path"
+          class="edge"
+          :class="{selected}"
+          :d="definition"
+          :marker-end="selected?'url(#anchor)':''"
+          :marker-start="selected?'url(#anchor)':''"
+    />
+    <path
+        :d="definition"
+        class="edge-area"
+        @mousedown="onMouseDown"
+    />
     <line v-if="showArrow.value"
-          marker-end="url(#arrow)"
           :x1="arrowPoint1.x"
           :x2="arrowPoint2.x"
           :y1="arrowPoint1.y"
           :y2="arrowPoint2.y"
           class="arrow"
+          marker-end="url(#arrow)"
     />
 </template>
 
 <script>
-import {computed} from 'vue'
 
 export default {
     name: "DragonflyEdge",
-    props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'selected', 'lineShape'],
-    inject: ['showArrow', 'arrowPosition'],
+    props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'lineShape', 'selected'],
+    inject: ['showArrow', 'arrowPosition', 'onSelect', 'onUnselect'],
     data() {
         return {
             definition: '',
@@ -74,12 +84,15 @@ export default {
             } else {
                 this.arrowPoint1 = this.arrowPoint2 = origin
             }
-        }
-    },
-    provide() {
-        return {
-            linking: false,
-            selected: computed(() => this.selected),
+        },
+        onMouseDown(event) {
+            event.preventDefault()
+            event.stopPropagation()
+            if (this.selected) {
+                this.onUnselect(this.edge.id)
+            } else {
+                this.onSelect({id: this.edge.id, multiple: event.shiftKey})
+            }
         }
     },
     mounted() {

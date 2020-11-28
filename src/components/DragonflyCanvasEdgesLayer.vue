@@ -18,7 +18,6 @@
                     markerHeight="18"
                     refX="9"
                     refY="9"
-                    orient="auto"
                     overflow="visible"
                     markerUnits="userSpaceOnUse"
                     :viewBox="`0 0 6 6`"
@@ -36,10 +35,8 @@
             :source-endpoint="endpointPositions[edge.sourceEndpoint]"
             :target-endpoint="endpointPositions[edge.targetEndpoint]"
             :line-shape="lineShape"
-            #default="{source, target}"
-        >
-            <slot :source="source" :target="target"/>
-        </dragonfly-edge>
+            :selected="selected.value[edge.id]"
+        />
         <dragonfly-linking-edge
             v-if="linking"
             :source="linkingSource"
@@ -57,6 +54,6 @@ export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {DragonflyLinkingEdge, DragonflyEdge},
     props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio'],
-    inject: ['showArrow', 'lineShape', 'linkingLineShape']
+    inject: ['showArrow', 'lineShape', 'linkingLineShape', 'selected']
 }
 </script>

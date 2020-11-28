@@ -5,7 +5,8 @@
          @mouseleave="onCanvasDragging"
          @mousemove="onCanvasDragging"
          @mouseup="onCanvasDragging"
-         @wheel.prevent="onCanvasWheeling">
+         @wheel.prevent="onCanvasWheeling"
+    >
         <dragonfly-canvas-tools
             v-model:canvas-dragging-behavior="canvasDraggingBehavior"
             v-model:node-dragging-behavior="nodeDraggingBehavior"
@@ -14,6 +15,8 @@
         <div ref="canvas"
              :style="canvasStyle"
              class="dragonfly-canvas"
+             @keydown="onKeyDown"
+             tabindex="-1"
         >
             <div v-if="dragging"
                  :style="draggingAreaStyle"
@@ -25,8 +28,8 @@
                 :group="normalizedNodeGroup(node)"
                 :node="node"
                 :selected="preSelected[node.id] ?? selected[node.id]"
-                @select="onNodeSelected"
-                @unselect="onNodeUnselected"
+                @select="onSelect"
+                @unselect="onUnselect"
             >
                 <template #default>
                     <slot :node="node" name="nodeRenderer">{{ node.id }}</slot>
@@ -71,7 +74,7 @@ import canvasDraggingBehaviorHandlers from "./canvasDraggingBehaviorHandlers";
 import shiftStrategies from "./shiftStrategies";
 import canvasWheelingBehaviorHandlers from "./canvasWheelingBehaviorHandlers";
 
-let linkSource = ref({})
+let linkSource = ref(null)
 
 export default {
     name: "DragonflyCanvas",
@@ -239,13 +242,13 @@ export default {
                 this.preSelected[nodeId] = shiftKey ? shiftStrategies.reverse(selected, selecting) : selecting
             }
         },
-        onNodeSelected({nodeId, multiple}) {
+        onSelect({id, multiple}) {
             multiple
-                ? (this.selected[nodeId] = true)
-                : (this.selected = {[nodeId]: true})
+                ? (this.selected[id] = true)
+                : (this.selected = {[id]: true})
         },
-        onNodeUnselected(nodeId) {
-            delete this.selected[nodeId]
+        onUnselect(id) {
+            delete this.selected[id]
         },
         clearSelection() {
             this.selected = {}
@@ -298,7 +301,7 @@ export default {
         },
         stopNodeLinking() {
             this.linking = false
-            linkSource.value = {}
+            linkSource.value = null
         },
         async link(target, targetEndpoint) {
             const {source, sourceEndpoint} = linkSource.value
@@ -325,6 +328,14 @@ export default {
         endpointReposition(id, x, y, width, height, orientation) {
             this.endpointPositions[id] = {x, y, width, height, orientation}
         },
+        onKeyDown(event) {
+            if (event.target === this.$refs.canvas && ['Backspace', 'Delete'].includes(event.key)) {
+                const nodes = this.nodes.filter(({id}) => !this.selected[id])
+                const edges = this.edges.filter(({id, source, target}) => !this.selected[id] && !this.selected[source] && !this.selected[target])
+                this.$emit('update:nodes', nodes)
+                this.$emit('update:edges', edges)
+            }
+        }
     },
     provide() {
         return {
@@ -345,7 +356,11 @@ export default {
             endpointGroup: computed(() => this.normalizedEndpointGroup),
             nodeDraggingBehavior: computed(() => this.nodeDraggingBehavior),
             lineShape: computed(() => this.lineShape),
-            linkingLineShape: computed(() => this.linkingLineShape)
+            linkingLineShape: computed(() => this.linkingLineShape),
+            dragging: computed(() => this.dragging),
+            onSelect: this.onSelect,
+            onUnselect: this.onUnselect,
+            selected: computed(() => this.selected)
         }
     },
     mounted() {

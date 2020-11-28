@@ -80,7 +80,7 @@ export default {
         return {
             node: computed(() => this.node),
             nodePosition: computed(() => this.position),
-            select: () => this.$emit('select', {nodeId: this.node.id})
+            select: () => this.$emit('select', {id: this.node.id})
         }
     },
     computed: {
@@ -160,7 +160,7 @@ export default {
             if (this.selected) {
                 event.shiftKey && this.$emit('unselect', this.node.id)
             } else {
-                this.$emit('select', {nodeId: this.node.id, multiple: event.shiftKey})
+                this.$emit('select', {id: this.node.id, multiple: event.shiftKey})
             }
         },
         onNodeDragging(event) {

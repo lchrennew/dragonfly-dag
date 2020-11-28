@@ -84,12 +84,14 @@
       fill: #fff;
     }
 
-    path {
+    path.edge {
       stroke-width: @edge-default-width;
       stroke: currentColor;
-      fill: transparent;
+      fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
+      z-index: 2;
+      pointer-events: none;
 
       &.linking {
         pointer-events: none;
@@ -107,6 +109,21 @@
       }
     }
 
+    path.edge-area {
+      stroke-width: 10;
+      stroke: transparent;
+      fill: none;
+      stroke-linecap: butt;
+      stroke-linejoin: round;
+      stroke-opacity: 0.2;
+      cursor: pointer;
+      z-index: 1;
+
+      &:hover {
+        stroke: #00aaff;
+      }
+    }
+
     .arrow {
       stroke-width: 0;
       fill: currentColor;
@@ -121,10 +138,15 @@
     transform-origin: 0 0 0; // 左上角缩放
     z-index: @canvas-z-index;
 
+    &:focus {
+      outline: none;
+    }
+
     .dragonfly-node {
       position: absolute;
       z-index: @node-z-index;
       border: solid 1px transparent;
+      margin: -1px;
       box-sizing: border-box;
       width: fit-content;
       height: fit-content;
