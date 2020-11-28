@@ -14,14 +14,14 @@
     <path
         :d="definition"
         class="edge-area"
-        @mousedown="onMouseDown"
+        @mousedown.prevent.stop="onMouseDown"
     />
     <line v-if="showArrow.value"
           :x1="arrowPoint1.x"
           :x2="arrowPoint2.x"
           :y1="arrowPoint1.y"
           :y2="arrowPoint2.y"
-          class="arrow"
+          class="edge-arrow"
           marker-end="url(#arrow)"
     />
 </template>
@@ -86,8 +86,6 @@ export default {
             }
         },
         onMouseDown(event) {
-            event.preventDefault()
-            event.stopPropagation()
             if (this.selected) {
                 this.onUnselect(this.edge.id)
             } else {
