@@ -78,34 +78,39 @@
     overflow: visible !important;
     color: @edge-default-color;
 
+
+    .arrow {
+      stroke: none;
+      stroke-width: 0;
+      fill: currentColor;
+      z-index: 2;
+    }
+
     .anchor {
-      stroke: #ffa400;
+      stroke: currentColor;
       stroke-width: 1;
       fill: #fff;
+      z-index: 4;
+    }
+
+    .edge-arrow {
+      z-index: 3;
     }
 
     path.edge {
+      z-index: 5;
       stroke-width: @edge-default-width;
       stroke: currentColor;
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
-      z-index: 2;
       pointer-events: none;
+      cursor: pointer;
 
       &.linking {
         pointer-events: none;
         stroke-dasharray: @linking-stroke-dasharray;
         stroke-dashoffset: @linking-stroke-dashoffset;
-      }
-
-      &:hover {
-        stroke: #ffa400;
-        cursor: pointer;
-      }
-
-      &.selected {
-        stroke: #ffa400;
       }
     }
 
@@ -124,10 +129,7 @@
       }
     }
 
-    .arrow {
-      stroke-width: 0;
-      fill: currentColor;
-    }
+
   }
 
   .dragonfly-canvas {

@@ -11,7 +11,7 @@
                     markerUnits="userSpaceOnUse"
                     :viewBox="`0 0 ${6/arrowZoomRatio} ${6/arrowZoomRatio}`"
             >
-                <polygon points="0 0, 0 18, 18 9" class="arrow"/>
+                <path d="M 0,0 L 0,18 L 18,9 Z" class="arrow"/>
             </marker>
             <marker id="anchor"
                     markerwidth="18"
@@ -22,7 +22,7 @@
                     markerUnits="userSpaceOnUse"
                     :viewBox="`0 0 6 6`"
             >
-                <rect width="18" height="18" class="anchor"/>
+                <path d="M 0,0 L 0,18 L 18,18 L 18,0 Z" class="anchor"/>
             </marker>
 
         </defs>
