@@ -95,10 +95,10 @@ export default {
                 showEdgeLabels: ref(false),
             },
             feed: 1,
-            nodes: [{id: 'x', x: 300, y: 300}],
+            nodes: [],
             edges: [],
             zones: [],
-            layout: {x: {x: 300, y: 300}},
+            layout: {},
         }
     },
     methods: {
