@@ -199,8 +199,10 @@ export default {
             if (event.target === this.$refs.canvas && ['Backspace', 'Delete'].includes(event.key)) {
                 const nodes = this.nodes.filter(({id}) => !this.selected[id])
                 const edges = this.edges.filter(({id, source, target}) => !this.selected[id] && !this.selected[source] && !this.selected[target])
+                const zones = this.zones.filter(({id}) => !this.selected[id])
                 this.$emit('update:nodes', nodes)
                 this.$emit('update:edges', edges)
+                this.$emit('update:zones', zones)
             }
         },
         onCanvasWheeling(event) {
