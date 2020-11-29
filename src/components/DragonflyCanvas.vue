@@ -109,7 +109,7 @@ export default {
             offsetY: 0,
             width: 0,
             height: 0,
-            positions: {},
+            positions: this.layout ?? {},
             endpointPositions: {}, // 存锚点相对于节点的位置
             selected: {},
             linkingSource: {x: 0, y: 0},
@@ -129,6 +129,7 @@ export default {
         nodes: {type: Array, default: []},
         edges: {type: Array, default: [],},
         zones: {type: Array, default: []},
+        layout: {type: Object, default: {}},
         zoomSensitivity: {type: Number, default: 0.001,},
         zoomScale: {type: Number,},
         maxZoomScale: {type: Number, default: 5,},
@@ -433,6 +434,15 @@ export default {
         canvasWheelingBehavior(value) {
             this.$emit('update:canvasWheeling', value)
         },
+        layout(value) {
+            this.positions = value
+        },
+        positions: {
+            deep: true,
+            handler(value) {
+                this.$emit('update:layout', value)
+            }
+        }
     }
 }
 </script>

@@ -12,9 +12,9 @@
             v-model:canvas-dragging="config.canvasDragging"
             v-model:canvas-wheeling="config.canvasWheeling"
             v-model:edges="edges"
+            v-model:layout="layout"
             v-model:node-dragging="config.nodeDragging"
             v-model:nodes="nodes"
-            v-model:positions="positions"
             v-model:zones="zones"
             v-model:zoom-scale="config.zoomScale"
             :arrow-position="config.arrowPosition"
@@ -53,7 +53,7 @@
         v-model:show-edge-labels="config.showEdgeLabels"
         v-model:zoom-scale="config.zoomScale"
     />
-    <canvas-data :edges="edges" :nodes="nodes" :zones="zones"/>
+    <canvas-data :edges="edges" :layout="layout" :nodes="nodes" :zones="zones"/>
 </template>
 
 <script>
@@ -98,7 +98,7 @@ export default {
             nodes: [],
             edges: [],
             zones: [],
-            positions: {},
+            layout: {},
         }
     },
     methods: {
