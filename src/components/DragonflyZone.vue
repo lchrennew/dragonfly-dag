@@ -37,7 +37,7 @@ export default {
     name: "DragonflyZone",
     components: {DragonflyZoneResizeHandler},
     props: ['zone', 'selected', 'position'],
-    inject: ['updateZone', 'zoneMoving', 'minZoneWidth', 'minZoneHeight'],
+    inject: ['updatePosition', 'zoneMoving', 'minZoneWidth', 'minZoneHeight'],
     data() {
         return {
             inDomOffset: {x: 0, y: 0},
@@ -82,7 +82,7 @@ export default {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
             const deltaX = event.offsetX - this.inDomOffset.x
             const deltaY = event.offsetY - this.inDomOffset.y
-            this.updateZone({
+            this.updatePosition({
                 id: this.id,
                 width: this.width,
                 height: this.height,
@@ -102,6 +102,17 @@ export default {
             if (!event.path.includes(this.fromElement))
                 this.targeted = false
         },
+    },
+    mounted() {
+        this.updatePosition(
+            {
+                id: this.id,
+                x: this.left,
+                y: this.top,
+                width: this.width,
+                height: this.height,
+            }
+        )
     }
 }
 </script>

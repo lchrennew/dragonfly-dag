@@ -238,7 +238,7 @@ export default {
         },
 
         resetLayout(overwrite = true) {
-            const layout = dagreLayout(this.nodes, this.positions, this.edges, this.layoutConfig)
+            const layout = dagreLayout([...this.nodes, ...this.zones], this.positions, this.edges, this.layoutConfig)
             const positions = layout._nodes
             for (let {id} of this.nodes) {
                 positions[id] = {...positions[id], ...overwrite ? undefined : this.positions[id]}
@@ -268,7 +268,7 @@ export default {
             this.selected = {}
         },
         // 用于Provide/Inject
-        nodeResize(nodeId, width, height) {
+        setNodeSize(nodeId, width, height) {
             this.positions[nodeId] = {x: width / 2, y: height / 2, ...this.positions[nodeId], width, height}
         },
         nodeMoving(deltaX, deltaY) {
@@ -343,19 +343,22 @@ export default {
         endpointReposition(id, x, y, width, height, orientation) {
             this.endpointPositions[id] = {x, y, width, height, orientation}
         },
-        updateZone({id, x, y, width, height}) {
+        updatePosition({id, x, y, width, height}) {
             this.positions[id] = {x, y, width, height}
         },
         onZoneSelect(zone) {
             this.onSelect(zone)
-            for (const nodeId in this.positions) {
-                const {x, y} = this.positions[nodeId]
-                const sourceX = zone.x ?? 0, sourceY = zone.y ?? 0,
-                    targetX = sourceX + (zone.width ?? this.minZoneWidth),
-                    targetY = sourceY + (zone.height ?? this.minZoneHeight)
-                const xBetween = (x <= targetX && x >= sourceX) || (x >= targetX && x <= sourceX)
-                const yBetween = (y <= targetY && y >= sourceY) || (y >= targetY && y <= sourceY)
-                this.nodesInZone[nodeId] = xBetween && yBetween
+            const position = this.positions[zone.id]
+            for (const id in this.positions) {
+                if (id !== zone.id.toString()) {
+                    const {x, y} = this.positions[id]
+                    const sourceX = position?.x ?? 0, sourceY = position?.y ?? 0,
+                        targetX = sourceX + (position?.width ?? this.minZoneWidth),
+                        targetY = sourceY + (position?.height ?? this.minZoneHeight)
+                    const xBetween = (x <= targetX && x >= sourceX) || (x >= targetX && x <= sourceX)
+                    const yBetween = (y <= targetY && y >= sourceY) || (y >= targetY && y <= sourceY)
+                    this.nodesInZone[id] = xBetween && yBetween
+                }
             }
         },
         zoneMoving(deltaX, deltaY) {
@@ -373,7 +376,7 @@ export default {
         return {
             nodes: computed(() => this.nodes),
             edges: computed(() => this.edges),
-            nodeResize: this.nodeResize,
+            setNodeSize: this.setNodeSize,
             nodeMoving: this.nodeMoving,
             startNodeLinking: this.startNodeLinking,
             nodeLinking: this.nodeLinking,
@@ -395,7 +398,7 @@ export default {
             selected: computed(() => this.selected),
             showEdgeLabels: computed(() => this.showEdgeLabels),
             canvasId: this.canvasId,
-            updateZone: this.updateZone,
+            updatePosition: this.updatePosition,
             minZoneWidth: computed(() => this.minZoneWidth),
             minZoneHeight: computed(() => this.minZoneHeight),
             zoneMoving: this.zoneMoving,

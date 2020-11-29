@@ -66,7 +66,7 @@ export default {
         }
     },
     inject: [
-        'nodeResize',
+        'setNodeSize',
         'nodeMoving',
         'startNodeLinking',
         'nodeLinking',
@@ -172,7 +172,7 @@ export default {
         this.height = this.$el.clientHeight
         this.x = this.position?.x ?? 0 - this.width / 2
         this.y = this.position?.y ?? 0 - this.height / 2
-        this.nodeResize(this.node.id, this.width, this.height)  // hacking: 回调DragonflyCanvasCore，提供尺寸信息
+        this.setNodeSize(this.node.id, this.width, this.height)  // hacking: 回调DragonflyCanvasCore，提供尺寸信息
     },
     watch: {
         position(value) {

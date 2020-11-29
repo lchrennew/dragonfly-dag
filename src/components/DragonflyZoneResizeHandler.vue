@@ -22,7 +22,7 @@ const vectors = { // fx, fy, fw, fh
 export default {
     name: "DragonflyZoneResizeHandler",
     props: ['orientation', 'left', 'top', 'width', 'height', 'id'],
-    inject: ['updateZone', 'minZoneWidth', 'minZoneHeight'],
+    inject: ['updatePosition', 'minZoneWidth', 'minZoneHeight'],
     data() {
         return {
             inDomOffset: {x: 0, y: 0},
@@ -55,7 +55,7 @@ export default {
                 x -= fx * (minWidth - width)
                 width = minWidth
             }
-            this.updateZone({id: this.id, x, y, width, height,})
+            this.updatePosition({id: this.id, x, y, width, height,})
         },
         onDragEnd(event) {
             document.removeEventListener('dragover', preventDefaultDrop)
