@@ -1,7 +1,10 @@
 <template>
     <div>
-        <a-button @click="addNode">添加节点</a-button>
-        <a-button @click="autoLayout">自动布局</a-button>
+        <a-space>
+            <a-button @click="addNode">添加节点</a-button>
+            <a-button @click="addZone">添加区域</a-button>
+            <a-button @click="autoLayout">自动布局</a-button>
+        </a-space>
     </div>
     <div style="width: 800px; height: 100%; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
         <dragonfly-canvas
@@ -12,6 +15,7 @@
             v-model:node-dragging="config.nodeDragging"
             v-model:nodes="nodes"
             v-model:positions="positions"
+            v-model:zones="zones"
             v-model:zoom-scale="config.zoomScale"
             :arrow-position="config.arrowPosition"
             :arrow-zoom-ratio="config.arrowZoomRatio"
@@ -90,15 +94,20 @@ export default {
                 lineShape: shallowRef(SCurveLine),
                 showEdgeLabels: ref(false),
             },
-            feed: 3,
-            nodes: [{id: '1'}, {id: '2'}],
+            feed: 1,
+            nodes: [],
             edges: [],
+            zones: [],
             positions: {},
         }
     },
     methods: {
         addNode() {
             this.nodes.push({id: this.feed})
+            this.feed++
+        },
+        addZone() {
+            this.zones.push({id: this.feed})
             this.feed++
         },
         async onAddingEdge({source, target, sourceEndpoint, targetEndpoint}) {

@@ -252,6 +252,87 @@
       overflow: visible;
     }
 
+    .dragonfly-zone {
+      background-color: #eeeeee;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+      min-height: 80px;
+
+      .dragonfly-zone-inner {
+        width: 100%;
+        height: 100%;z-index: 1;
+      }
+
+      &.selected {
+        border: solid 0.5px #777;
+
+        .anchor {
+          width: 6px;
+          height: 6px;
+          background-color: #fff;
+          border: solid 1px #000;
+          position: absolute;
+          transform-origin: center;
+          z-index: 2;
+
+          &.e {
+            transform: translateX(50%);
+            right: 0;
+            cursor: col-resize;
+          }
+
+          &.w {
+            transform: translateX(-50%);
+            left: 0;
+            cursor: col-resize;
+          }
+
+          &.n {
+            transform: translateY(-50%);
+            top: 0;
+            cursor: row-resize;
+          }
+
+          &.s {
+            transform: translateY(50%);
+            bottom: 0;
+            cursor: row-resize;
+          }
+
+          &.ne {
+            transform: translateY(-50%) translateX(50%);
+            top: 0;
+            right: 0;
+            cursor: nesw-resize;
+          }
+
+          &.se {
+            transform: translateY(50%) translateX(50%);
+            bottom: 0;
+            right: 0;
+            cursor: nwse-resize;
+          }
+
+          &.nw {
+            transform: translateY(-50%) translateX(-50%);
+            top: 0;
+            left: 0;
+            cursor: nwse-resize;
+          }
+
+          &.sw {
+            transform: translateY(50%) translateX(-50%);
+            bottom: 0;
+            left: 0;
+            cursor: nesw-resize;
+          }
+        }
+      }
+    }
+
     & > .area {
       position: absolute;
       z-index: 7;

@@ -61,13 +61,15 @@
             <template v-if="showEdgeLabels">
                 <template v-for="edge in edges" :key="edge.id">
                     <div v-if="(edge.showLabel ?? true) && edge.label && edgeLabelPositions[edge.id]"
-                         class="edge-label"
                          :style="edgeLabelPositions[edge.id]"
+                         class="edge-label"
                     >
-                        <slot name="edgeLabelRenderer" :edge="edge">{{ edge.label }}</slot>
+                        <slot :edge="edge" name="edgeLabelRenderer">{{ edge.label }}</slot>
                     </div>
                 </template>
             </template>
+            <dragonfly-zone v-for="zone in zones" :key="zone.id" :selected="selected[zone.id]" :zone="zone"
+                            @select="onSelect"/>
         </div>
     </div>
 </template>
@@ -85,13 +87,21 @@ import DragonflyCanvasTools from "./DragonflyCanvasTools.vue";
 import canvasDraggingBehaviorHandlers from "./canvasDraggingBehaviorHandlers";
 import shiftStrategies from "./shiftStrategies";
 import canvasWheelingBehaviorHandlers from "./canvasWheelingBehaviorHandlers";
+import DragonflyZone from "./DragonflyZone.vue";
 
 let linkSource = ref(null)
 let canvasId = 0
 
 export default {
     name: "DragonflyCanvas",
-    components: {DragonflyCanvasTools, ZigZagLine, StraightLine, DragonflyNode, DragonflyCanvasEdgesLayer},
+    components: {
+        DragonflyZone,
+        DragonflyCanvasTools,
+        ZigZagLine,
+        StraightLine,
+        DragonflyNode,
+        DragonflyCanvasEdgesLayer
+    },
     data() {
         return {
             dragging: false,
@@ -117,36 +127,14 @@ export default {
         }
     },
     props: {
-        nodes: {
-            type: Array,
-            default: [],
-            validate(value) {
-                return value.every(node => node.id)
-            }
-        },
-        edges: {
-            type: Array,
-            default: [],
-        },
-        zoomSensitivity: {
-            type: Number,
-            default: 0.001,
-        },
-        zoomScale: {
-            type: Number,
-        },
-        maxZoomScale: {
-            type: Number,
-            default: 5,
-        },
-        minZoomScale: {
-            type: Number,
-            default: 0.5,
-        },
-        layoutConfig: {
-            type: Object,
-            default: () => ({})
-        },
+        nodes: {type: Array, default: []},
+        edges: {type: Array, default: [],},
+        zones: {type: Array, default: []},
+        zoomSensitivity: {type: Number, default: 0.001,},
+        zoomScale: {type: Number,},
+        maxZoomScale: {type: Number, default: 5,},
+        minZoomScale: {type: Number, default: 0.5,},
+        layoutConfig: {type: Object, default: () => ({})},
         showArrow: {type: Boolean, default: true,},
         arrowZoomRatio: {type: Number, default: 1}, // 箭头显示大小的倍率
         arrowPosition: {type: Number, default: 100},
@@ -159,6 +147,8 @@ export default {
         lineShape: {default: StraightLine},
         linkingLineShape: {default: StraightLine},
         showEdgeLabels: {type: Boolean, default: true},
+        minZoneWidth: {type: Number, default: 120},
+        minZoneHeight: {type: Number, default: 80},
     },
     computed: {
         canvasStyle() {
@@ -357,6 +347,10 @@ export default {
         },
         deleteEdgeLabelPosition(id) {
             delete this.edgeLabelPositions[id]
+        },
+        updateZone(zone) {
+            const zones = [...this.zones.filter(({id}) => id !== zone.id), zone]
+            this.$emit('update:zones', zones)
         }
     },
     provide() {
@@ -387,6 +381,9 @@ export default {
             canvasId: this.canvasId,
             setEdgeLabelPosition: this.setEdgeLabelPosition,
             deleteEdgeLabelPosition: this.deleteEdgeLabelPosition,
+            updateZone: this.updateZone,
+            minZoneWidth: computed(() => this.minZoneWidth),
+            minZoneHeight: computed(() => this.minZoneHeight),
         }
     },
     mounted() {
@@ -419,7 +416,6 @@ export default {
         canvasWheelingBehavior(value) {
             this.$emit('update:canvasWheeling', value)
         },
-
     }
 }
 </script>
