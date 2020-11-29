@@ -65,6 +65,7 @@
                 :key="zone.id"
                 :selected="selected[zone.id]"
                 :zone="zone"
+                :position="positions[zone.id]"
                 @select="onZoneSelect"
                 #default="{zone}">
                 <slot name="zoneRenderer" :zone="zone"/>
@@ -342,9 +343,8 @@ export default {
         endpointReposition(id, x, y, width, height, orientation) {
             this.endpointPositions[id] = {x, y, width, height, orientation}
         },
-        updateZone(zone) {
-            const zones = [...this.zones.filter(({id}) => id !== zone.id), zone]
-            this.$emit('update:zones', zones)
+        updateZone({id, x, y, width, height}) {
+            this.positions[id] = {x, y, width, height}
         },
         onZoneSelect(zone) {
             this.onSelect(zone)

@@ -22,7 +22,7 @@
                 :orientation="orientation"
                 :top="top"
                 :width="width"
-                :zone="zone"
+                :id="id"
             />
         </template>
     </div>
@@ -36,8 +36,8 @@ import DragonflyZoneResizeHandler from "./DragonflyZoneResizeHandler.vue";
 export default {
     name: "DragonflyZone",
     components: {DragonflyZoneResizeHandler},
-    props: ['zone', 'selected'],
-    inject: ['updateZone', 'zoneMoving'],
+    props: ['zone', 'selected', 'position'],
+    inject: ['updateZone', 'zoneMoving', 'minZoneWidth', 'minZoneHeight'],
     data() {
         return {
             inDomOffset: {x: 0, y: 0},
@@ -48,19 +48,16 @@ export default {
             return this.zone.id
         },
         left() {
-            return this.zone.x ?? 0
+            return this.position?.x ?? 0
         },
         top() {
-            return this.zone.y ?? 0
+            return this.position?.y ?? 0
         },
         width() {
-            return this.zone.width ?? 120
+            return this.position?.width ?? this.minZoneWidth.value
         },
         height() {
-            return this.zone.height ?? 80
-        },
-        nodes() {
-            return this.zone.nodes ?? []
+            return this.position?.height ?? this.minZoneHeight.value
         },
         style() {
             return {
@@ -83,14 +80,15 @@ export default {
         },
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
-            const deltaX = event.offsetX - this.inDomOffset.x,
-                deltaY = event.offsetY - this.inDomOffset.y
-            const zone = {
-                ...this.zone,
+            const deltaX = event.offsetX - this.inDomOffset.x
+            const deltaY = event.offsetY - this.inDomOffset.y
+            this.updateZone({
+                id: this.id,
+                width: this.width,
+                height: this.height,
                 x: this.left + deltaX,
-                y: this.top + deltaY
-            }
-            this.updateZone(zone)
+                y: this.top + deltaY,
+            })
             this.zoneMoving(deltaX, deltaY)
         },
         onDragEnd(event) {

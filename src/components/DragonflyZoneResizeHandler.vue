@@ -21,7 +21,7 @@ const vectors = { // fx, fy, fw, fh
 }
 export default {
     name: "DragonflyZoneResizeHandler",
-    props: ['orientation', 'left', 'top', 'width', 'height', 'zone'],
+    props: ['orientation', 'left', 'top', 'width', 'height', 'id'],
     inject: ['updateZone', 'minZoneWidth', 'minZoneHeight'],
     data() {
         return {
@@ -40,10 +40,12 @@ export default {
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
             const [fx, fy, fw, fh] = vectors[this.orientation]
-            let x = this.left + fx * (event.offsetX - this.inDomOffset.x),
-                y = this.top + fy * (event.offsetY - this.inDomOffset.y),
-                width = this.width + fw * (event.offsetX - this.inDomOffset.x),
-                height = this.height + fh * (event.offsetY - this.inDomOffset.y)
+            const deltaX = event.offsetX - this.inDomOffset.x
+            const deltaY = event.offsetY - this.inDomOffset.y
+            let x = this.left + fx * deltaX,
+                y = this.top + fy * deltaY,
+                width = this.width + fw * deltaX,
+                height = this.height + fh * deltaY
             const minWidth = this.minZoneWidth.value, minHeight = this.minZoneHeight.value
             if (height < minHeight) {
                 y -= fy * (minHeight - height)
@@ -53,8 +55,7 @@ export default {
                 x -= fx * (minWidth - width)
                 width = minWidth
             }
-            const zone = {...this.zone, x, y, width, height,}
-            this.updateZone(zone)
+            this.updateZone({id: this.id, x, y, width, height,})
         },
         onDragEnd(event) {
             document.removeEventListener('dragover', preventDefaultDrop)
