@@ -14,7 +14,7 @@ let mousemoveOutsideHandler
 const mousedown = function (event) {
     if (!event.shiftKey) this.clearSelection()
     const fromCanvas = event.target === this.$refs.canvas
-    fromCanvas && this.$refs.canvas.focus() // hacking: 用这个方式来获取keydown事件，必须结合canvas的tabindex属性
+    fromCanvas && this.$refs.canvas.focus({ preventScroll: true }) // hacking: 用这个方式来获取keydown事件，必须结合canvas的tabindex属性，并防止获得焦点时滚动屏幕
     const insideCanvas = !fromCanvas && event.path.includes(this.$refs.canvas)
     if (!insideCanvas) {
         event.preventDefault()
