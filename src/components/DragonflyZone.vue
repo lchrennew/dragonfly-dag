@@ -10,7 +10,9 @@
              @drag.passive="onDrag"
              @dragend.prevent="onDragEnd"
              @dragenter.stop="onDragEnter"
-             @dragleave.stop="onDragLeave"></div>
+             @dragleave.stop="onDragLeave">
+            <slot :zone="zone"/>
+        </div>
         <template v-if="selected">
             <dragonfly-zone-resize-handler
                 v-for="orientation in ['se', 'sw', 'ne', 'nw']"
@@ -81,8 +83,8 @@ export default {
         },
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
-            const deltaX= event.offsetX - this.inDomOffset.x,
-                deltaY= event.offsetY - this.inDomOffset.y
+            const deltaX = event.offsetX - this.inDomOffset.x,
+                deltaY = event.offsetY - this.inDomOffset.y
             const zone = {
                 ...this.zone,
                 x: this.left + deltaX,

@@ -68,8 +68,15 @@
                     </div>
                 </template>
             </template>
-            <dragonfly-zone v-for="zone in zones" :key="zone.id" :selected="selected[zone.id]" :zone="zone"
-                            @select="onZoneSelect"/>
+            <dragonfly-zone
+                v-for="zone in zones"
+                :key="zone.id"
+                :selected="selected[zone.id]"
+                :zone="zone"
+                @select="onZoneSelect"
+                #default="{zone}">
+                <slot name="zoneRenderer" :zone="zone"/>
+            </dragonfly-zone>
         </div>
     </div>
 </template>
