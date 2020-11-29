@@ -361,10 +361,10 @@ export default {
         zoneMoving(deltaX, deltaY) {
             for (const nodeId in this.nodesInZone) {
                 if (this.nodesInZone[nodeId]) {
-                    let {x, y, width, height, label} = this.positions[nodeId]
+                    let {x, y, width, height} = this.positions[nodeId]
                     x += deltaX
                     y += deltaY
-                    this.positions[nodeId] = {x, y, width, height, label}
+                    this.positions[nodeId] = {x, y, width, height}
                 }
             }
         },
