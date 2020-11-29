@@ -52,22 +52,14 @@
                 :arrow-zoom-ratio="arrowZoomRatio"
                 :edges="edges"
                 :endpoint-positions="endpointPositions"
-                :label-positions="edgeLabelPositions"
                 :linking="linking"
                 :linking-source="linkingSource"
                 :linking-target="linkingTarget"
-                :positions="positions"
-            />
-            <template v-if="showEdgeLabels">
-                <template v-for="edge in edges" :key="edge.id">
-                    <div v-if="(edge.showLabel ?? true) && edge.label && edgeLabelPositions[edge.id]"
-                         :style="edgeLabelPositions[edge.id]"
-                         class="edge-label"
-                    >
-                        <slot :edge="edge" name="edgeLabelRenderer">{{ edge.label }}</slot>
-                    </div>
+                :positions="positions">
+                <template #label="{edge}">
+                    <slot :edge="edge" name="edgeLabelRenderer">{{ edge.label }}</slot>
                 </template>
-            </template>
+            </dragonfly-canvas-edges-layer>
             <dragonfly-zone
                 v-for="zone in zones"
                 :key="zone.id"
@@ -129,7 +121,6 @@ export default {
             nodeDraggingBehavior: this.nodeDragging,
             canvasDraggingBehavior: this.canvasDragging,
             canvasWheelingBehavior: this.canvasWheeling,
-            edgeLabelPositions: {},
             canvasId: canvasId++,
             nodesInZone: {},
         }
@@ -353,12 +344,6 @@ export default {
         endpointReposition(id, x, y, width, height, orientation) {
             this.endpointPositions[id] = {x, y, width, height, orientation}
         },
-        setEdgeLabelPosition(id, style) {
-            this.edgeLabelPositions[id] = style
-        },
-        deleteEdgeLabelPosition(id) {
-            delete this.edgeLabelPositions[id]
-        },
         updateZone(zone) {
             const zones = [...this.zones.filter(({id}) => id !== zone.id), zone]
             this.$emit('update:zones', zones)
@@ -412,8 +397,6 @@ export default {
             selected: computed(() => this.selected),
             showEdgeLabels: computed(() => this.showEdgeLabels),
             canvasId: this.canvasId,
-            setEdgeLabelPosition: this.setEdgeLabelPosition,
-            deleteEdgeLabelPosition: this.deleteEdgeLabelPosition,
             updateZone: this.updateZone,
             minZoneWidth: computed(() => this.minZoneWidth),
             minZoneHeight: computed(() => this.minZoneHeight),

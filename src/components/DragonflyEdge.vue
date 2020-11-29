@@ -24,6 +24,16 @@
           class="edge-arrow"
           marker-end="url(#arrow)"
     />
+    <foreignObject>
+        <teleport :to="`#dragonfly-canvas-${canvasId}`">
+            <div v-if="showLabel"
+                 :style="labelStyle"
+                 class="edge-label"
+            >
+                <slot>{{ edge.label }}</slot>
+            </div>
+        </teleport>
+    </foreignObject>
 </template>
 
 <script>
@@ -31,13 +41,14 @@ const origin = {x: 0, y: 0}
 
 export default {
     name: "DragonflyEdge",
-    props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'lineShape', 'selected', 'labelPosition'],
-    inject: ['showArrow', 'arrowPosition', 'onSelect', 'onUnselect', 'canvasId', 'showEdgeLabels', 'setEdgeLabelPosition', 'deleteEdgeLabelPosition'],
+    props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'lineShape', 'selected'],
+    inject: ['showArrow', 'arrowPosition', 'onSelect', 'onUnselect', 'canvasId', 'showEdgeLabels'],
     data() {
         return {
             definition: '',
             arrowPoint1: {x: 0, y: 0},
             arrowPoint2: {x: 0, y: 0},
+            labelStyle: null
         }
     },
     computed: {
@@ -89,13 +100,13 @@ export default {
                 const labelPointLength = pathLength / 2
                 const {x: x1, y: y1} = path.getPointAtLength(Math.max(labelPointLength - 1, 0)) ?? origin
                 const {x: x2, y: y2} = path.getPointAtLength(labelPointLength) ?? origin
-                this.setEdgeLabelPosition(this.edge.id, {
+                this.labelStyle = {
                     left: `${x1}px`,
                     top: `${y1}px`,
                     transform: `rotate(${Math.atan2(y2 - y1, x2 - x1)}rad)`
-                })
+                }
             } else {
-                this.deleteEdgeLabelPosition(this.edge.id)
+                this.labelStyle = null
             }
         },
         generatePoints() {

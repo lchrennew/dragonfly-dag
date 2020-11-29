@@ -29,21 +29,20 @@
         <dragonfly-edge
             v-for="edge in edges"
             :key="edge.id"
-            v-model:label-position="labelPositions[edge.id]"
             :edge="edge"
             :line-shape="lineShape"
             :selected="selected.value[edge.id]"
             :source-endpoint="endpointPositions[edge.sourceEndpoint]"
             :source-node="positions[edge.source]"
             :target-endpoint="endpointPositions[edge.targetEndpoint]"
-            :target-node="positions[edge.target]"
-        />
+            :target-node="positions[edge.target]">
+            <slot name="label" :edge="edge"/>
+        </dragonfly-edge>
         <dragonfly-linking-edge
             v-if="linking"
             :line-shape="linkingLineShape.value"
             :source="linkingSource"
-            :target="linkingTarget"
-        />
+            :target="linkingTarget"/>
     </svg>
 </template>
 
@@ -54,7 +53,7 @@ import DragonflyLinkingEdge from "./DragonflyLinkingEdge.vue";
 export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {DragonflyLinkingEdge, DragonflyEdge},
-    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio', 'labelPositions'],
+    props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio'],
     inject: ['showArrow', 'lineShape', 'linkingLineShape', 'selected']
 }
 </script>
