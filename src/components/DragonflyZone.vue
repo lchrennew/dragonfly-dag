@@ -35,7 +35,7 @@ export default {
     name: "DragonflyZone",
     components: {DragonflyZoneResizeHandler},
     props: ['zone', 'selected'],
-    inject: ['updateZone'],
+    inject: ['updateZone', 'zoneMoving'],
     data() {
         return {
             inDomOffset: {x: 0, y: 0},
@@ -73,7 +73,7 @@ export default {
         onMouseDown(event) {
             this.inDomOffset.x = event.offsetX
             this.inDomOffset.y = event.offsetY
-            this.$emit('select', {id: this.zone.id})
+            this.$emit('select', this.zone)
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
@@ -81,12 +81,15 @@ export default {
         },
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
+            const deltaX= event.offsetX - this.inDomOffset.x,
+                deltaY= event.offsetY - this.inDomOffset.y
             const zone = {
                 ...this.zone,
-                x: this.left + event.offsetX - this.inDomOffset.x,
-                y: this.top + event.offsetY - this.inDomOffset.y
+                x: this.left + deltaX,
+                y: this.top + deltaY
             }
             this.updateZone(zone)
+            this.zoneMoving(deltaX, deltaY)
         },
         onDragEnd(event) {
             document.removeEventListener('dragover', preventDefaultDrop)

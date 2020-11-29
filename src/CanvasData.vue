@@ -4,13 +4,15 @@
         <div v-for="node in nodes" :key="node.id">{{ node }}</div>
         <h2>Edges</h2>
         <div v-for="edge in edges" :key="edge.id">{{ edge }}</div>
+        <h2>Zones</h2>
+        <div v-for="zone in zones" :key="zone.id">{{ zone }}</div>
     </div>
 </template>
 
 <script>
 export default {
     name: "CanvasData",
-    props: ['edges', 'nodes']
+    props: ['edges', 'nodes', 'zones']
 }
 </script>
 

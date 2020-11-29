@@ -69,7 +69,7 @@
                 </template>
             </template>
             <dragonfly-zone v-for="zone in zones" :key="zone.id" :selected="selected[zone.id]" :zone="zone"
-                            @select="onSelect"/>
+                            @select="onZoneSelect"/>
         </div>
     </div>
 </template>
@@ -124,6 +124,7 @@ export default {
             canvasWheelingBehavior: this.canvasWheeling,
             edgeLabelPositions: {},
             canvasId: canvasId++,
+            nodesInZone: {},
         }
     },
     props: {
@@ -318,6 +319,7 @@ export default {
             linkSource.value = null
         },
         async link(target, targetEndpoint) {
+            if (!linkSource.value) return
             const {source, sourceEndpoint} = linkSource.value
             if ((sourceEndpoint ?? source) === (targetEndpoint ?? target)) return
 
@@ -351,7 +353,32 @@ export default {
         updateZone(zone) {
             const zones = [...this.zones.filter(({id}) => id !== zone.id), zone]
             this.$emit('update:zones', zones)
-        }
+        },
+        onZoneSelect(zone) {
+            this.onSelect(zone)
+            for (const nodeId in this.positions) {
+                const {x, y} = this.positions[nodeId]
+                const sourceX = zone.x, sourceY = zone.y,
+                    targetX = zone.x + (zone.width ?? this.minZoneWidth),
+                    targetY = zone.y + (zone.height ?? this.minZoneHeight)
+                const xBetween = (x <= targetX && x >= sourceX) || (x >= targetX && x <= sourceX)
+                const yBetween = (y <= targetY && y >= sourceY) || (y >= targetY && y <= sourceY)
+                console.log({x, y})
+                console.log({sourceX, sourceY, targetX, targetY})
+                this.nodesInZone[nodeId] = xBetween && yBetween
+            }
+        },
+        zoneMoving(deltaX, deltaY) {
+            console.log({deltaX, deltaY})
+            for (const nodeId in this.nodesInZone) {
+                if (this.nodesInZone[nodeId]) {
+                    let {x, y, width, height, label} = this.positions[nodeId]
+                    x += deltaX
+                    y += deltaY
+                    this.positions[nodeId] = {x, y, width, height, label}
+                }
+            }
+        },
     },
     provide() {
         return {
@@ -384,6 +411,7 @@ export default {
             updateZone: this.updateZone,
             minZoneWidth: computed(() => this.minZoneWidth),
             minZoneHeight: computed(() => this.minZoneHeight),
+            zoneMoving: this.zoneMoving,
         }
     },
     mounted() {

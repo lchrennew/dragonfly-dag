@@ -53,7 +53,7 @@
         v-model:show-edge-labels="config.showEdgeLabels"
         v-model:zoom-scale="config.zoomScale"
     />
-    <canvas-data :edges="edges" :nodes="nodes"/>
+    <canvas-data :edges="edges" :nodes="nodes" :zones="zones"/>
 </template>
 
 <script>
