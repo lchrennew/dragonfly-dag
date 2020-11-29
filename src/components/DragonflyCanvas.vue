@@ -367,9 +367,9 @@ export default {
             this.onSelect(zone)
             for (const nodeId in this.positions) {
                 const {x, y} = this.positions[nodeId]
-                const sourceX = zone.x, sourceY = zone.y,
-                    targetX = zone.x + (zone.width ?? this.minZoneWidth),
-                    targetY = zone.y + (zone.height ?? this.minZoneHeight)
+                const sourceX = zone.x ?? 0, sourceY = zone.y ?? 0,
+                    targetX = sourceX + (zone.width ?? this.minZoneWidth),
+                    targetY = sourceY + (zone.height ?? this.minZoneHeight)
                 const xBetween = (x <= targetX && x >= sourceX) || (x >= targetX && x <= sourceX)
                 const yBetween = (y <= targetY && y >= sourceY) || (y >= targetY && y <= sourceY)
                 this.nodesInZone[nodeId] = xBetween && yBetween
