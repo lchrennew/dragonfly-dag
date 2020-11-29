@@ -5,3 +5,4 @@ dist
 .idea/sonarlint
 *.iws
 *.patch
+package-lock.json
