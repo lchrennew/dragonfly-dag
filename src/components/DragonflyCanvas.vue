@@ -236,14 +236,11 @@ export default {
             this.scale = scale
         },
 
-        resetLayout() {
+        resetLayout(overwrite = true) {
             const layout = dagreLayout(this.nodes, this.positions, this.edges, this.layoutConfig)
             const positions = layout._nodes
-            for (let {id, x, y} of this.nodes) {
-                if (x !== undefined)
-                    positions[id] = {...positions[id], x}
-                if (y !== undefined)
-                    positions[id] = {...positions[id], y}
+            for (let {id} of this.nodes) {
+                positions[id] = {...positions[id], ...overwrite ? undefined : this.positions[id]}
             }
             this.positions = positions
         },
@@ -276,10 +273,10 @@ export default {
         nodeMoving(deltaX, deltaY) {
             for (const nodeId in this.selected) {
                 if (this.selected[nodeId]) {
-                    let {x, y, width, height, label} = this.positions[nodeId]
+                    let {x, y, width, height,} = this.positions[nodeId]
                     x += deltaX
                     y += deltaY
-                    this.positions[nodeId] = {x, y, width, height, label}
+                    this.positions[nodeId] = {x, y, width, height,}
                 }
             }
         },
@@ -407,7 +404,7 @@ export default {
     mounted() {
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
-        this.resetLayout()
+        this.resetLayout(false)
     },
     watch: {
         zoomScale(value) {
