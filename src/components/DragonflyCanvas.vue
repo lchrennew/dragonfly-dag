@@ -363,13 +363,10 @@ export default {
                     targetY = zone.y + (zone.height ?? this.minZoneHeight)
                 const xBetween = (x <= targetX && x >= sourceX) || (x >= targetX && x <= sourceX)
                 const yBetween = (y <= targetY && y >= sourceY) || (y >= targetY && y <= sourceY)
-                console.log({x, y})
-                console.log({sourceX, sourceY, targetX, targetY})
                 this.nodesInZone[nodeId] = xBetween && yBetween
             }
         },
         zoneMoving(deltaX, deltaY) {
-            console.log({deltaX, deltaY})
             for (const nodeId in this.nodesInZone) {
                 if (this.nodesInZone[nodeId]) {
                     let {x, y, width, height, label} = this.positions[nodeId]
