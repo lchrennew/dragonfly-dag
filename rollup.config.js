@@ -30,6 +30,7 @@ export default {
             targets: [
                 {src: 'src/**/*.less', dest: 'dist/'},
                 {src: 'LICENSE', dest: 'dist/'},
+                {src: 'README.md', dest: 'dist/'},
             ]
         })
 
