@@ -1,14 +1,21 @@
 {
   "name": "dragonfly-dag",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "license": "MIT",
   "author": {
     "name": "李淳",
     "email": "lchrennew@126.com"
   },
   "description": "基于Vue3的DAG流程图组件。",
+  "homepage": "https://github.com/lchrennew/dragonfly-dag",
   "main": "index.js",
   "module": "index.js",
+  "repository": {
+    "url": "https://github.com/lchrennew/dragonfly-dag.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lchrennew/dragonfly-dag/issues"
+  },
   "scripts": {
     "dev": "cd example && yarn && vite",
     "build": "rollup -c rollup.config.js",
