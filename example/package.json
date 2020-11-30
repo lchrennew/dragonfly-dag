@@ -1,16 +1,12 @@
 {
   "name": "dragonfly-dag",
-  "version": "0.1.2",
-  "license": "MIT",
-  "author": "李淳",
-  "description": "基于Vue3的DAG流程图组件。",
-  "main": "src/index.js",
-  "module": "src/index.js",
+  "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --entry src/index.js --assetsDir ."
+    "build": "vite build"
   },
   "dependencies": {
+    "ant-design-vue": "^2.0.0-rc.2",
     "dagre": "^0.8.5",
     "vue": "^3.0.3"
   },
