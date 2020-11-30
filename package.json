@@ -2,13 +2,15 @@
   "name": "dragonfly-dag",
   "version": "0.1.3",
   "license": "MIT",
-  "author": "李淳",
+  "author": {
+    "name": "李淳",
+    "email": "lchrennew@126.com"
+  },
   "description": "基于Vue3的DAG流程图组件。",
   "main": "index.js",
   "module": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build --entry src/index.js --assetsDir ."
+    "dev": "cd example && yarn && vite"
   },
   "dependencies": {
     "dagre": "^0.8.5",
