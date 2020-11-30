@@ -57,13 +57,11 @@
 </template>
 
 <script>
-import dragonfly from 'dragonfly-dag'
+import {DragonflyCanvas, DragonflyEndpoint, SCurveLine} from 'dragonfly-dag'
 import CanvasConfig from "./CanvasConfig.vue";
 import {ref, shallowRef} from 'vue'
 import CanvasData from "./CanvasData.vue";
 import 'dragonfly-dag/dragonfly-dag.less'
-
-const {DragonflyCanvas, DragonflyEndpoint, SCurveLine} = dragonfly
 
 export default {
     name: 'App',
