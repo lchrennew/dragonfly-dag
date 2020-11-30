@@ -2,7 +2,10 @@ node_modules
 .DS_Store
 dist
 *.local
-.idea/sonarlint
 *.iws
 *.patch
 package-lock.json
+yarn.lock
+*.iml
+*.ipr
+.idea
