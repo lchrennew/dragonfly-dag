@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "ant-design-vue": "^2.0.0-rc.2",
-    "dragonfly-dag": "file:..",
+    "dragonfly-dag": "^0.2.4",
     "vue": "^3.0.3"
   },
   "devDependencies": {

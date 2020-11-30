@@ -75,8 +75,6 @@
 </template>
 
 <script>
-import './dragonfly-dag.less'
-
 import DragonflyNode from "./DragonflyNode.vue";
 import StraightLine from "./edge/StraightLine.vue";
 import {computed, ref} from 'vue'

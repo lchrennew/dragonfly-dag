@@ -1,5 +1,4 @@
-import dagre from 'dagre'
-
+import * as dagre from 'dagre'
 
 const dagreLayout = (nodes = [], positions = {}, edges = [], config = {}) => {
     const g = new dagre.graphlib.Graph({multigraph: true})
