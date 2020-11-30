@@ -1,6 +1,6 @@
 {
   "name": "dragonfly-dag",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "license": "MIT",
   "author": {
     "name": "李淳",
@@ -19,7 +19,8 @@
   "scripts": {
     "dev": "cd example && yarn && vite",
     "build": "rollup -c rollup.config.js",
-    "publish": "rollup -c rollup.config.js && yarn publish ./dist --no-commit-hooks --no-git-tag-version --non-interactive"
+    "push": "rollup -c rollup.config.js && yarn publish ./dist --no-commit-hooks --no-git-tag-version --non-interactive && rm -rf ./dist",
+    "clean": "rm -rf ./dist"
   },
   "dependencies": {
     "dagre": "^0.8.5",

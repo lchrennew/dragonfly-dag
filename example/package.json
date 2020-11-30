@@ -1,13 +1,13 @@
 {
   "name": "dragonfly-dag-example",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vite",
     "build": "vite build"
   },
   "dependencies": {
     "ant-design-vue": "^2.0.0-rc.2",
-    "dragonfly-dag": "^0.2.4",
+    "dragonfly-dag": "^0.2.7",
     "vue": "^3.0.3"
   },
   "devDependencies": {
