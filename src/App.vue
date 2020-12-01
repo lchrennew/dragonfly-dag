@@ -6,7 +6,7 @@
             <a-button @click="autoLayout">自动布局</a-button>
         </a-space>
     </div>
-    <div style="width: 800px; height: 100%; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
+    <div style="width: 800px; height: 600px; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
         <dragonfly-canvas
             ref="canvas"
             v-model:canvas-dragging="config.canvasDragging"
@@ -109,11 +109,11 @@ export default {
     },
     methods: {
         addNode() {
-            this.nodes.push({id: this.feed})
+            this.nodes.push({id: `${this.feed}`})
             this.feed++
         },
         addZone() {
-            this.zones.push({id: this.feed})
+            this.zones.push({id: `${this.feed}`})
             this.feed++
         },
         async onAddingEdge({source, target, sourceEndpoint, targetEndpoint}) {

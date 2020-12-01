@@ -126,8 +126,8 @@ export default {
             return {
                 width: this.width,
                 height: this.height,
-                left: x - this.width / 2,
-                top: y - this.height / 2,
+                left: x,
+                top: y,
                 orientation: this.orientation,
                 x,
                 y,
@@ -160,8 +160,8 @@ export default {
                 this.width,
                 this.height,
                 this.orientation,
-                event.offsetX + this.position.left,
-                event.offsetY + this.position.top,
+                event.offsetX + this.position.x,
+                event.offsetY + this.position.y,
             )
         },
         onDragEnd() {
@@ -188,7 +188,7 @@ export default {
         this.width = this.$el.offsetWidth
         this.height = this.$el.offsetHeight
         const position = this.getPosition()
-        // offset to node's center
+        // offset to node's top left
         this.x = position.left + this.$el.offsetLeft + this.width / 2
         this.y = position.top + this.$el.offsetTop + this.height / 2
         this.endpointReposition(this.endpoint.id, this.x, this.y, this.width, this.height, this.orientation)

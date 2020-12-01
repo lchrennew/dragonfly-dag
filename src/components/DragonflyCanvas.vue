@@ -71,7 +71,16 @@
                 <slot name="zoneRenderer" :zone="zone"/>
             </dragonfly-zone>
         </div>
-        <dragonfly-grid :size="gridSize" :offset-x="offsetX" :offset-y="offsetY" :scale="scale" :min-scale="minGridScale" :max-scale="maxGridScale"/>
+        <dragonfly-grid
+            :size="gridSize"
+            :offset-x="offsetX"
+            :offset-y="offsetY"
+            :scale="scale"
+            :min-scale="minGridScale"
+            :max-scale="maxGridScale"/>
+        <dragonfly-scale :scale="scale"/>
+        <dragonfly-minimap :width="width" :height="height" :offset-x="offsetX" :offset-y="offsetY" :scale="scale"/>
+
     </div>
 </template>
 
@@ -89,6 +98,8 @@ import canvasWheelingBehaviorHandlers from "./canvasWheelingBehaviorHandlers";
 import DragonflyZone from "./DragonflyZone.vue";
 import DragonflyGrid from "./DragonflyGrid.vue";
 import DotGrid from "./grid/DotGrid.vue";
+import DragonflyMinimap from "./DragonflyMinimap.vue";
+import DragonflyScale from "./DragonflyScale.vue";
 
 let linkSource = ref(null)
 let canvasId = 0
@@ -96,6 +107,8 @@ let canvasId = 0
 export default {
     name: "DragonflyCanvas",
     components: {
+        DragonflyScale,
+        DragonflyMinimap,
         DragonflyGrid,
         DragonflyZone,
         DragonflyCanvasTools,
@@ -153,7 +166,7 @@ export default {
         minZoneWidth: {type: Number, default: 120},
         minZoneHeight: {type: Number, default: 80},
         gridShape: {default: DotGrid},
-        gridSize: {type:Number, default: 10},
+        gridSize: {type: Number, default: 10},
         minGridScale: {type: Number, default: 0.5},
         maxGridScale: {type: Number, default: 5},
     },
@@ -247,7 +260,10 @@ export default {
             const layout = dagreLayout([...this.nodes, ...this.zones], this.positions, this.edges, this.layoutConfig)
             const positions = layout._nodes
             for (let {id} of this.nodes) {
-                positions[id] = {...positions[id], ...overwrite ? undefined : this.positions[id]}
+                let {width, height, x, y} = positions[id]
+                x -= width / 2
+                y -= height / 2
+                positions[id] = {x, y, width, height, ...overwrite ? undefined : this.positions[id]}
             }
             this.positions = positions
         },
@@ -255,9 +271,9 @@ export default {
         preSelect(shiftKey) {
             for (const nodeId in this.positions) {
                 const selected = this.selected[nodeId]
-                const {x, y} = this.positions[nodeId]
-                const xBetween = (x <= this.draggingTarget.x && x >= this.draggingSource.x) || (x >= this.draggingTarget.x && x <= this.draggingSource.x)
-                const yBetween = (y <= this.draggingTarget.y && y >= this.draggingSource.y) || (y >= this.draggingTarget.y && y <= this.draggingSource.y)
+                const {x, y, width, height} = this.positions[nodeId]
+                const xBetween = x + width > Math.min(this.draggingSource.x, this.draggingTarget.x) && x < Math.max(this.draggingSource.x, this.draggingTarget.x)
+                const yBetween = y + height > Math.min(this.draggingSource.y, this.draggingTarget.y) && y < Math.max(this.draggingSource.y, this.draggingTarget.y)
                 const selecting = xBetween && yBetween
                 this.preSelected[nodeId] = shiftKey ? shiftStrategies.reverse(selected, selecting) : selecting
             }
@@ -275,7 +291,7 @@ export default {
         },
         // 用于Provide/Inject
         setNodeSize(nodeId, width, height) {
-            this.positions[nodeId] = {x: width / 2, y: height / 2, ...this.positions[nodeId], width, height}
+            this.positions[nodeId] = {x: 0, y: 0, ...this.positions[nodeId], width, height}
         },
         nodeMoving(deltaX, deltaY) {
             for (const nodeId in this.selected) {
@@ -356,13 +372,13 @@ export default {
             this.onSelect(zone)
             const position = this.positions[zone.id]
             for (const id in this.positions) {
-                if (id !== zone.id.toString()) {
-                    const {x, y} = this.positions[id]
+                if (id !== zone.id) {
+                    const {x, y, width, height} = this.positions[id]
                     const sourceX = position?.x ?? 0, sourceY = position?.y ?? 0,
                         targetX = sourceX + (position?.width ?? this.minZoneWidth),
                         targetY = sourceY + (position?.height ?? this.minZoneHeight)
-                    const xBetween = (x <= targetX && x >= sourceX) || (x >= targetX && x <= sourceX)
-                    const yBetween = (y <= targetY && y >= sourceY) || (y >= targetY && y <= sourceY)
+                    const xBetween = x <= Math.max(targetX, sourceX) && x + width >= Math.min(targetX, sourceX)
+                    const yBetween = y <= Math.max(targetY, sourceY) && y + width >= Math.min(targetY, sourceY)
                     this.nodesInZone[id] = xBetween && yBetween
                 }
             }

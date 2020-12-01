@@ -368,4 +368,38 @@
       }
     }
   }
+
+  .dragonfly-scale {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: #333;
+    font-size: 12px;
+    line-height: 1em;
+    transform: scale(0.75);
+    transform-origin: left;
+  }
+
+  .dragonfly-minimap {
+    position: absolute;
+    width: 200px;
+    height: 150px;
+    background-color: #fff;
+    border: solid 1px #eee;
+    right: 0;
+    bottom: 0;
+    z-index: 7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .canvas {
+      border: solid 1px #000;
+
+      .viewport {
+        position: absolute;
+        background-color: red;
+      }
+    }
+  }
 }

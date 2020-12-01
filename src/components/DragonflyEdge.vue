@@ -61,7 +61,15 @@ export default {
                     height: this.sourceEndpoint.height,
                     orientation: this.sourceEndpoint.orientation,
                 }
-            } else return this.sourceNode
+            }  else {
+                return {
+                    x: this.sourceNode.x + this.sourceNode.width / 2,
+                    y: this.sourceNode.y + this.sourceNode.height / 2,
+                    width: this.sourceNode.width,
+                    height: this.sourceNode.height,
+                    orientation: this.sourceNode.orientation,
+                }
+            }
         },
         target() {
             if (this.targetEndpoint) {
@@ -70,10 +78,18 @@ export default {
                     y: this.targetNode.y + this.targetEndpoint.y,
                     width: this.targetEndpoint.width,
                     height: this.targetEndpoint.height,
-                    orientation: this.sourceEndpoint.orientation,
+                    orientation: this.targetEndpoint.orientation,
+                }
+            } else {
+                return {
+                    x: this.targetNode.x + this.targetNode.width / 2,
+                    y: this.targetNode.y + this.targetNode.height / 2,
+                    width: this.targetNode.width,
+                    height: this.targetNode.height,
+                    orientation: this.targetNode.orientation,
                 }
             }
-            return this.targetNode
+
         },
         lineEnds() {
             return {source: this.source, target: this.target}

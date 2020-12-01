@@ -58,8 +58,6 @@ export default {
         return {
             width: 0,
             height: 0,
-            x: 0,
-            y: 0,
             inDomOffset: {x: 0, y: 0},
             targeted: false,
             endPointRefs: [],
@@ -84,7 +82,12 @@ export default {
         }
     },
     computed: {
-
+        x() {
+            return this.position?.x ?? 0
+        },
+        y() {
+            return this.position?.y ?? 0
+        },
         groupName() {
             if (typeof this.group === 'string') {
                 return this.group
@@ -170,15 +173,7 @@ export default {
     mounted() {
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
-        this.x = this.position?.x ?? 0 - this.width / 2
-        this.y = this.position?.y ?? 0 - this.height / 2
         this.setNodeSize(this.node.id, this.width, this.height)  // hacking: 回调DragonflyCanvasCore，提供尺寸信息
     },
-    watch: {
-        position(value) {
-            this.x = value.x - this.width / 2
-            this.y = value.y - this.height / 2
-        }
-    }
 }
 </script>

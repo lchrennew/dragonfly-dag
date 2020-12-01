@@ -15,10 +15,10 @@
 import DragonflyEndpoint from "./DragonflyEndpoint.vue";
 
 const orientationVectors = {
-    left: [-0.5, -0.5],
-    right: [0.5, -0.5],
-    top: [-0.5, -0.5],
-    bottom: [-0.5, 0.5],
+    left: [0, 0],
+    right: [1, 0],
+    top: [0, 0],
+    bottom: [1, 0],
 }
 
 export default {
