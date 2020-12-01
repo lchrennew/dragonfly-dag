@@ -71,6 +71,7 @@
                 <slot name="zoneRenderer" :zone="zone"/>
             </dragonfly-zone>
         </div>
+        <dragonfly-grid :size="gridSize" :offset-x="offsetX" :offset-y="offsetY" :scale="scale" :min-scale="minGridScale" :max-scale="maxGridScale"/>
     </div>
 </template>
 
@@ -86,6 +87,8 @@ import canvasDraggingBehaviorHandlers from "./canvasDraggingBehaviorHandlers";
 import shiftStrategies from "./shiftStrategies";
 import canvasWheelingBehaviorHandlers from "./canvasWheelingBehaviorHandlers";
 import DragonflyZone from "./DragonflyZone.vue";
+import DragonflyGrid from "./DragonflyGrid.vue";
+import DotGrid from "./grid/DotGrid.vue";
 
 let linkSource = ref(null)
 let canvasId = 0
@@ -93,6 +96,7 @@ let canvasId = 0
 export default {
     name: "DragonflyCanvas",
     components: {
+        DragonflyGrid,
         DragonflyZone,
         DragonflyCanvasTools,
         ZigZagLine,
@@ -148,6 +152,10 @@ export default {
         showEdgeLabels: {type: Boolean, default: true},
         minZoneWidth: {type: Number, default: 120},
         minZoneHeight: {type: Number, default: 80},
+        gridShape: {default: DotGrid},
+        gridSize: {type:Number, default: 10},
+        minGridScale: {type: Number, default: 0.5},
+        maxGridScale: {type: Number, default: 5},
     },
     computed: {
         canvasStyle() {
@@ -400,6 +408,7 @@ export default {
             minZoneWidth: computed(() => this.minZoneWidth),
             minZoneHeight: computed(() => this.minZoneHeight),
             zoneMoving: this.zoneMoving,
+            gridShape: computed(() => this.gridShape),
         }
     },
     mounted() {

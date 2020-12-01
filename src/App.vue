@@ -28,6 +28,10 @@
             :node-group="{linkIn: true, linkOut: false}"
             :show-arrow="config.showArrow"
             :show-edge-labels="config.showEdgeLabels"
+            :grid-shape="config.gridShape"
+            :grid-size="config.gridSize"
+            :max-grid-scale="config.maxGridScale"
+            :min-grid-scale="config.minGridScale"
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -57,11 +61,11 @@
 </template>
 
 <script>
-import {DragonflyCanvas, DragonflyEndpoint, SCurveLine} from 'dragonfly-dag'
-import CanvasConfig from "./CanvasConfig.vue";
+import './components/dragonfly-dag.less'
 import {ref, shallowRef} from 'vue'
+import {DragonflyCanvas, DragonflyEndpoint, SCurveLine, DotGrid, LineGrid, TileGrid} from '../index'
+import CanvasConfig from "./CanvasConfig.vue";
 import CanvasData from "./CanvasData.vue";
-import 'dragonfly-dag/dragonfly-dag.less'
 
 export default {
     name: 'App',
@@ -76,7 +80,7 @@ export default {
             config: {
                 zoomScale: ref(1),
                 minZoomScale: ref(0.1),
-                maxZoomScale: ref(2),
+                maxZoomScale: ref(5),
                 zoomSensitivity: ref(0.001),
                 layout: {
                     rankdir: 'LR',
@@ -91,6 +95,10 @@ export default {
                 canvasWheeling: ref('zoom'),
                 lineShape: shallowRef(SCurveLine),
                 showEdgeLabels: ref(false),
+                gridSize: ref(20),
+                maxGridScale: ref(2),
+                minGridScale: ref(0.5),
+                gridShape: shallowRef(TileGrid)
             },
             feed: 1,
             nodes: [],

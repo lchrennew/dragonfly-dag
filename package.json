@@ -1,6 +1,6 @@
 {
   "name": "dragonfly-dag",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "license": "MIT",
   "author": {
     "name": "李淳",
@@ -17,15 +17,20 @@
     "url": "https://github.com/lchrennew/dragonfly-dag/issues"
   },
   "scripts": {
-    "dev": "cd example && yarn && vite",
+    "dev": "vite",
     "build": "rollup -c rollup.config.js",
     "push": "rollup -c rollup.config.js && yarn publish ./dist --no-commit-hooks --no-git-tag-version --non-interactive && rm -rf ./dist",
     "clean": "rm -rf ./dist"
   },
   "dependencies": {
     "dagre": "^0.8.5",
-    "vue": "^3.0.3"
+    "vue": "^3.0.3",
+    "ant-design-vue": "^2.0.0-rc.2"
   },
+  "bundleDependencies": [
+    "dagre",
+    "vue"
+  ],
   "devDependencies": {
     "@vue/compiler-sfc": "^3.0.3",
     "less": "^3.12.2",

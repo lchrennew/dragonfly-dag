@@ -21,6 +21,7 @@ export default {
                     ...pkg,
                     main: 'index.js',
                     module: 'index.js',
+                    dependencies: Object.fromEntries(pkg.bundleDependencies.map(name => [name, pkg.dependencies[name]])),
                     devDependencies: {},
                     scripts: {},
                 }
