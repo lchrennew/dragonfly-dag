@@ -79,7 +79,7 @@
             :min-scale="minGridScale"
             :max-scale="maxGridScale"/>
         <dragonfly-scale :scale="scale"/>
-        <dragonfly-minimap :width="width" :height="height" :offset-x="offsetX" :offset-y="offsetY" :scale="scale"/>
+        <dragonfly-minimap :width="width" :height="height" :offset-x="offsetX" :offset-y="offsetY" :scale="scale" :positions="positions"/>
 
     </div>
 </template>

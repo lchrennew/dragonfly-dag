@@ -382,23 +382,43 @@
 
   .dragonfly-minimap {
     position: absolute;
-    width: 200px;
-    height: 150px;
     background-color: #fff;
     border: solid 1px #eee;
+    border-right: none;
+    border-bottom: none;
     right: 0;
     bottom: 0;
     z-index: 7;
+    padding: 5px;
+    width: 30%;
+    height: 30%;
     display: flex;
-    justify-content: center;
-    align-items: center;
 
-    .canvas {
-      border: solid 1px #000;
+    .dragonfly-minimap-inner {
+      flex: 1;
+      border: solid 1px #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
-      .viewport {
-        position: absolute;
-        background-color: red;
+      .map {
+        position: relative;
+        background-color: #eee;
+
+        .canvas {
+          position: absolute;
+          border: dashed #00aaff 1px;
+          opacity: 0.5;
+          z-index: 1;
+        }
+
+        .viewport {
+          position: absolute;
+          background-color: #000;
+          opacity: 0.3;
+          z-index: 2;
+          cursor: move;
+        }
       }
     }
   }
