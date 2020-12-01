@@ -24,6 +24,7 @@ export default {
                     dependencies: Object.fromEntries(pkg.bundleDependencies.map(name => [name, pkg.dependencies[name]])),
                     devDependencies: {},
                     scripts: {},
+                    bundleDependencies: []
                 }
             }
         }),
@@ -34,7 +35,6 @@ export default {
                 {src: 'README.md', dest: 'dist/'},
             ]
         })
-
     ]
 
 }
