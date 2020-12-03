@@ -63,8 +63,8 @@ export default {
                 }
             }  else {
                 return {
-                    x: this.sourceNode.x + this.sourceNode.width / 2,
-                    y: this.sourceNode.y + this.sourceNode.height / 2,
+                    x: this.sourceNode.x,
+                    y: this.sourceNode.y,
                     width: this.sourceNode.width,
                     height: this.sourceNode.height,
                     orientation: this.sourceNode.orientation,
@@ -82,8 +82,8 @@ export default {
                 }
             } else {
                 return {
-                    x: this.targetNode.x + this.targetNode.width / 2,
-                    y: this.targetNode.y + this.targetNode.height / 2,
+                    x: this.targetNode.x,
+                    y: this.targetNode.y,
                     width: this.targetNode.width,
                     height: this.targetNode.height,
                     orientation: this.targetNode.orientation,

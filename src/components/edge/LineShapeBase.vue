@@ -14,6 +14,11 @@ export default {
             this.$emit('update:definition', this.getDefinition())
         }
     },
+    methods: {
+        stringifyPoint({x, y}) {
+            return `${x},${y}`
+        }
+    },
     render() {
     }
 }

@@ -188,9 +188,9 @@ export default {
         this.width = this.$el.offsetWidth
         this.height = this.$el.offsetHeight
         const position = this.getPosition()
-        // offset to node's top left
-        this.x = position.left + this.$el.offsetLeft + this.width / 2
-        this.y = position.top + this.$el.offsetTop + this.height / 2
+        // 锚点左上角相对节点左上角的偏移
+        this.x = position.left + this.$el.offsetLeft
+        this.y = position.top + this.$el.offsetTop
         this.endpointReposition(this.endpoint.id, this.x, this.y, this.width, this.height, this.orientation)
     }
 }
