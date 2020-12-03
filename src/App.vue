@@ -26,7 +26,7 @@
             :line-shape="config.lineShape"
             :max-zoom-scale="config.maxZoomScale"
             :min-zoom-scale="config.minZoomScale"
-            :node-group="{linkIn: true, linkOut: false}"
+            :node-group="{linkIn: false, linkOut: false}"
             :show-arrow="config.showArrow"
             :show-edge-labels="config.showEdgeLabels"
             :grid-shape="config.gridShape"
@@ -37,7 +37,10 @@
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
             </template>
-            <template #rightEndpoints="{node}">
+            <template #topEndpoints="{node}">
+                <dragonfly-endpoint :endpoint="{id:`${node.id}-input`}" :group="{linkIn: true, linkOut: false}"/>
+            </template>
+            <template #bottomEndpoints="{node}">
                 <dragonfly-endpoint :endpoint="{id:`${node.id}-succeeded`}" class="succeeded-endpoint"/>
                 <dragonfly-endpoint :endpoint="{id:`${node.id}-failed`}" class="failed-endpoint"/>
             </template>
@@ -64,7 +67,16 @@
 <script>
 import './components/dragonfly-dag.less'
 import {ref, shallowRef} from 'vue'
-import {DragonflyCanvas, DragonflyEndpoint, SCurveLine, DotGrid, LineGrid, TileGrid} from '../index'
+import {
+    DragonflyCanvas,
+    DragonflyEndpoint,
+    SCurveLine,
+    DotGrid,
+    LineGrid,
+    TileGrid,
+    ZigZagLine,
+    StraightLine
+} from '../index'
 import CanvasConfig from "./CanvasConfig.vue";
 import CanvasData from "./CanvasData.vue";
 
@@ -84,9 +96,9 @@ export default {
                 maxZoomScale: ref(5),
                 zoomSensitivity: ref(0.001),
                 layout: {
-                    rankdir: 'LR',
-                    marginx: 20,
-                    marginy: 20,
+                    rankdir: 'TB',
+                    marginx: 40,
+                    marginy: 40,
                 },
                 showArrow: ref(false),
                 arrowZoomRatio: ref(1),
@@ -94,12 +106,12 @@ export default {
                 canvasDragging: ref('select'),
                 nodeDragging: ref('move'),
                 canvasWheeling: ref('zoom'),
-                lineShape: shallowRef(SCurveLine),
+                lineShape: shallowRef(StraightLine),
                 showEdgeLabels: ref(false),
                 gridSize: ref(20),
                 maxGridScale: ref(2),
                 minGridScale: ref(0.5),
-                gridShape: shallowRef(TileGrid)
+                gridShape: shallowRef(DotGrid)
             },
             feed: 1,
             nodes: [],

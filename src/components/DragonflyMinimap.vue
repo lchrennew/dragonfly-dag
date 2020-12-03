@@ -11,12 +11,20 @@
                      @mouseup="onMouseUp"
                      @mouseleave="onMouseLeave"
                      @mouseenter="onMouseEnter"/>
-                <div class="canvas" :style="miniCanvasStyle"></div>
                 <div class="thumbnail">
                     <svg xmlns="http://www.w3.org/2000/svg"
                          x="0"
                          :y="0"
                          :viewBox="`${mostLeft} ${mostTop} ${fullWidth} ${fullHeight}`">
+                        <rect
+                            :height="height"
+                            :width="width"
+                            x="0"
+                            y="0"
+                            stroke="#f00"
+                            fill="none"
+                            stroke-width="0.3"
+                        />
                         <rect
                             v-for="(value, id) in positions"
                             :key="id"
@@ -37,9 +45,6 @@
 <script>
 import img from "../utils/emptyDragImage";
 import preventDefaultDrop from "../utils/preventDefaultDrop";
-import domtoimage from '@intactile/dom-to-image-next'
-
-console.log(domtoimage)
 
 export default {
     name: "DragonflyMinimap",

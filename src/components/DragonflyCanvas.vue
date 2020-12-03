@@ -219,35 +219,46 @@ export default {
     },
     methods: {
         log(type, payload) {
-            this.$nextTick(() => {
-                this.histroy.push(type, payload)
-                console.log([...this.histroy])
-            })
-
+            this.$nextTick(() => this.histroy.push(type, payload))
+        },
+        deleteSelectedNodes() {
+            const deleted = this.nodes.filter(({id}) => this.selected[id])
+            if (deleted.length) {
+                this.log('nodes:deleted', {
+                    nodes: deleted,
+                    positions: Object.fromEntries(deleted.map(({id}) => {
+                        const position = this.positions[id]
+                        delete this.positions[id]
+                        return [id, position]
+                    })),
+                    edges: this.edges.filter(({source, target}) => this.selected[source] || this.selected[target]),
+                })
+                this.$emit('update:nodes', this.nodes.filter(({id}) => !this.selected[id]))
+            }
+        },
+        deleteSelectedEdges() {
+            const deleted = this.edges.filter(({id}) => this.selected[id])
+            if (deleted.length) {
+                this.log('edges:deleted', deleted)
+            }
+            this.$emit('update:edges',
+                this.edges.filter(
+                    ({id, source, target}) =>
+                        !this.selected[id] && !this.selected[source] && !this.selected[target]))
+        },
+        deleteSelectedZones() {
+            const deleted = this.zones.filter(({id}) => this.selected[id])
+            if (deleted.length) {
+                this.log('zones:deleted', this.zones.filter(({id}) => this.selected[id]))
+                this.$emit('update:zones', this.zones.filter(({id}) => !this.selected[id]))
+            }
         },
         onKeyDown(event) {
-            if (event.target === this.$refs.canvas && ['Backspace', 'Delete'].includes(event.key)) {
-                const nodes = this.nodes.filter(({id}) => !this.selected[id])
-                if (nodes.length < this.nodes.length) {
-                    this.log('nodes:deleted', this.nodes.filter(({id}) => this.selected[id]))
-                    this.$emit('update:nodes', nodes)
-                }
-                let edges = this.edges.filter(({id}) => !this.selected[id])
-                if (edges.length < this.edges.length) {
-                    this.log('edges:deleted', this.edges.filter(({id}) => this.selected[id]))
-                }
-                edges = edges.filter(({
-                                          source,
-                                          target
-                                      }) => !this.selected[source] && !this.selected[target])
-                if (edges.length < this.edges.length) {
-                    this.$emit('update:edges', edges)
-                }
-                const zones = this.zones.filter(({id}) => !this.selected[id])
-                if (zones.length < this.zones.length) {
-                    this.log('zones:deleted', this.zones.filter(({id}) => this.selected[id]))
-                    this.$emit('update:zones', zones)
-                }
+            if (event.target === this.$refs.canvas
+                && ['Backspace', 'Delete'].includes(event.key)) {
+                this.deleteSelectedNodes()
+                this.deleteSelectedEdges()
+                this.deleteSelectedZones()
             }
         },
         onCanvasWheeling(event) {
