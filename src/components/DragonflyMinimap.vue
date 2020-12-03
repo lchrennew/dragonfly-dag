@@ -1,21 +1,13 @@
 <template>
-    <div class="dragonfly-minimap">
+    <div class="dragonfly-minimap" :class="{minimized}">
         <div class="dragonfly-minimap-inner" ref="inner">
             <div class="map" :style="miniFullStyle" @mousedown.stop="onMapClick">
-                <div class="viewport"
-                     :style="miniViewportStyle"
-                     ref="viewport"
-                     @mousedown.stop="onMouseDown"
-                     @dragstart="onDragStart"
-                     @mousemove="onMouseMove"
-                     @mouseup="onMouseUp"
-                     @mouseleave="onMouseLeave"
-                     @mouseenter="onMouseEnter"/>
                 <div class="thumbnail">
                     <svg xmlns="http://www.w3.org/2000/svg"
                          x="0"
                          :y="0"
                          :viewBox="`${mostLeft} ${mostTop} ${fullWidth} ${fullHeight}`">
+
                         <rect
                             :height="height"
                             :width="width"
@@ -34,9 +26,31 @@
                             :y="value.y"
                             fill="#000"
                         />
+                        <rect
+                            :height="height/scale"
+                            :width="width/scale"
+                            fill="#000"
+                            opacity="0.2"
+                            :x="-offsetX/scale"
+                            :y="-offsetY/scale"
+                            cursor="move"
+                            @mousedown.stop="onMouseDown"
+                            @dragstart="onDragStart"
+                            @mousemove="onMouseMove"
+                            @mouseup="onMouseUp"
+                            @mouseleave="onMouseLeave"
+                            @mouseenter="onMouseEnter"
+                        />
                     </svg>
                 </div>
             </div>
+        </div>
+        <div class="switch" @click="minimized=!minimized">
+            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24">
+                <path d="M20,20 L4,4 M20,4 L4,4 M4,20 L4,4" stroke-width="1" stroke="#000" fill="none"
+                      v-if="minimized"/>
+                <path d="M4,4 L20,20 M4,20 L20,20 M20,4 L20,20" stroke-width="1" stroke="#000" fill="none" v-else/>
+            </svg>
         </div>
     </div>
 
@@ -51,6 +65,7 @@ export default {
     props: ['width', 'height', 'offsetX', 'offsetY', 'scale', 'positions', 'history'],
     data() {
         return {
+            minimized: false,
             minimapWidth: 0,
             minimapHeight: 0,
             dragging: false,
@@ -75,16 +90,16 @@ export default {
             })
         },
         mostLeft() {
-            return Math.min(0, -this.offsetX, this.draggingSnapshot.left, ...this.positionArray.map(p => p.left))
+            return Math.min(0, -this.offsetX / this.scale, this.draggingSnapshot.left, ...this.positionArray.map(p => p.left))
         },
         mostRight() {
-            return Math.max(this.width, this.width / this.scale - this.offsetX, this.draggingSnapshot.right, ...this.positionArray.map(p => p.right))
+            return Math.max(this.width, (this.width - this.offsetX) / this.scale, this.draggingSnapshot.right, ...this.positionArray.map(p => p.right))
         },
         mostTop() {
-            return Math.min(0, -this.offsetY, this.draggingSnapshot.top, ...this.positionArray.map(p => p.top))
+            return Math.min(0, -this.offsetY / this.scale, this.draggingSnapshot.top, ...this.positionArray.map(p => p.top))
         },
         mostBottom() {
-            return Math.max(this.height, this.height / this.scale - this.offsetY, this.draggingSnapshot.bottom, ...this.positionArray.map(p => p.bottom))
+            return Math.max(this.height, (this.height - this.offsetY) / this.scale, this.draggingSnapshot.bottom, ...this.positionArray.map(p => p.bottom))
         },
         fullWidth() {
             return this.mostRight - this.mostLeft
@@ -113,45 +128,11 @@ export default {
         miniRate() {
             return this.miniFullWidth / this.fullWidth || 1
         },
-        miniCanvasLeft() {
-            return -this.mostLeft * this.miniRate
-        },
-        miniCanvasWidth() {
-            return this.width * this.miniRate
-        },
-        miniCanvasTop() {
-            return -this.mostTop * this.miniRate
-        },
-        miniCanvasHeight() {
-            return this.height * this.miniRate
-        },
-        miniCanvasStyle() {
-            return {
-                width: `${this.miniCanvasWidth}px`,
-                height: `${this.miniCanvasHeight}px`,
-                top: `${this.miniCanvasTop}px`,
-                left: `${this.miniCanvasLeft}px`,
-            }
-        },
-        miniViewportLeft() {
-            return (-this.mostLeft - this.offsetX) * this.miniRate
-        },
         miniViewportWidth() {
             return this.width / this.scale * this.miniRate
         },
-        miniViewportTop() {
-            return (-this.mostTop - this.offsetY) * this.miniRate
-        },
         miniViewportHeight() {
             return this.height / this.scale * this.miniRate
-        },
-        miniViewportStyle() {
-            return {
-                width: `${this.miniViewportWidth}px`,
-                height: `${this.miniViewportHeight}px`,
-                left: `${this.miniViewportLeft}px`,
-                top: `${this.miniViewportTop}px`
-            }
         },
         offsetRange() {
             return {
@@ -181,13 +162,12 @@ export default {
             document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0},
         },
         updateOffsetOnMove(event, axis) {
-            let axisName = axis.toUpperCase()
-            let debtName = `debt${axisName}`
-            let movement = event[`movement${axisName}`]
+            let debtName = `debt${axis}`
+            let movement = event[`movement${axis}`]
             let debt = this[debtName]
-            let offset = this[`offset${axisName}`] - movement / this.miniRate
+            let offset = this[`offset${axis}`] / this.scale - movement / this.miniRate
 
-            const {[`maxOffset${axisName}`]: maxOffset, [`minOffset${axisName}`]: minOffset,} = this.offsetRange
+            const {[`maxOffset${axis}`]: maxOffset, [`minOffset${axis}`]: minOffset,} = this.offsetRange
 
             if (offset > maxOffset) {
                 this[debtName] += Math.round((offset - maxOffset) * this.miniRate)
@@ -202,13 +182,13 @@ export default {
                 this[debtName] = debt
                 return
             }
-            this.$emit(`update:offset${axisName}`, offset)
+            this.$emit(`update:offset${axis}`, offset * this.scale)
         },
         onMouseMove(event) {
             if (this.dragging) {
                 event.preventDefault()
                 if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
-                [...'xy'].forEach(axis => this.updateOffsetOnMove(event, axis))
+                [...'XY'].forEach(axis => this.updateOffsetOnMove(event, axis))
             }
         },
         onMouseUp(event) {
@@ -243,8 +223,8 @@ export default {
         },
         onMapClick(event) {
             let {offsetX, offsetY} = event
-            this.$emit('update:offsetX', -this.mostLeft - offsetX / this.miniRate + this.width / 2 / this.scale)
-            this.$emit('update:offsetY', -this.mostTop - offsetY / this.miniRate + this.height / 2 / this.scale)
+            this.$emit('update:offsetX', -this.mostLeft - offsetX / this.miniRate * this.scale + this.width / 2)
+            this.$emit('update:offsetY', -this.mostTop - offsetY / this.miniRate * this.scale + this.height / 2)
             this.startDragging({x: this.miniViewportWidth / 2, y: this.miniViewportHeight / 2})
         },
     },

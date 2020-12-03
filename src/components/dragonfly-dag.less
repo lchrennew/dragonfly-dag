@@ -393,7 +393,33 @@
     width: 30%;
     height: 30%;
     display: flex;
-    //opacity: 0.6;
+    opacity: 0.6;
+
+    &.minimized {
+      width: 25px;
+      height: 25px;
+      overflow: hidden;
+    }
+
+    .switch {
+      display: flex;
+      width: 24px;
+      height: 24px;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      border-width: 1px;
+      border-style: solid none none solid;
+      border-color: #ccc;
+      cursor: pointer;
+
+      svg {
+        pointer-events: none;
+      }
+    }
 
     .dragonfly-minimap-inner {
       flex: 1;
