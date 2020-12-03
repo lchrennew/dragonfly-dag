@@ -1,18 +1,26 @@
 <script>
 export default {
     name: "LineShapeBase",
-    props: ['source', 'target', 'definition'],
+    props: ['position', 'definition'],
     emits: ['update:definition'],
+    computed: {
+        source() {
+            return this.position.source
+        },
+        target() {
+            return this.position.target
+        },
+    },
     mounted() {
         this.$emit('update:definition', this.getDefinition())
     },
     watch: {
-        source() {
-            this.$emit('update:definition', this.getDefinition())
+        position: {
+            deep: true,
+            handler() {
+                this.$emit('update:definition', this.getDefinition())
+            },
         },
-        target() {
-            this.$emit('update:definition', this.getDefinition())
-        }
     },
     methods: {
         stringifyPoint({x, y}) {

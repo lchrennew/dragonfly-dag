@@ -1,5 +1,5 @@
 <template>
-    <component :is="lineShape" :target="target" :source="source" v-model:definition="definition"/>
+    <component :is="lineShape" :position="{target, source}" v-model:definition="definition"/>
     <path :d="definition" class="edge linking"/>
 </template>
 

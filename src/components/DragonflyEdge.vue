@@ -2,8 +2,8 @@
     <component
         :is="lineShape.value"
         v-model:definition="definition"
-        :source="source"
-        :target="target"/>
+        :position="{source, target}"
+    />
     <path ref="path"
           :class="{selected}"
           :d="definition"
@@ -61,7 +61,7 @@ export default {
                     height: this.sourceEndpoint.height,
                     orientation: this.sourceEndpoint.orientation,
                 }
-            }  else {
+            } else {
                 return {
                     x: this.sourceNode.x,
                     y: this.sourceNode.y,
