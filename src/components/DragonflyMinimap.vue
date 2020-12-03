@@ -12,6 +12,22 @@
                      @mouseleave="onMouseLeave"
                      @mouseenter="onMouseEnter"/>
                 <div class="canvas" :style="miniCanvasStyle"></div>
+                <div class="thumbnail">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         x="0"
+                         :y="0"
+                         :viewBox="`${mostLeft} ${mostTop} ${fullWidth} ${fullHeight}`">
+                        <rect
+                            v-for="(value, id) in positions"
+                            :key="id"
+                            :height="value.height"
+                            :width="value.width"
+                            :x="value.x"
+                            :y="value.y"
+                            fill="#000"
+                        />
+                    </svg>
+                </div>
             </div>
         </div>
     </div>
@@ -21,10 +37,13 @@
 <script>
 import img from "../utils/emptyDragImage";
 import preventDefaultDrop from "../utils/preventDefaultDrop";
+import domtoimage from '@intactile/dom-to-image-next'
+
+console.log(domtoimage)
 
 export default {
     name: "DragonflyMinimap",
-    props: ['width', 'height', 'offsetX', 'offsetY', 'scale', 'positions'],
+    props: ['width', 'height', 'offsetX', 'offsetY', 'scale', 'positions', 'history'],
     data() {
         return {
             minimapWidth: 0,
@@ -34,6 +53,8 @@ export default {
             draggingSnapshot: {left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity},
             debtX: 0,
             debtY: 0,
+            image: null,
+            isMounted: false,
         }
     },
     computed: {
@@ -41,10 +62,10 @@ export default {
             return Object.keys(this.positions).map(id => {
                 const {x, y, width, height} = this.positions[id]
                 return {
-                    left: x - this.width / 2,
-                    top: y - this.height / 2,
-                    right: x + width + this.width / 2,
-                    bottom: y + height + this.height / 2
+                    left: x,
+                    top: y,
+                    right: x + width,
+                    bottom: y + height,
                 }
             })
         },
@@ -134,10 +155,10 @@ export default {
                 minOffsetX: -this.mostRight + this.width / this.scale,
                 minOffsetY: -this.mostBottom + this.height / this.scale,
             }
-        }
+        },
     },
     methods: {
-        startDragging(inDomOffset){
+        startDragging(inDomOffset) {
             this.dragging = true
             this.inDomOffset = inDomOffset
             this.draggingSnapshot = {
@@ -218,14 +239,15 @@ export default {
         onMapClick(event) {
             let {offsetX, offsetY} = event
             this.$emit('update:offsetX', -this.mostLeft - offsetX / this.miniRate + this.width / 2 / this.scale)
-            this.$emit('update:offsetY',-this.mostTop - offsetY / this.miniRate + this.height / 2 / this.scale)
+            this.$emit('update:offsetY', -this.mostTop - offsetY / this.miniRate + this.height / 2 / this.scale)
             this.startDragging({x: this.miniViewportWidth / 2, y: this.miniViewportHeight / 2})
         },
     },
     mounted() {
+        this.isMounted = true
         this.minimapWidth = this.$refs.inner.offsetWidth
         this.minimapHeight = this.$refs.inner.offsetHeight
-    }
+    },
 }
 </script>
 

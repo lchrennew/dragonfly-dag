@@ -85,7 +85,9 @@
             v-model:offset-x="offsetX"
             v-model:offset-y="offsetY"
             :scale="scale"
-            :positions="positions"/>
+            :positions="positions"
+            :history="histroy"
+        />
     </div>
 </template>
 
@@ -144,6 +146,10 @@ export default {
             canvasWheelingBehavior: this.canvasWheeling,
             canvasId: canvasId++,
             nodesInZone: {},
+            histroy: [],
+
+            movingSource: null,
+            movingTarget: null,
         }
     },
     props: {
@@ -212,14 +218,36 @@ export default {
         }
     },
     methods: {
+        log(type, payload) {
+            this.$nextTick(() => {
+                this.histroy.push(type, payload)
+                console.log([...this.histroy])
+            })
+
+        },
         onKeyDown(event) {
             if (event.target === this.$refs.canvas && ['Backspace', 'Delete'].includes(event.key)) {
                 const nodes = this.nodes.filter(({id}) => !this.selected[id])
-                const edges = this.edges.filter(({id, source, target}) => !this.selected[id] && !this.selected[source] && !this.selected[target])
+                if (nodes.length < this.nodes.length) {
+                    this.log('nodes:deleted', this.nodes.filter(({id}) => this.selected[id]))
+                    this.$emit('update:nodes', nodes)
+                }
+                let edges = this.edges.filter(({id}) => !this.selected[id])
+                if (edges.length < this.edges.length) {
+                    this.log('edges:deleted', this.edges.filter(({id}) => this.selected[id]))
+                }
+                edges = edges.filter(({
+                                          source,
+                                          target
+                                      }) => !this.selected[source] && !this.selected[target])
+                if (edges.length < this.edges.length) {
+                    this.$emit('update:edges', edges)
+                }
                 const zones = this.zones.filter(({id}) => !this.selected[id])
-                this.$emit('update:nodes', nodes)
-                this.$emit('update:edges', edges)
-                this.$emit('update:zones', zones)
+                if (zones.length < this.zones.length) {
+                    this.log('zones:deleted', this.zones.filter(({id}) => this.selected[id]))
+                    this.$emit('update:zones', zones)
+                }
             }
         },
         onCanvasWheeling(event) {
@@ -298,6 +326,9 @@ export default {
         setNodeSize(nodeId, width, height) {
             this.positions[nodeId] = {x: 0, y: 0, ...this.positions[nodeId], width, height}
         },
+        startNodeMoving() {
+            this.movingSource = Object.fromEntries(Object.keys(this.selected).filter(id => this.selected[id]).map(id => [id, this.positions[id]]))
+        },
         nodeMoving(deltaX, deltaY) {
             for (const nodeId in this.selected) {
                 if (this.selected[nodeId]) {
@@ -307,6 +338,11 @@ export default {
                     this.positions[nodeId] = {x, y, width, height,}
                 }
             }
+        },
+        stopNodeMoving() {
+            this.movingTarget = Object.fromEntries(Object.keys(this.selected).filter(id => this.selected[id]).map(id => [id, this.positions[id]]))
+            this.log('nodes:moved', {source: this.movingSource, target: this.movingTarget})
+            this.movingSource = this.movingTarget = null
         },
         startNodeLinking({source, sourceEndpoint, sourceGroup}) {
             linkSource.value = {source, sourceEndpoint, sourceGroup}
@@ -404,7 +440,9 @@ export default {
             nodes: computed(() => this.nodes),
             edges: computed(() => this.edges),
             setNodeSize: this.setNodeSize,
+            startNodeMoving: this.startNodeMoving,
             nodeMoving: this.nodeMoving,
+            stopNodeMoving: this.stopNodeMoving,
             startNodeLinking: this.startNodeLinking,
             nodeLinking: this.nodeLinking,
             stopNodeLinking: this.stopNodeLinking,
@@ -469,6 +507,14 @@ export default {
             deep: true,
             handler(value) {
                 this.$emit('update:layout', value)
+            }
+        },
+        nodes: {
+            deep: true,
+            handler(value, oldValue) {
+                if (value.length > oldValue.length) {
+                    this.log('nodes:added', value.filter(node => !oldValue.some(old => old.id === node.id)))
+                }
             }
         }
     }

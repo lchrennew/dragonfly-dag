@@ -7,6 +7,7 @@ const nodeDraggingBehaviorHandlers = {
             if (this.draggable) {
                 event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
                 document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
+                this.startNodeMoving()
             }
         },
         drag(event) {
@@ -20,6 +21,7 @@ const nodeDraggingBehaviorHandlers = {
         },
         dragend(event) {
             document.removeEventListener('dragover', preventDefaultDrop)
+            this.stopNodeMoving()
         },
     },
     link: {

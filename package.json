@@ -23,12 +23,15 @@
     "clean": "rm -rf ./dist"
   },
   "dependencies": {
+    "@intactile/dom-to-image-next": "^3.0.3",
+    "ant-design-vue": "^2.0.0-rc.2",
     "dagre": "^0.8.5",
-    "vue": "^3.0.3",
-    "ant-design-vue": "^2.0.0-rc.2"
+    "dom-to-svg": "^0.9.5",
+    "vue": "^3.0.3"
   },
   "bundleDependencies": [
     "dagre",
+    "dom-to-svg",
     "vue"
   ],
   "devDependencies": {

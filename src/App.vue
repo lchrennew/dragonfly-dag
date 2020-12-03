@@ -110,7 +110,11 @@ export default {
     },
     methods: {
         addNode() {
-            this.nodes.push({id: `${this.feed}`})
+            // DON'T DO THIS
+            // this.nodes.push({id: `${this.feed}`})
+
+            // DO THIS
+            this.nodes = [...this.nodes, {id: `${this.feed}`}]
             this.feed++
         },
         addZone() {

@@ -393,7 +393,7 @@
     width: 30%;
     height: 30%;
     display: flex;
-    opacity: 0.6;
+    //opacity: 0.6;
 
     .dragonfly-minimap-inner {
       flex: 1;
@@ -409,9 +409,23 @@
         .canvas {
           position: absolute;
           border: dashed #00aaff 1px;
-          opacity: 0.5;
           z-index: 1;
           pointer-events: none;
+          overflow: visible;
+        }
+
+        .thumbnail {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+
+          svg {
+            overflow: visible;
+            width: 100%;
+            height: 100%;
+          }
         }
 
         .viewport {

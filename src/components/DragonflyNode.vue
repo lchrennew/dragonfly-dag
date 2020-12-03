@@ -65,7 +65,9 @@ export default {
     },
     inject: [
         'setNodeSize',
+        'startNodeMoving',
         'nodeMoving',
+        'stopNodeMoving',
         'startNodeLinking',
         'nodeLinking',
         'stopNodeLinking',
