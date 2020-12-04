@@ -13,7 +13,3 @@ export default {
     extends: GridShapeBase
 }
 </script>
-
-<style scoped>
-
-</style>

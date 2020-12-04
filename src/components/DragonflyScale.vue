@@ -8,7 +8,3 @@ export default {
     props: ['scale']
 }
 </script>
-
-<style scoped>
-
-</style>

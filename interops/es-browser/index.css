@@ -1,0 +1,366 @@
+.dragonfly-viewport {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.dragonfly-viewport .dragonfly-tools {
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 20px 0;
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 3;
+}
+.dragonfly-viewport .dragonfly-tools button {
+  border: none;
+  padding: 0 1em;
+  margin: 0;
+  background-color: #fff;
+  outline: none;
+}
+.dragonfly-viewport .dragonfly-tools button:hover {
+  background-color: #eeeeee;
+}
+.dragonfly-viewport .dragonfly-tools button.active {
+  background-color: #9cdfff;
+}
+.dragonfly-viewport .dragonfly-edges-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  z-index: 2;
+  overflow: visible !important;
+  color: #777;
+}
+.dragonfly-viewport .dragonfly-edges-layer .arrow {
+  stroke: none;
+  stroke-width: 0;
+  fill: currentColor;
+  z-index: 2;
+}
+.dragonfly-viewport .dragonfly-edges-layer .anchor {
+  stroke: currentColor;
+  stroke-width: 1;
+  fill: #fff;
+  z-index: 4;
+}
+.dragonfly-viewport .dragonfly-edges-layer .edge-arrow {
+  z-index: 3;
+}
+.dragonfly-viewport .dragonfly-edges-layer path.edge {
+  z-index: 5;
+  stroke-width: 0.5;
+  stroke: currentColor;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  cursor: pointer;
+}
+.dragonfly-viewport .dragonfly-edges-layer path.edge.linking {
+  pointer-events: none;
+  stroke-dasharray: 5 5;
+  stroke-dashoffset: 0;
+}
+.dragonfly-viewport .dragonfly-edges-layer path.edge-area {
+  stroke-width: 10;
+  stroke: transparent;
+  fill: none;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+  stroke-opacity: 0.2;
+  cursor: pointer;
+  z-index: 1;
+}
+.dragonfly-viewport .dragonfly-edges-layer path.edge-area:hover {
+  stroke: #00aaff;
+}
+.dragonfly-viewport .dragonfly-canvas {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0 0;
+  z-index: 1;
+}
+.dragonfly-viewport .dragonfly-canvas:focus {
+  outline: none;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node {
+  position: absolute;
+  z-index: 2;
+  border: solid 1px transparent;
+  margin: -1px;
+  box-sizing: border-box;
+  width: fit-content;
+  height: fit-content;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node.selected {
+  border: dashed 1px #777;
+  z-index: 3;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node:not(.selected).targeted {
+  border: solid 1px #f00;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-node-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  z-index: 1;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-endpoints {
+  position: absolute;
+  overflow: visible;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  z-index: 2;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-endpoints.left {
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  flex-direction: column;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-endpoints.right {
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  flex-direction: column;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-endpoints.top {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  flex-direction: row;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-endpoints.bottom {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  flex-direction: row;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-endpoints .dragonfly-endpoint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  border: solid 2px #777;
+  background-color: #fff;
+  position: relative;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-endpoints .dragonfly-endpoint.targeted {
+  border: #f00 solid 2px;
+  background-color: #fff;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-node .dragonfly-endpoints .dragonfly-endpoint > .label {
+  position: absolute;
+  width: max-content;
+  font-size: 12px;
+  transform: scale(0.8) translateZ(1);
+  user-select: none;
+}
+.dragonfly-viewport .dragonfly-canvas .edge-label {
+  position: absolute;
+  z-index: 6;
+  width: 0;
+  height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone {
+  background-color: #eeeeee;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone .dragonfly-zone-inner {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected {
+  border: solid 0.5px #777;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor {
+  width: 6px;
+  height: 6px;
+  background-color: #fff;
+  border: solid 1px #000;
+  position: absolute;
+  transform-origin: center;
+  z-index: 2;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor.e {
+  transform: translateX(50%);
+  right: 0;
+  cursor: col-resize;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor.w {
+  transform: translateX(-50%);
+  left: 0;
+  cursor: col-resize;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor.n {
+  transform: translateY(-50%);
+  top: 0;
+  cursor: row-resize;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor.s {
+  transform: translateY(50%);
+  bottom: 0;
+  cursor: row-resize;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor.ne {
+  transform: translateY(-50%) translateX(50%);
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor.se {
+  transform: translateY(50%) translateX(50%);
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor.nw {
+  transform: translateY(-50%) translateX(-50%);
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+}
+.dragonfly-viewport .dragonfly-canvas .dragonfly-zone.selected .anchor.sw {
+  transform: translateY(50%) translateX(-50%);
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+}
+.dragonfly-viewport .dragonfly-canvas > .area {
+  position: absolute;
+  z-index: 7;
+}
+.dragonfly-viewport .dragonfly-canvas > .area.select {
+  border: none;
+  background-color: rgba(128, 212, 255, 0.3);
+}
+.dragonfly-viewport .dragonfly-canvas > .area.zoom {
+  background-color: transparent;
+  border: dashed 1px #777777;
+}
+.dragonfly-viewport .dragonfly-grid {
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.dragonfly-viewport .dragonfly-grid svg {
+  width: 100%;
+  height: 100%;
+}
+.dragonfly-viewport .dragonfly-grid svg path {
+  stroke: none;
+  fill: #000;
+}
+.dragonfly-viewport .dragonfly-scale {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: #333;
+  font-size: 12px;
+  line-height: 1em;
+  transform: scale(0.75);
+  transform-origin: left;
+}
+.dragonfly-viewport .dragonfly-minimap {
+  position: absolute;
+  background-color: #fff;
+  border: solid 1px #eee;
+  border-right: none;
+  border-bottom: none;
+  right: 0;
+  bottom: 0;
+  z-index: 7;
+  padding: 5px;
+  width: 30%;
+  height: 30%;
+  display: flex;
+  opacity: 0.6;
+}
+.dragonfly-viewport .dragonfly-minimap.minimized {
+  width: 25px;
+  height: 25px;
+  overflow: hidden;
+}
+.dragonfly-viewport .dragonfly-minimap .switch {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  border-width: 1px;
+  border-style: solid none none solid;
+  border-color: #ccc;
+  cursor: pointer;
+}
+.dragonfly-viewport .dragonfly-minimap .switch svg {
+  pointer-events: none;
+}
+.dragonfly-viewport .dragonfly-minimap .dragonfly-minimap-inner {
+  flex: 1;
+  border: solid 1px #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.dragonfly-viewport .dragonfly-minimap .dragonfly-minimap-inner .map {
+  position: relative;
+  background-color: #eee;
+}
+.dragonfly-viewport .dragonfly-minimap .dragonfly-minimap-inner .map .canvas {
+  position: absolute;
+  border: dashed #00aaff 1px;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+.dragonfly-viewport .dragonfly-minimap .dragonfly-minimap-inner .map .thumbnail {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+.dragonfly-viewport .dragonfly-minimap .dragonfly-minimap-inner .map .thumbnail svg {
+  overflow: visible;
+  width: 100%;
+  height: 100%;
+}
+.dragonfly-viewport .dragonfly-minimap .dragonfly-minimap-inner .map .viewport {
+  position: absolute;
+  background-color: #000;
+  opacity: 0.3;
+  z-index: 2;
+  cursor: move;
+}

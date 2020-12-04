@@ -27,9 +27,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "rollup -c rollup.config.js",
-    "push": "rollup -c rollup.config.js && yarn publish ./dist --no-commit-hooks --no-git-tag-version --non-interactive && rm -rf ./dist",
-    "clean": "rm -rf ./dist"
+    "build": "yarn clean && rollup -c rollup.vue3.config.js",
+    "push": "yarn build && yarn publish ./dist --no-commit-hooks --no-git-tag-version --non-interactive && yarn clean",
+    "clean": "rm -rf ./dist",
+    "bundle": "yarn clean && rollup -c rollup.es-browser.bundle.config.js && lessc src/components/dragonfly-dag.less dist/index.css"
   },
   "dependencies": {
     "ant-design-vue": "^2.0.0-rc.2",
@@ -41,11 +42,14 @@
     "vue"
   ],
   "devDependencies": {
+    "@rollup/plugin-alias": "^3.1.1",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
     "@vue/compiler-sfc": "^3.0.3",
     "less": "^3.12.2",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-generate-package-json": "^3.2.0",
-    "rollup-plugin-less": "^1.1.2",
+    "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-vue": "^6.0.0-beta.10",
     "vite": "^1.0.0-rc.13"

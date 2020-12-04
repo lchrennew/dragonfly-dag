@@ -76,7 +76,7 @@ import {
     TileGrid,
     ZigZagLine,
     StraightLine
-} from '../index'
+} from '../builds/vue3'
 import CanvasConfig from "./CanvasConfig.vue";
 import CanvasData from "./CanvasData.vue";
 

@@ -8,6 +8,7 @@ Dragonfly-dag 是以 Butterfly-dag 为原型，基于 Vue3 的全新实现。
 
 - 更好的可维护性和代码逻辑清晰度
 - 更好的 Vue 整合开发体验
+- 对原生JS、Vue2、React等提供支持
 
 感谢小蝴蝶团队对这个项目的支持！
 
