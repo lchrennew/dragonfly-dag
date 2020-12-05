@@ -4,6 +4,8 @@
 
 Dragonfly-dag 是以 Butterfly-dag 为原型，基于 Vue3 的全新实现。
 
+![image](https://user-images.githubusercontent.com/1522365/101227185-f74cc380-36d1-11eb-886a-0e565a2ee442.png)
+
 ## Dragonfly-dag 的目标：
 
 - 更好的可维护性和代码逻辑清晰度
