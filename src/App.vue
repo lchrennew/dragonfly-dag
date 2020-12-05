@@ -12,11 +12,11 @@
             ref="canvas"
             v-model:canvas-dragging="config.canvasDragging"
             v-model:canvas-wheeling="config.canvasWheeling"
-            v-model:edges="edges"
+            v-model:edges-data="edges"
             v-model:layout="layout"
             v-model:node-dragging="config.nodeDragging"
-            v-model:nodes="nodes"
-            v-model:zones="zones"
+            v-model:nodes-data="nodes"
+            v-model:zones-data="zones"
             v-model:zoom-scale="config.zoomScale"
             v-model:endpoint-dragging="config.endponitDragging"
             :arrow-position="config.arrowPosition"
@@ -125,10 +125,10 @@ export default {
     methods: {
         addNode() {
             // DON'T DO THIS
-            // this.nodes.push({id: `${this.feed}`})
+            this.nodes.push({id: `${this.feed}`})
 
             // DO THIS
-            this.nodes = [...this.nodes, {id: `${this.feed}`}]
+            // this.nodes = [...this.nodes, {id: `${this.feed}`}]
             this.feed++
         },
         addZone() {

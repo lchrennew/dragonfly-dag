@@ -84,7 +84,6 @@
             v-model:offset-x="offsetX"
             v-model:offset-y="offsetY"
             :positions="positions"
-            :history="histroy"
         />
     </div>
 </template>
@@ -105,6 +104,7 @@ import DragonflyGrid from "./DragonflyGrid.vue";
 import DotGrid from "./grid/DotGrid.vue";
 import DragonflyMinimap from "./DragonflyMinimap.vue";
 import DragonflyScale from "./DragonflyScale.vue";
+import historyTraveller from "./historyTraveller";
 
 let linkSource = ref(null)
 let canvasId = 0
@@ -145,16 +145,19 @@ export default {
             endpointDraggingBehavior: this.endpointDragging,
             canvasId: canvasId++,
             nodesInZone: {},
-            histroy: [],
-
+            history: [],
+            historyHead: 0,
             movingSource: null,
             movingTarget: null,
+            zones: [...this.zonesData ?? []],
+            nodes: [...this.nodesData ?? []],
+            edges: [...this.edgesData ?? []],
         }
     },
     props: {
-        nodes: {type: Array, default: []},
-        edges: {type: Array, default: [],},
-        zones: {type: Array, default: []},
+        nodesData: {type: Array, default: []},
+        edgesData: {type: Array, default: [],},
+        zonesData: {type: Array, default: []},
         layout: {type: Object, default: {}},
         zoomSensitivity: {type: Number, default: 0.001,},
         zoomScale: {type: Number,},
@@ -219,8 +222,31 @@ export default {
     },
     methods: {
         log(type, payload) {
+            this.history.length = this.historyHead
+            this.history.push({type, payload})
+            this.historyHead++
             this.$emit(type, payload)
-            this.$nextTick(() => this.histroy.push(type, payload))
+            console.log(`${this.historyHead}. ${type}`)
+            console.log(payload)
+        },
+        undo() {
+            if (this.historyHead) {
+                this.historyHead--
+                const {type, payload} = this.history[this.historyHead]
+                historyTraveller[type]?.back?.call?.(this, payload)
+                console.log(`undo ${type}`)
+                console.log(payload)
+            }
+        },
+        redo() {
+            const log = this.history[this.historyHead]
+            if (log) {
+                const {type, payload} = log
+                this.historyHead++
+                historyTraveller[type]?.forward?.call?.(this, payload)
+                console.log(`redo ${type}`)
+                console.log(payload)
+            }
         },
         deleteSelectedNodes() {
             const deleted = this.nodes.filter(({id}) => this.selected[id])
@@ -233,33 +259,36 @@ export default {
                         return [id, position]
                     })),
                     edges: this.edges.filter(({source, target}) => this.selected[source] || this.selected[target]),
-                })
-                this.$emit('update:nodes', this.nodes.filter(({id}) => !this.selected[id]))
+                },)
+                this.nodes = this.nodes.filter(({id}) => !this.selected[id])
+                this.edges = this.edges.filter(({source, target}) => !this.selected[source] && !this.selected[target])
             }
         },
         deleteSelectedEdges() {
             const deleted = this.edges.filter(({id}) => this.selected[id])
             if (deleted.length) {
                 this.log('edges:deleted', deleted)
+                this.edges = this.edges.filter(({id}) => !this.selected[id])
             }
-            this.$emit('update:edges',
-                this.edges.filter(
-                    ({id, source, target}) =>
-                        !this.selected[id] && !this.selected[source] && !this.selected[target]))
         },
         deleteSelectedZones() {
             const deleted = this.zones.filter(({id}) => this.selected[id])
             if (deleted.length) {
                 this.log('zones:deleted', this.zones.filter(({id}) => this.selected[id]))
-                this.$emit('update:zones', this.zones.filter(({id}) => !this.selected[id]))
+                this.zones = this.zones.filter(({id}) => !this.selected[id])
             }
         },
         onKeyDown(event) {
-            if (event.target === this.$refs.canvas
-                && ['Backspace', 'Delete'].includes(event.key)) {
-                this.deleteSelectedNodes()
-                this.deleteSelectedEdges()
-                this.deleteSelectedZones()
+            if (event.target === this.$refs.canvas) {
+                if (['Backspace', 'Delete'].includes(event.code)) {
+                    this.deleteSelectedNodes()
+                    this.deleteSelectedEdges()
+                    this.deleteSelectedZones()
+                } else if (event.ctrlKey && event.code === 'KeyZ') {
+                    this.undo()
+                } else if (event.ctrlKey && event.code === 'KeyY') {
+                    this.redo()
+                }
             }
         },
         onCanvasWheeling(event) {
@@ -430,7 +459,7 @@ export default {
                         targetX = sourceX + (position?.width ?? this.minZoneWidth),
                         targetY = sourceY + (position?.height ?? this.minZoneHeight)
                     const xBetween = x <= Math.max(targetX, sourceX) && x + width >= Math.min(targetX, sourceX)
-                    const yBetween = y <= Math.max(targetY, sourceY) && y + width >= Math.min(targetY, sourceY)
+                    const yBetween = y <= Math.max(targetY, sourceY) && y + height >= Math.min(targetY, sourceY)
                     this.nodesInZone[id] = xBetween && yBetween
                 }
             }
@@ -535,12 +564,49 @@ export default {
                 this.$emit('update:layout', value)
             }
         },
+        nodesData: {
+            deep: true,
+            handler(value) {
+                const hash = Object.fromEntries(this.nodes.map(({id}) => [id, true]))
+                const added = value.filter(({id}) => !hash[id])
+                added.length && this.log('nodes:added', added)
+                this.nodes = [...value]
+            }
+        },
         nodes: {
             deep: true,
             handler(value, oldValue) {
-                if (value.length > oldValue.length) {
-                    this.log('nodes:added', value.filter(node => !oldValue.some(old => old.id === node.id)))
+                if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
+                    this.$emit('update:nodesData', value)
                 }
+            }
+        },
+        zonesData: {
+            deep: true,
+            handler(value) {
+                this.zones = [...value]
+            }
+        },
+        zones: {
+            deep: true,
+            handler(value, oldValue) {
+                if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
+                    this.$emit('update:zonesData', value)
+                }
+            }
+        },
+        edges: {
+            deep: true,
+            handler(value, oldValue) {
+                if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
+                    this.$emit('update:edgesData', value)
+                }
+            }
+        },
+        edgesData: {
+            deep: true,
+            handler(value) {
+                this.edges = [...value]
             }
         }
     }

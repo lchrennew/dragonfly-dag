@@ -63,7 +63,7 @@ import preventDefaultDrop from "../utils/preventDefaultDrop";
 
 export default {
     name: "DragonflyMinimap",
-    props: ['width', 'height', 'offsetX', 'offsetY', 'positions', 'history'],
+    props: ['width', 'height', 'offsetX', 'offsetY', 'positions'],
     inject:['scale'],
     data() {
         return {
