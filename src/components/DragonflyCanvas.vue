@@ -353,6 +353,7 @@ export default {
             }
         },
         onSelect({id, multiple}) {
+            this.$refs.canvas.focus()
             multiple
                 ? (this.selected[id] = true)
                 : (this.selected = {[id]: true})
