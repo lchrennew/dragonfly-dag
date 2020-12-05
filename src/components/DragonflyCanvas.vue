@@ -219,6 +219,7 @@ export default {
     },
     methods: {
         log(type, payload) {
+            this.$emit(type, payload)
             this.$nextTick(() => this.histroy.push(type, payload))
         },
         deleteSelectedNodes() {
@@ -407,11 +408,10 @@ export default {
                 await this.beforeAddEdgeHook?.(defaultEdge) ?? defaultEdge
 
             if (edge) {
-                this.$emit('edge:adding', {edge, defaultEdge})
                 this.$emit('update:edges', [...this.edges, edge])
-                this.$emit('edge:added', {edge, defaultEdge})
+                this.log('edges:added', {edge, defaultEdge})
             } else {
-                this.$emit('edge:adding-cancelled', {edge, defaultEdge})
+                this.$emit('edges:adding-cancelled', {edge, defaultEdge})
             }
         },
         endpointReposition(id, x, y, width, height, orientation) {
@@ -482,8 +482,15 @@ export default {
         }
     },
     mounted() {
+        const resizeObserver = new ResizeObserver(entries => {
+            entries.forEach(entry => {
+                this.width = entry.target.clientWidth
+                this.height = entry.target.clientHeight
+            })
+        })
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
+        resizeObserver.observe(this.$el)
         this.resetLayout(false)
     },
     watch: {

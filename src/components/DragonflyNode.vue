@@ -6,7 +6,7 @@
     >
         <div class="dragonfly-node-inner"
              ref="inner"
-             @mousedown.stop="onMouseDown"
+             @mousedown.exact.stop="onMouseDown"
              :draggable="draggable"
              @drop="onNodeDragging"
              @dragstart="onNodeDragging"
@@ -159,8 +159,8 @@ export default {
     },
     methods: {
         onMouseDown(event) {
-            this.inDomOffset.x = event.offsetX
-            this.inDomOffset.y = event.offsetY
+            this.inDomOffset.x = event.layerX
+            this.inDomOffset.y = event.layerY
 
             if (this.selected) {
                 event.shiftKey && this.$emit('unselect', this.node.id)

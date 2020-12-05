@@ -14,8 +14,9 @@
                             x="0"
                             y="0"
                             stroke="#f00"
+                            stroke-opacity="0.5"
                             fill="none"
-                            stroke-width="0.3"
+                            :stroke-width="4/scale"
                         />
                         <rect
                             v-for="(value, id) in positions"
