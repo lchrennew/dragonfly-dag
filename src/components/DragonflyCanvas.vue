@@ -144,6 +144,7 @@ export default {
             nodeDraggingBehavior: this.nodeDragging,
             canvasDraggingBehavior: this.canvasDragging,
             canvasWheelingBehavior: this.canvasWheeling,
+            endpointDraggingBehavior: this.endpointDragging,
             canvasId: canvasId++,
             nodesInZone: {},
             histroy: [],
@@ -170,6 +171,7 @@ export default {
         endpointGroup: {type: [String, Object, Function]},
         canvasDragging: {type: String, default: 'off'},
         nodeDragging: {type: String, default: 'off'},
+        endpointDragging: {type: String, default: 'off'}, // off | node | on
         canvasWheeling: {type: String, default: 'off'},
         lineShape: {default: StraightLine},
         linkingLineShape: {default: StraightLine},
@@ -479,6 +481,8 @@ export default {
             minZoneHeight: computed(() => this.minZoneHeight),
             zoneMoving: this.zoneMoving,
             gridShape: computed(() => this.gridShape),
+            endpointDraggingBehavior: computed(() => this.endpointDraggingBehavior),
+            scale: computed(() => this.scale)
         }
     },
     mounted() {
@@ -517,6 +521,12 @@ export default {
         },
         canvasWheelingBehavior(value) {
             this.$emit('update:canvasWheeling', value)
+        },
+        endpointDraggingBehavior(value) {
+            this.$emit('update:endpointDragging', value)
+        },
+        endpointDragging(value) {
+            this.endpointDraggingBehavior = value
         },
         layout(value) {
             this.positions = value

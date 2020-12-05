@@ -8,7 +8,7 @@
              ref="inner"
              @mousedown.exact.stop="onMouseDown"
              :draggable="draggable"
-             @drop="onNodeDragging"
+             @drop="onNodeDrop"
              @dragstart="onNodeDragging"
              @drag.passive="onNodeDragging"
              @dragend.prevent="onNodeDragging"
@@ -75,6 +75,7 @@ export default {
         'link',
         'linkSource',
         'nodeDraggingBehavior',
+        'scale',
     ],
     provide() {
         return {
@@ -159,8 +160,9 @@ export default {
     },
     methods: {
         onMouseDown(event) {
-            this.inDomOffset.x = event.layerX
-            this.inDomOffset.y = event.layerY
+            const rect = this.$el.getBoundingClientRect()
+            this.inDomOffset.x = (event.x - rect.x) / this.scale.value
+            this.inDomOffset.y = (event.y - rect.y) / this.scale.value
 
             if (this.selected) {
                 event.shiftKey && this.$emit('unselect', this.node.id)
@@ -171,6 +173,13 @@ export default {
         onNodeDragging(event) {
             nodeDraggingBehaviorHandlers[this.nodeDraggingBehavior.value]?.[event.type]?.call(this, event)
         },
+        onNodeDrop(event) {
+            this.targeted = false
+            const target = this.node.id
+            if (this.linkableIn) {
+                this.link(target)
+            }
+        }
     },
     mounted() {
         this.width = this.$el.clientWidth

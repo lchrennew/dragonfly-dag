@@ -53,6 +53,7 @@ export default {
         'linkSource',
         'endpointGroup',
         'nodeDraggingBehavior',
+        'endpointDraggingBehavior',
         'select',
     ],
     data() {
@@ -66,12 +67,20 @@ export default {
     },
     computed: {
         linkable() {
-            switch (this.nodeDraggingBehavior.value) {
-                case 'link':
+            switch (this.endpointDraggingBehavior.value) {
+                case 'on':
                     return this.endpoint.linkable ?? true
+                case 'node':
+                    switch (this.nodeDraggingBehavior.value) {
+                        case 'link':
+                            return this.endpoint.linkable ?? true
+                        default:
+                            return false
+                    }
                 default:
                     return false
             }
+
         },
         linkableOut() {
             return this.linkable && this.groupLinkOut(this.node, this.endpoint)

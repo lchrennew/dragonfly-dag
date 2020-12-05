@@ -18,6 +18,7 @@
             v-model:nodes="nodes"
             v-model:zones="zones"
             v-model:zoom-scale="config.zoomScale"
+            v-model:endpoint-dragging="config.endponitDragging"
             :arrow-position="config.arrowPosition"
             :arrow-zoom-ratio="config.arrowZoomRatio"
             :before-add-edge-hook="onAddingEdge"
@@ -106,6 +107,7 @@ export default {
                 canvasDragging: ref('select'),
                 nodeDragging: ref('move'),
                 canvasWheeling: ref('zoom'),
+                endpointDragging: ref('on'),
                 lineShape: shallowRef(StraightLine),
                 showEdgeLabels: ref(false),
                 gridSize: ref(20),

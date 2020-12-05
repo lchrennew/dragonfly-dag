@@ -14,8 +14,8 @@ const nodeDraggingBehaviorHandlers = {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
             if (this.draggable) {
                 this.nodeMoving(    // hacking: 回调DragonflyCanvasCore, 修改所有选择节点输入的position信息（同时可以影响到edge）
-                    event.offsetX - this.inDomOffset.x,
-                    event.offsetY - this.inDomOffset.y,
+                    Math.round(event.offsetX - this.inDomOffset.x),
+                    Math.round(event.offsetY - this.inDomOffset.y),
                 )
             }
         },
@@ -60,13 +60,6 @@ const nodeDraggingBehaviorHandlers = {
         dragend(event) {
             document.removeEventListener('dragover', preventDefaultDrop)
             this.stopNodeLinking()
-        },
-        drop(event) {
-            this.targeted = false
-            const target = this.node.id
-            if (this.linkableIn) {
-                this.link(target)
-            }
         },
     },
 }
