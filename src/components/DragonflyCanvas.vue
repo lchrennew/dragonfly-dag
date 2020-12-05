@@ -75,16 +75,14 @@
             :size="gridSize"
             :offset-x="offsetX"
             :offset-y="offsetY"
-            :scale="scale"
             :min-scale="minGridScale"
             :max-scale="maxGridScale"/>
-        <dragonfly-scale :scale="scale"/>
+        <dragonfly-scale/>
         <dragonfly-minimap
             :width="width"
             :height="height"
             v-model:offset-x="offsetX"
             v-model:offset-y="offsetY"
-            :scale="scale"
             :positions="positions"
             :history="histroy"
         />

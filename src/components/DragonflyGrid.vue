@@ -22,11 +22,11 @@ import DotGrid from "./grid/DotGrid.vue";
 export default {
     name: "DragonflyGrid",
     components: {DotGrid},
-    props: ['offsetX', 'offsetY', 'scale', 'size', 'maxScale', 'minScale'],
-    inject: ['gridShape'],
+    props: ['offsetX', 'offsetY', 'size', 'maxScale', 'minScale'],
+    inject: ['gridShape', 'scale'],
     computed: {
         scaledSize() {
-            let scale = this.scale
+            let scale = this.scale.value
             if (scale >= this.maxScale) {
                 do {
                     scale /= this.maxScale
