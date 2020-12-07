@@ -34,6 +34,10 @@
             :grid-size="config.gridSize"
             :max-grid-scale="config.maxGridScale"
             :min-grid-scale="config.minGridScale"
+            show-grid
+            show-minimap
+            show-scale
+            auto-layout
         >
             <template #nodeRenderer="{node}">
                 <div class="node">Hi, {{ node.id }}</div>
@@ -116,8 +120,8 @@ export default {
                 gridShape: shallowRef(DotGrid)
             },
             feed: 1,
-            nodes: [],
-            edges: [],
+            nodes: [{id:'s1', status:'queueing'}, {id: 's2', status: 'queueing'}],
+            edges: [{id:'s1-succeeded-s2', source: 's1', target:'s2', sourceEndpoint:'s1-succeeded'}],
             zones: [],
             layout: {},
         }

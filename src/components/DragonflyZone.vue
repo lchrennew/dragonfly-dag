@@ -37,7 +37,7 @@ export default {
     name: "DragonflyZone",
     components: {DragonflyZoneResizeHandler},
     props: ['zone', 'selected', 'position'],
-    inject: ['updatePosition', 'zoneMoving', 'minZoneWidth', 'minZoneHeight'],
+    inject: ['updatePosition', 'zoneMoving', 'minZoneWidth', 'minZoneHeight', 'startZoneMoving', 'stopZoneMoving', 'scale'],
     data() {
         return {
             inDomOffset: {x: 0, y: 0},
@@ -70,29 +70,30 @@ export default {
     },
     methods: {
         onMouseDown(event) {
-            this.inDomOffset.x = event.offsetX
-            this.inDomOffset.y = event.offsetY
-            this.$emit('select', this.zone)
+            const rect = this.$el.getBoundingClientRect()
+            this.inDomOffset.x = (event.x - rect.x) / this.scale.value
+            this.inDomOffset.y = (event.y - rect.y) / this.scale.value
+
+            if (this.selected) {
+                event.shiftKey && this.$emit('unselect', this.zone.id)
+            } else {
+                this.$emit('select', {id: this.zone.id, multiple: event.shiftKey})
+            }
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
             document.addEventListener("dragover", preventDefaultDrop, false)    // hacking: 避免最后一次事件的坐标回到0,0
+            this.startZoneMoving()
         },
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
             const deltaX = event.offsetX - this.inDomOffset.x
             const deltaY = event.offsetY - this.inDomOffset.y
-            this.updatePosition({
-                id: this.id,
-                width: this.width,
-                height: this.height,
-                x: this.left + deltaX,
-                y: this.top + deltaY,
-            })
             this.zoneMoving(deltaX, deltaY)
         },
         onDragEnd(event) {
             document.removeEventListener('dragover', preventDefaultDrop)
+            this.stopZoneMoving()
         },
         onDragEnter(event) {
             if (event.path.includes(event.toElement))

@@ -26,18 +26,21 @@
             </marker>
 
         </defs>
-        <dragonfly-edge
+        <template
             v-for="edge in edges"
-            :key="edge.id"
-            :edge="edge"
-            :line-shape="lineShape"
-            :selected="selected.value[edge.id]"
-            :source-endpoint="endpointPositions[edge.sourceEndpoint]"
-            :source-node="positions[edge.source]"
-            :target-endpoint="endpointPositions[edge.targetEndpoint]"
-            :target-node="positions[edge.target]">
-            <slot name="label" :edge="edge"/>
-        </dragonfly-edge>
+            :key="edge.id">
+            <dragonfly-edge
+                v-if="isVisible(edge)"
+                :edge="edge"
+                :line-shape="lineShape"
+                :selected="selected.value[edge.id]"
+                :source-endpoint="endpointPositions[edge.sourceEndpoint]"
+                :source-node="positions[edge.source]"
+                :target-endpoint="endpointPositions[edge.targetEndpoint]"
+                :target-node="positions[edge.target]">
+                <slot name="label" :edge="edge"/>
+            </dragonfly-edge>
+        </template>
         <dragonfly-linking-edge
             v-if="linking"
             :line-shape="linkingLineShape.value"
@@ -54,6 +57,15 @@ export default {
     name: "DragonflyCanvasEdgesLayer",
     components: {DragonflyLinkingEdge, DragonflyEdge},
     props: ['positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio'],
-    inject: ['showArrow', 'lineShape', 'linkingLineShape', 'selected']
+    inject: ['showArrow', 'lineShape', 'linkingLineShape', 'selected'],
+    methods:{
+        isVisible(edge){
+            const sourceReady = this.positions[edge.source]
+            const targetReady = this.positions[edge.target]
+            const sourceEndpointReady = !edge.sourceEndpoint || this.endpointPositions[edge.sourceEndpoint]
+            const targetEndpointReady = !edge.targetEndpoint || this.endpointPositions[edge.targetEndpoint]
+            return sourceReady && targetReady && sourceEndpointReady && targetEndpointReady
+        }
+    }
 }
 </script>

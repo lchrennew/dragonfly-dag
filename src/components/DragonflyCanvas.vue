@@ -7,11 +7,6 @@
          @mouseup="onCanvasDragging"
          @wheel.prevent="onCanvasWheeling"
     >
-        <dragonfly-canvas-tools
-            v-model:canvas-dragging-behavior="canvasDraggingBehavior"
-            v-model:canvas-wheeling-behavior="canvasWheelingBehavior"
-            v-model:node-dragging-behavior="nodeDraggingBehavior"
-        />
         <div :id="`dragonfly-canvas-${canvasId}`"
              ref="canvas"
              :style="canvasStyle"
@@ -66,19 +61,24 @@
                 :selected="selected[zone.id]"
                 :zone="zone"
                 :position="positions[zone.id]"
-                @select="onZoneSelect"
+                @select="onSelect"
+                @unselect="onUnselect"
                 #default="{zone}">
                 <slot name="zoneRenderer" :zone="zone"/>
             </dragonfly-zone>
         </div>
         <dragonfly-grid
+            v-if="showGrid"
             :size="gridSize"
             :offset-x="offsetX"
             :offset-y="offsetY"
             :min-scale="minGridScale"
             :max-scale="maxGridScale"/>
-        <dragonfly-scale/>
+        <dragonfly-scale
+            v-if="showScale"
+        />
         <dragonfly-minimap
+            v-if="showMinimap"
             :width="width"
             :height="height"
             v-model:offset-x="offsetX"
@@ -95,7 +95,6 @@ import {computed, ref} from 'vue'
 import dagreLayout from "../layout/dagreLayout";
 import DragonflyCanvasEdgesLayer from "./DragonflyCanvasEdgesLayer.vue";
 import ZigZagLine from "./edge/ZigZagLine.vue";
-import DragonflyCanvasTools from "./DragonflyCanvasTools.vue";
 import canvasDraggingBehaviorHandlers from "./canvasDraggingBehaviorHandlers";
 import shiftStrategies from "./shiftStrategies";
 import canvasWheelingBehaviorHandlers from "./canvasWheelingBehaviorHandlers";
@@ -116,7 +115,6 @@ export default {
         DragonflyMinimap,
         DragonflyGrid,
         DragonflyZone,
-        DragonflyCanvasTools,
         ZigZagLine,
         StraightLine,
         DragonflyNode,
@@ -183,6 +181,10 @@ export default {
         gridSize: {type: Number, default: 10},
         minGridScale: {type: Number, default: 0.5},
         maxGridScale: {type: Number, default: 5},
+        autoLayout: {type: Boolean, default: false},
+        showMinimap: {type: Boolean, default: false},
+        showScale: {type: Boolean, defualt: false},
+        showGrid: {type: Boolean, default: false},
     },
     computed: {
         canvasStyle() {
@@ -353,7 +355,7 @@ export default {
             }
         },
         onSelect({id, multiple}) {
-            this.$refs.canvas.focus()
+            this.$refs.canvas.focus({preventScroll: true})
             multiple
                 ? (this.selected[id] = true)
                 : (this.selected = {[id]: true})
@@ -450,31 +452,43 @@ export default {
         updatePosition({id, x, y, width, height}) {
             this.positions[id] = {x, y, width, height}
         },
-        onZoneSelect(zone) {
-            this.onSelect(zone)
-            const position = this.positions[zone.id]
-            for (const id in this.positions) {
-                if (id !== zone.id) {
-                    const {x, y, width, height} = this.positions[id]
-                    const sourceX = position?.x ?? 0, sourceY = position?.y ?? 0,
-                        targetX = sourceX + (position?.width ?? this.minZoneWidth),
-                        targetY = sourceY + (position?.height ?? this.minZoneHeight)
-                    const xBetween = x <= Math.max(targetX, sourceX) && x + width >= Math.min(targetX, sourceX)
-                    const yBetween = y <= Math.max(targetY, sourceY) && y + height >= Math.min(targetY, sourceY)
-                    this.nodesInZone[id] = xBetween && yBetween
-                }
-            }
+        startZoneMoving() {
+            const movingSource = {}
+            this.zones.filter(({id}) => this.selected[id])
+                .map(({id}) => {
+                    movingSource[id] = {...this.positions[id]};
+                    return id
+                })
+                .forEach(zoneId => {
+                    const position = this.positions[zoneId]
+                    for (const {id} of this.nodes) {
+                        if (!movingSource[id] && id !== zoneId) {
+                            const {x, y, width, height} = this.positions[id]
+                            const sourceX = position?.x ?? 0, sourceY = position?.y ?? 0,
+                                targetX = sourceX + (position?.width ?? this.minZoneWidth),
+                                targetY = sourceY + (position?.height ?? this.minZoneHeight)
+                            const xBetween = x <= Math.max(targetX, sourceX) && x + width >= Math.min(targetX, sourceX)
+                            const yBetween = y <= Math.max(targetY, sourceY) && y + height >= Math.min(targetY, sourceY)
+                            const inZone = xBetween && yBetween
+                            inZone && (movingSource[id] = {x, y, width, height})
+                        }
+                    }
+                })
+            this.movingSource = movingSource
         },
         zoneMoving(deltaX, deltaY) {
-            for (const nodeId in this.nodesInZone) {
-                if (this.nodesInZone[nodeId]) {
-                    let {x, y, width, height} = this.positions[nodeId]
-                    x += deltaX
-                    y += deltaY
-                    this.positions[nodeId] = {x, y, width, height}
-                }
-            }
+            Object.keys(this.movingSource).forEach(id => {
+                let {x, y, width, height} = this.positions[id]
+                x += deltaX
+                y += deltaY
+                this.positions[id] = {x, y, width, height}
+            })
         },
+        stopZoneMoving() {
+            this.movingTarget = Object.fromEntries(Object.keys(this.movingSource).map(id => [id, this.positions[id]]))
+            this.$emit('zones:moved', {source: this.movingSource, target: this.movingTarget})
+            this.movingSource = this.movingTarget = null
+        }
     },
     provide() {
         return {
@@ -507,7 +521,9 @@ export default {
             updatePosition: this.updatePosition,
             minZoneWidth: computed(() => this.minZoneWidth),
             minZoneHeight: computed(() => this.minZoneHeight),
+            startZoneMoving: this.startZoneMoving,
             zoneMoving: this.zoneMoving,
+            stopZoneMoving: this.stopZoneMoving,
             gridShape: computed(() => this.gridShape),
             endpointDraggingBehavior: computed(() => this.endpointDraggingBehavior),
             scale: computed(() => this.scale)
@@ -523,7 +539,7 @@ export default {
         this.width = this.$el.clientWidth
         this.height = this.$el.clientHeight
         resizeObserver.observe(this.$el)
-        this.resetLayout(false)
+        this.resetLayout(this.autoLayout)
     },
     watch: {
         zoomScale(value) {

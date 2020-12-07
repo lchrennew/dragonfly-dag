@@ -67,6 +67,14 @@ const historyTraveller = {
             const hash = Object.fromEntries(added.map(zone => [zone.id, true]))
             this.zones = this.zones.filter(zone => !hash[zone.id])
         },
+    },
+    'zones:moved': {
+        forward({target, source}) {
+            this.positions = {...this.positions, ...target}
+        },
+        back({target,source}) {
+            this.positions = {...this.positions, ...source}
+        },
     }
 }
 export default historyTraveller

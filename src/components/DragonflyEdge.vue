@@ -24,6 +24,21 @@
           class="edge-arrow"
           marker-end="url(#arrow)"
     />
+    <template v-if="edge.animate">
+        <circle r="2" fill="blue">
+            <animateMotion dur="1s"
+                           repeatCount="indefinite"
+                           :path="definition"/>
+        </circle>
+        <circle r="2" fill="blue">
+            <animateMotion
+                begin="0.5s"
+                dur="1s"
+                repeatCount="indefinite"
+                :path="definition"/>
+        </circle>
+    </template>
+
     <foreignObject>
         <teleport :to="`#dragonfly-canvas-${canvasId}`">
             <div v-if="showLabel"
