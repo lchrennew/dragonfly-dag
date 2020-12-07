@@ -1,6 +1,6 @@
 <template>
     <div class="dragonfly-viewport"
-         @mousedown="onCanvasDragging"
+         @mousedown.left="onCanvasDragging"
          @mouseenter="onCanvasDragging"
          @mouseleave="onCanvasDragging"
          @mousemove="onCanvasDragging"
@@ -121,6 +121,7 @@ export default {
         DragonflyCanvasEdgesLayer
     },
     data() {
+        canvasId++
         return {
             dragging: false,
             scale: this.zoomScale ?? 1,
@@ -141,7 +142,7 @@ export default {
             canvasDraggingBehavior: this.canvasDragging,
             canvasWheelingBehavior: this.canvasWheeling,
             endpointDraggingBehavior: this.endpointDragging,
-            canvasId: canvasId++,
+            canvasId,
             nodesInZone: {},
             history: [],
             historyHead: 0,

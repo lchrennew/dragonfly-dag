@@ -6,7 +6,7 @@
     >
         <div class="dragonfly-node-inner"
              ref="inner"
-             @mousedown.exact.stop="onMouseDown"
+             @mousedown.left.exact.stop="onMouseDown"
              :draggable="draggable"
              @drop="onNodeDrop"
              @dragstart="onNodeDragging"

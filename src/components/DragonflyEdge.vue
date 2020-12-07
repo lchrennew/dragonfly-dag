@@ -14,7 +14,7 @@
     <path
         :d="definition"
         class="edge-area"
-        @mousedown.prevent.stop="onMouseDown"
+        @mousedown.left.prevent.stop="onMouseDown"
     />
     <line v-if="showArrow.value"
           :x1="arrowPoint1.x"

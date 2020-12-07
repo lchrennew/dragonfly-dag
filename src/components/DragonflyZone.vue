@@ -6,7 +6,7 @@
         <div class="dragonfly-zone-inner"
              draggable="true"
              @dragstart="onDragStart"
-             @mousedown.stop="onMouseDown"
+             @mousedown.left.stop="onMouseDown"
              @drag.passive="onDrag"
              @dragend.prevent="onDragEnd"
              @dragenter.stop="onDragEnter"
