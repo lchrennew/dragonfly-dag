@@ -11,11 +11,13 @@
           :marker-start="selected?'url(#anchor)':''"
           class="edge"
     />
-    <path
-        :d="definition"
-        class="edge-area"
-        @mousedown.left.prevent.stop="onMouseDown"
-    />
+    <template v-if="!readOnly.value">
+        <path
+            :d="definition"
+            class="edge-area"
+            @mousedown.left.prevent.stop="onMouseDown"
+        />
+    </template>
     <line v-if="showArrow.value"
           :x1="arrowPoint1.x"
           :x2="arrowPoint2.x"
@@ -57,7 +59,7 @@ const origin = {x: 0, y: 0}
 export default {
     name: "DragonflyEdge",
     props: ['edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'lineShape', 'selected'],
-    inject: ['showArrow', 'arrowPosition', 'onSelect', 'onUnselect', 'canvasId', 'showEdgeLabels'],
+    inject: ['showArrow', 'arrowPosition', 'onSelect', 'onUnselect', 'canvasId', 'showEdgeLabels', 'readOnly'],
     data() {
         return {
             definition: '',

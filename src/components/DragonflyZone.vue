@@ -4,7 +4,7 @@
          class="dragonfly-zone"
     >
         <div class="dragonfly-zone-inner"
-             draggable="true"
+             :draggable="draggable"
              @dragstart="onDragStart"
              @mousedown.left.stop="onMouseDown"
              @drag.passive="onDrag"
@@ -13,7 +13,7 @@
              @dragleave.stop="onDragLeave">
             <slot :zone="zone"/>
         </div>
-        <template v-if="selected">
+        <template v-if="!readOnly.value && selected">
             <dragonfly-zone-resize-handler
                 v-for="orientation in ['se', 'sw', 'ne', 'nw']"
                 :key="orientation"
@@ -37,7 +37,7 @@ export default {
     name: "DragonflyZone",
     components: {DragonflyZoneResizeHandler},
     props: ['zone', 'selected', 'position'],
-    inject: ['updatePosition', 'zoneMoving', 'minZoneWidth', 'minZoneHeight', 'startZoneMoving', 'stopZoneMoving', 'scale'],
+    inject: ['updatePosition', 'zoneMoving', 'minZoneWidth', 'minZoneHeight', 'startZoneMoving', 'stopZoneMoving', 'scale', 'readOnly'],
     data() {
         return {
             inDomOffset: {x: 0, y: 0},
@@ -66,6 +66,9 @@ export default {
                 left: `${this.left}px`,
                 top: `${this.top}px`,
             }
+        },
+        draggable(){
+            return !this.readOnly.value
         }
     },
     methods: {

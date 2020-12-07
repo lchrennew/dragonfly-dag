@@ -55,6 +55,7 @@ export default {
         'nodeDraggingBehavior',
         'endpointDraggingBehavior',
         'select',
+        'readOnly',
     ],
     data() {
         return {
@@ -67,6 +68,7 @@ export default {
     },
     computed: {
         linkable() {
+            if (this.readOnly.value) return false
             switch (this.endpointDraggingBehavior.value) {
                 case 'on':
                     return this.endpoint.linkable ?? true

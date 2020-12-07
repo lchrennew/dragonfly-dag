@@ -186,6 +186,7 @@ export default {
         showMinimap: {type: Boolean, default: false},
         showScale: {type: Boolean, defualt: false},
         showGrid: {type: Boolean, default: false},
+        readOnly: {type: Boolean, default: false},
     },
     computed: {
         canvasStyle() {
@@ -282,6 +283,7 @@ export default {
             }
         },
         onKeyDown(event) {
+            if (this.readOnly) return
             if (event.target === this.$refs.canvas) {
                 if (['Backspace', 'Delete'].includes(event.code)) {
                     this.deleteSelectedNodes()
@@ -527,7 +529,8 @@ export default {
             stopZoneMoving: this.stopZoneMoving,
             gridShape: computed(() => this.gridShape),
             endpointDraggingBehavior: computed(() => this.endpointDraggingBehavior),
-            scale: computed(() => this.scale)
+            scale: computed(() => this.scale),
+            readOnly: computed(() => this.readOnly),
         }
     },
     mounted() {

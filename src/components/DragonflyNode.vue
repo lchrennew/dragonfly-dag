@@ -76,6 +76,7 @@ export default {
         'linkSource',
         'nodeDraggingBehavior',
         'scale',
+        'readOnly',
     ],
     provide() {
         return {
@@ -129,6 +130,7 @@ export default {
         },
 
         draggable() {
+            if(this.readOnly.value) return false
             switch (this.nodeDraggingBehavior.value) {
                 case 'move':
                     return this.node.movable ?? true
