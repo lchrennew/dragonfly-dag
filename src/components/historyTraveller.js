@@ -25,14 +25,6 @@ const historyTraveller = {
             this.edges = [...this.edges, ...edges]
         }
     },
-    'nodes:moved': {
-        forward({target}) {
-            this.positions = {...this.positions, ...target}
-        },
-        back({source}) {
-            this.positions = {...this.positions, ...source}
-        }
-    },
     'edges:deleted': {
         forward(deleted) {
             const hash = Object.fromEntries(deleted.map(edge => [edge.id, true]))
@@ -68,7 +60,7 @@ const historyTraveller = {
             this.zones = this.zones.filter(zone => !hash[zone.id])
         },
     },
-    'zones:moved': {
+    'selected:moved': {
         forward({target, source}) {
             this.positions = {...this.positions, ...target}
         },

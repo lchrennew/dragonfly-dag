@@ -6,7 +6,7 @@
     >
         <div class="dragonfly-node-inner"
              ref="inner"
-             @mousedown.left.exact.stop="onMouseDown"
+             @mousedown.left.capture.stop="onMouseDown"
              :draggable="draggable"
              @drop="onNodeDrop"
              @dragstart="onNodeDragging"
@@ -130,7 +130,7 @@ export default {
         },
 
         draggable() {
-            if(this.readOnly.value) return false
+            if (this.readOnly.value) return false
             switch (this.nodeDraggingBehavior.value) {
                 case 'move':
                     return this.node.movable ?? true
@@ -162,6 +162,7 @@ export default {
     },
     methods: {
         onMouseDown(event) {
+            console.log('hello')
             const rect = this.$el.getBoundingClientRect()
             this.inDomOffset.x = (event.x - rect.x) / this.scale.value
             this.inDomOffset.y = (event.y - rect.y) / this.scale.value

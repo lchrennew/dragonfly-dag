@@ -104,6 +104,7 @@ import DotGrid from "./grid/DotGrid.vue";
 import DragonflyMinimap from "./DragonflyMinimap.vue";
 import DragonflyScale from "./DragonflyScale.vue";
 import historyTraveller from "./historyTraveller";
+import {intersect} from "../utils/intersectHelper";
 
 let linkSource = ref(null)
 let canvasId = 0
@@ -374,7 +375,7 @@ export default {
             this.positions[nodeId] = {x: 0, y: 0, ...this.positions[nodeId], width, height}
         },
         startNodeMoving() {
-            this.movingSource = Object.fromEntries(Object.keys(this.selected).filter(id => this.selected[id]).map(id => [id, this.positions[id]]))
+            this.startSelectedMoving()
         },
         nodeMoving(deltaX, deltaY) {
             for (const nodeId in this.selected) {
@@ -388,7 +389,7 @@ export default {
         },
         stopNodeMoving() {
             this.movingTarget = Object.fromEntries(Object.keys(this.selected).filter(id => this.selected[id]).map(id => [id, this.positions[id]]))
-            this.log('nodes:moved', {source: this.movingSource, target: this.movingTarget})
+            this.log('selected:moved', {source: this.movingSource, target: this.movingTarget})
             this.movingSource = this.movingTarget = null
         },
         startNodeLinking({source, sourceEndpoint, sourceGroup}) {
@@ -455,29 +456,30 @@ export default {
         updatePosition({id, x, y, width, height}) {
             this.positions[id] = {x, y, width, height}
         },
-        startZoneMoving() {
-            const movingSource = {}
-            this.zones.filter(({id}) => this.selected[id])
-                .map(({id}) => {
-                    movingSource[id] = {...this.positions[id]};
-                    return id
-                })
-                .forEach(zoneId => {
-                    const position = this.positions[zoneId]
+        startSelectedMoving() {
+            const movingSource = Object.fromEntries(
+                Object.keys(this.selected)
+                    .filter(id => this.selected[id])
+                    .map(id => [id, {...this.positions[id]}]))
+            this.zones.forEach(({id: zoneId}) => {
+                if (movingSource[zoneId]) {
+                    const position = movingSource[zoneId]
                     for (const {id} of this.nodes) {
                         if (!movingSource[id] && id !== zoneId) {
                             const {x, y, width, height} = this.positions[id]
-                            const sourceX = position?.x ?? 0, sourceY = position?.y ?? 0,
-                                targetX = sourceX + (position?.width ?? this.minZoneWidth),
-                                targetY = sourceY + (position?.height ?? this.minZoneHeight)
-                            const xBetween = x <= Math.max(targetX, sourceX) && x + width >= Math.min(targetX, sourceX)
-                            const yBetween = y <= Math.max(targetY, sourceY) && y + height >= Math.min(targetY, sourceY)
-                            const inZone = xBetween && yBetween
+                            const rect1 = [[position?.x ?? 0, position?.y ?? 0], [(position?.x ?? 0) + (position?.width ?? this.minZoneWidth), (position?.y ?? 0) + (position?.height ?? this.minZoneHeight)]]
+                            const rect2 = [[x, y], [x + width, y + height]]
+                            const {r2} = intersect(rect1, rect2)
+                            const inZone = r2 === 1
                             inZone && (movingSource[id] = {x, y, width, height})
                         }
                     }
-                })
+                }
+            })
             this.movingSource = movingSource
+        },
+        startZoneMoving() {
+            this.startSelectedMoving()
         },
         zoneMoving(deltaX, deltaY) {
             Object.keys(this.movingSource).forEach(id => {
@@ -489,7 +491,7 @@ export default {
         },
         stopZoneMoving() {
             this.movingTarget = Object.fromEntries(Object.keys(this.movingSource).map(id => [id, this.positions[id]]))
-            this.$emit('zones:moved', {source: this.movingSource, target: this.movingTarget})
+            this.$emit('selected:moved', {source: this.movingSource, target: this.movingTarget})
             this.movingSource = this.movingTarget = null
         }
     },
