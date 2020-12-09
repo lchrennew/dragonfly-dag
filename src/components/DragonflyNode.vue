@@ -162,7 +162,6 @@ export default {
     },
     methods: {
         onMouseDown(event) {
-            console.log('hello')
             const rect = this.$el.getBoundingClientRect()
             this.inDomOffset.x = (event.x - rect.x) / this.scale.value
             this.inDomOffset.y = (event.y - rect.y) / this.scale.value
