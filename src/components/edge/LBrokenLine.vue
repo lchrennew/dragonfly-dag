@@ -84,7 +84,6 @@ export default {
     },
     methods: {
         getDefinition() {
-            console.log(this.smartPath)
             return `M ${this.startPoint} L ${this.smartPath} L ${this.endPoint}`
         },
     }

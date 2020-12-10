@@ -1,6 +1,6 @@
 {
   "name": "dragonfly-dag",
-  "version": "0.2.22",
+  "version": "0.2.23",
   "license": "MIT",
   "author": {
     "name": "李淳",
@@ -33,9 +33,9 @@
     "bundle": "yarn clean && rollup -c rollup.es-browser.bundle.config.js && lessc src/components/dragonfly-dag.less dist/index.css"
   },
   "dependencies": {
-    "ant-design-vue": "^2.0.0-rc.2",
+    "ant-design-vue": "^2.0.0-rc.3",
     "dagre": "^0.8.5",
-    "vue": "^3.0.3"
+    "vue": "^3.0.4"
   },
   "bundleDependencies": [
     "dagre",
