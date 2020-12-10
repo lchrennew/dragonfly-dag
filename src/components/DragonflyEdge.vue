@@ -41,9 +41,9 @@
         </circle>
     </template>
 
-    <foreignObject>
+    <foreignObject v-if="showLabel">
         <teleport :to="`#dragonfly-canvas-${canvasId}`">
-            <div v-if="showLabel"
+            <div
                  :style="labelStyle"
                  class="edge-label"
             >

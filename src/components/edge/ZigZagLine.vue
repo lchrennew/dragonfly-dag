@@ -3,10 +3,10 @@ import LineShapeBase from "./LineShapeBase.vue";
 
 const offset = 20
 const vectors = {
-    left: [-1, 0],
-    right: [1, 0],
-    top: [0, -1],
-    bottom: [0, 1]
+    left: [0, 0.5, -1, 0],
+    right: [1, 0.5, 1, 0],
+    top: [0.5, 0, 0, -1],
+    bottom: [0.5, 1, 0, 1]
 }
 
 export default {
@@ -16,22 +16,22 @@ export default {
         startPoint() {
             let {x, y, width, height, orientation = 'right'} = this.source
             const vector = vectors[orientation]
-            x += vector[0] * width / 2
-            y += vector[1] * height / 2
+            x += vector[0] * width
+            y += vector[1] * height
             return `${x},${y}`
         },
         endPoint() {
             let {x, y, width, height, orientation = 'left'} = this.target
             const vector = vectors[orientation]
-            x += vector[0] * width / 2
-            y += vector[1] * height / 2
+            x += vector[0] * width
+            y += vector[1] * height
             return `${x},${y}`
         },
         zig() {
             let {x, y, width, height, orientation = 'right'} = this.source
             const vector = vectors[orientation]
-            x += vector[0] * width / 2 + vector[0] * offset
-            y += vector[1] * height / 2 + vector[1] * offset
+            x += vector[0] * width + vector[2] * offset
+            y += vector[1] * height + vector[3] * offset
             return {x, y}
         },
         zigPoint() {
@@ -40,8 +40,8 @@ export default {
         zag() {
             let {x, y, width, height, orientation = 'left'} = this.target
             const vector = vectors[orientation]
-            x += vector[0] * width / 2 + vector[0] * offset
-            y += vector[1] * height / 2 + vector[1] * offset
+            x += vector[0] * width + vector[2] * offset
+            y += vector[1] * height + vector[3] * offset
             return {x, y}
         },
         zagPoint() {

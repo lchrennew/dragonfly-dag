@@ -24,7 +24,7 @@ export default {
     },
     methods: {
         getDefinition() {
-            return `M ${this.startPoint} L ${this.endPoint} L ${this.endPoint}`
+            return `M ${this.startPoint} L ${this.endPoint}`
         },
         getPoint(current, ref) {
             let {x, y, halfWidth, halfHeight, k} = current

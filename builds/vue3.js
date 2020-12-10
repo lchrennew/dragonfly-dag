@@ -4,6 +4,7 @@ import dragonflyEndpoint from "../src/components/DragonflyEndpoint.vue";
 import straightLine from "../src/components/edge/StraightLine.vue";
 import zigZagLine from "../src/components/edge/ZigZagLine.vue";
 import sCurveLine from "../src/components/edge/SCurveLine.vue";
+import lBrokenLine from "../src/components/edge/LBrokenLine.vue";
 import lineShapeBase from "../src/components/edge/LineShapeBase.vue";
 import dotGrid from "../src/components/grid/DotGrid.vue";
 import lineGrid from "../src/components/grid/LineGrid.vue";
@@ -19,6 +20,7 @@ export const LineShapeBase = lineShapeBase
 export const DotGrid = dotGrid
 export const LineGrid = lineGrid
 export const TileGrid = tileGrid
+export const LBrokenLine = lBrokenLine
 
 export default {
     DragonflyCanvas,
@@ -31,4 +33,5 @@ export default {
     DotGrid,
     LineGrid,
     TileGrid,
+    LBrokenLine,
 }
