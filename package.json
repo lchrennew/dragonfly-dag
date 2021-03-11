@@ -1,6 +1,6 @@
 {
   "name": "dragonfly-dag",
-  "version": "0.2.23",
+  "version": "0.3.0",
   "license": "MIT",
   "author": {
     "name": "李淳",
@@ -17,8 +17,11 @@
     "流程图"
   ],
   "homepage": "https://github.com/lchrennew/dragonfly-dag",
-  "main": "index.js",
-  "module": "index.js",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/dragonfly-dag.umd.js",
+  "module": "dist/dragonfly-dag.es.js",
   "repository": {
     "url": "https://github.com/lchrennew/dragonfly-dag.git"
   },
@@ -27,31 +30,26 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "yarn clean && rollup -c rollup.vue3.config.js",
-    "push": "yarn build && yarn publish ./dist --no-commit-hooks --no-git-tag-version --non-interactive && yarn clean",
-    "clean": "rm -rf ./dist",
-    "bundle": "yarn clean && rollup -c rollup.es-browser.bundle.config.js && lessc src/components/dragonfly-dag.less dist/index.css"
+    "build": "vite build"
   },
   "dependencies": {
-    "ant-design-vue": "^2.0.0-rc.3",
+    "ant-design-vue": "^2.0.1",
     "dagre": "^0.8.5",
-    "vue": "^3.0.4"
+    "vue": "^3.0.7"
   },
-  "bundleDependencies": [
-    "dagre",
-    "vue"
-  ],
   "devDependencies": {
-    "@rollup/plugin-alias": "^3.1.1",
-    "@rollup/plugin-commonjs": "^17.0.0",
-    "@rollup/plugin-node-resolve": "^11.0.0",
-    "@vue/compiler-sfc": "^3.0.3",
-    "less": "^3.12.2",
-    "rollup-plugin-copy": "^3.3.0",
+    "@rollup/plugin-alias": "^3.1.2",
+    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-node-resolve": "^11.2.0",
+    "@vue/compiler-sfc": "^3.0.7",
+    "@vitejs/plugin-vue": "^1.1.5",
+    "execa": "^5.0.0",
+    "less": "^4.1.1",
+    "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-vue": "^6.0.0-beta.10",
-    "vite": "^1.0.0-rc.13"
+    "rollup-plugin-vue": "^6.0.0",
+    "vite": "^2.0.5"
   }
 }
