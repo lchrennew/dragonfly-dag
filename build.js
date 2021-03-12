@@ -6,6 +6,7 @@ import zigZagLine from "./src/components/edge/ZigZagLine.vue";
 import sCurveLine from "./src/components/edge/SCurveLine.vue";
 import lBrokenLine from "./src/components/edge/LBrokenLine.vue";
 import lineShapeBase from "./src/components/edge/LineShapeBase.vue";
+import lRoundedCornerLine from "./src/components/edge/LRoundedCornerLine.vue";
 import dotGrid from "./src/components/grid/DotGrid.vue";
 import lineGrid from "./src/components/grid/LineGrid.vue";
 import tileGrid from "./src/components/grid/TileGrid.vue";
@@ -22,3 +23,4 @@ export const DotGrid = dotGrid
 export const LineGrid = lineGrid
 export const TileGrid = tileGrid
 export const LBrokenLine = lBrokenLine
+export const LRoundedCornerLine = lRoundedCornerLine

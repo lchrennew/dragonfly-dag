@@ -5,7 +5,7 @@
          @mouseleave="onCanvasDragging"
          @mousemove="onCanvasDragging"
          @mouseup="onCanvasDragging"
-         @wheel.prevent="onCanvasWheeling"
+         @wheel="onCanvasWheeling"
     >
         <div :id="`dragonfly-canvas-${canvasId}`"
              ref="canvas"

@@ -1,6 +1,7 @@
 const canvasWheelingBehaviorHandlers = {
     zoom: {
         wheel(event) {
+            event.preventDefault()
             if ((event.deltaY < 0 && this.scale <= this.minZoomScale) || (event.deltaY > 0 && this.scale >= this.maxZoomScale))
                 return
 
@@ -18,6 +19,8 @@ const canvasWheelingBehaviorHandlers = {
     },
     scroll: {
         wheel(event) {
+            event.preventDefault()
+
             this.offsetX -= event.deltaX
             this.offsetY -= event.deltaY
         }

@@ -18,7 +18,7 @@ export default {
                 y: (this.zig.y + this.zag.y) / 2,
             }
         },
-        smartPath() {
+        smartPathPoints() {
             const zig = this.zig
             const zag = this.zag
             const center = this.center
@@ -79,8 +79,11 @@ export default {
                 }
                 path = [path[0], field[point1[1]][point1[0]], path[3]]
             }
-            return path.map(({x, y}) => `${x},${y}`).join(' L ')
+            return path
         },
+      smartPath(){
+          return this.smartPathPoints.map(({x, y}) => `${x},${y}`).join(' L ')
+      }
     },
     methods: {
         getDefinition() {

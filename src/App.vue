@@ -72,7 +72,7 @@
 <script>
 import './components/dragonfly-dag.less'
 import {ref, shallowRef} from 'vue'
-import {DotGrid, DragonflyCanvas, DragonflyEndpoint, LBrokenLine,} from '../builds/vue3'
+import {DotGrid, DragonflyCanvas, DragonflyEndpoint, LRoundedCornerLine,} from '../build'
 import CanvasConfig from "./CanvasConfig.vue";
 import CanvasData from "./CanvasData.vue";
 
@@ -103,7 +103,7 @@ export default {
                 nodeDragging: ref('move'),
                 canvasWheeling: ref('zoom'),
                 endpointDragging: ref('on'),
-                lineShape: shallowRef(LBrokenLine),
+                lineShape: shallowRef(LRoundedCornerLine),
                 showEdgeLabels: ref(false),
                 gridSize: ref(20),
                 maxGridScale: ref(2),
@@ -112,7 +112,7 @@ export default {
             },
             feed: 1,
             nodes: [{id: 's1', status: 'queueing'}, {id: 's2', status: 'queueing'}],
-            edges: [{id: 's1-succeeded-s2', source: 's1', target: 's2', sourceEndpoint: 's1-succeeded'}],
+            edges: [{id: 's1-succeeded-s2', source: 's1', target: 's2'}],
             zones: [],
             layout: {},
         }

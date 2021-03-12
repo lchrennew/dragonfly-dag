@@ -148,16 +148,16 @@ export default {
             return this.positions.value[this.node.id]
         },
         leftEndpoints() {
-            return this.node.endpoints ? this.node.endpoints.filter(endpoint => !endpoint.position || (endpoint.position === 'left')) : undefined
+            return this.node.endpoints ? this.node.endpoints.filter(endpoint => !endpoint.orientation || (endpoint.orientation === 'left')) : undefined
         },
         rightEndpoints() {
-            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.position === 'right') : undefined
+            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.orientation === 'right') : undefined
         },
         topEndpoints() {
-            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.position === 'top') : undefined
+            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.orientation === 'top') : undefined
         },
         bottomEndpoints() {
-            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.position === 'bottom') : undefined
+            return this.node.endpoints ? this.node.endpoints.filter(endpoint => endpoint.orientation === 'bottom') : undefined
         },
     },
     methods: {
