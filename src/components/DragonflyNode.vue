@@ -142,7 +142,7 @@ export default {
 
         },
         linkableIn() {
-            return (this.node.linkable ?? true) && this.groupLinkIn(this.linkSource.value)
+            return (this.node.linkable ?? true) && this.groupLinkIn(this.linkSource.value ?? {})
         },
         position() {
             return this.positions.value[this.node.id]
