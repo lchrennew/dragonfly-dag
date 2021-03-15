@@ -121,7 +121,25 @@ export default {
     DragonflyNode,
     DragonflyCanvasEdgesLayer
   },
-  emits: ['doubleClicks', 'update:layout', 'update:nodesData', 'update:edges'],
+  emits: [
+    'update:edges',
+    'edges:adding-cancelled',
+    'selected:moved',
+    'update:zoomScale',
+    'update:nodeDragging',
+    'update:canvasDragging',
+    'update:canvasWheeling',
+    'update:endpointDragging',
+    'update:layout',
+    'update:nodesData',
+    'update:zonesData',
+    'nodes:deleted',
+    'edges:deleted',
+    'zones:deleted',
+    'selected:moved',
+    'edges:added',
+    'nodes:added',
+  ],
   data() {
     canvasId++
     return {
