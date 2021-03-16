@@ -131,6 +131,7 @@ export default {
     'update:canvasWheeling',
     'update:endpointDragging',
     'update:layout',
+    'update:edgesData',
     'update:nodesData',
     'update:zonesData',
     'nodes:deleted',
@@ -139,7 +140,6 @@ export default {
     'selected:moved',
     'edges:added',
     'nodes:added',
-    'updated:zoomScale'
   ],
   data() {
     canvasId++
