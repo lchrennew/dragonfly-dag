@@ -139,6 +139,7 @@ export default {
     'selected:moved',
     'edges:added',
     'nodes:added',
+    'updated:zoomScale'
   ],
   data() {
     canvasId++
