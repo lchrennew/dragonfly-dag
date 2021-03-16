@@ -251,16 +251,12 @@ export default {
       this.history.push({ type, payload })
       this.historyHead++
       this.$emit(type, payload)
-      console.log(`${this.historyHead}. ${type}`)
-      console.log(payload)
     },
     undo() {
       if (this.historyHead) {
         this.historyHead--
         const { type, payload } = this.history[this.historyHead]
         historyTraveller[type]?.back?.call?.(this, payload)
-        console.log(`undo ${type}`)
-        console.log(payload)
       }
     },
     redo() {
@@ -269,8 +265,6 @@ export default {
         const { type, payload } = log
         this.historyHead++
         historyTraveller[type]?.forward?.call?.(this, payload)
-        console.log(`redo ${type}`)
-        console.log(payload)
       }
     },
     deleteSelectedNodes() {
