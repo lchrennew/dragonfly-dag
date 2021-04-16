@@ -122,7 +122,6 @@ export default {
     DragonflyCanvasEdgesLayer
   },
   emits: [
-    'update:edges',
     'edges:adding-cancelled',
     'selected:moved',
     'update:zoomScale',
@@ -465,7 +464,7 @@ export default {
           await this.beforeAddEdgeHook?.(defaultEdge) ?? defaultEdge
 
       if (edge) {
-        this.$emit('update:edges', [...this.edges, edge])
+        this.edges = [...this.edges, edge]
         this.log('edges:added', { edge, defaultEdge })
       } else {
         this.$emit('edges:adding-cancelled', { edge, defaultEdge })
