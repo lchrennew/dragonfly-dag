@@ -27,7 +27,7 @@
         :line-shape="config.lineShape"
         :max-zoom-scale="config.maxZoomScale"
         :min-zoom-scale="config.minZoomScale"
-        :node-group="{linkIn: true, linkOut: false}"
+        :node-group="{linkIn: true, linkOut: true}"
         :show-arrow="config.showArrow"
         :show-edge-labels="config.showEdgeLabels"
         :grid-shape="config.gridShape"

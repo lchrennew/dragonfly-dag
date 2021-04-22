@@ -139,6 +139,8 @@ export default {
     'selected:moved',
     'edges:added',
     'nodes:added',
+    'node:selected',
+    'node:unselected',
   ],
   data() {
     canvasId++
@@ -383,9 +385,11 @@ export default {
       multiple
           ? (this.selected[id] = true)
           : (this.selected = { [id]: true })
+      this.$emit('node:selected', id)
     },
     onUnselect(id) {
       delete this.selected[id]
+      this.$emit('node:unselected', id)
     },
     clearSelection() {
       this.selected = {}
