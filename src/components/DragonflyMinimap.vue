@@ -30,7 +30,7 @@
                         <rect
                             :height="height / scale.value"
                             :width="width / scale.value"
-                            fill="#000"
+                            fill="#fff"
                             opacity="0.2"
                             :x="-offsetX / scale.value"
                             :y="-offsetY / scale.value"

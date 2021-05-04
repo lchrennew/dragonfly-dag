@@ -400,7 +400,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      backdrop-filter: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="blur"><feGaussianBlur stdDeviation="20"/></filter></svg>#blur');
+      backdrop-filter: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="blur"><feGaussianBlur stdDeviation="5"/></filter></svg>#blur');
       background-color: rgba(255, 255, 255, 0.3);
     }
 
@@ -443,7 +443,6 @@
 
       .map {
         position: relative;
-        background-color: #eee;
 
         .canvas {
           position: absolute;
@@ -469,7 +468,6 @@
 
         .viewport {
           position: absolute;
-          background-color: #000;
           opacity: 0.3;
           z-index: 2;
           cursor: move;
