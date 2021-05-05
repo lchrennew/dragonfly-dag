@@ -393,6 +393,7 @@
     height: 240px;
     display: flex;
     box-shadow: 0 0 20px 0 #00000010;
+    border-radius: 12px 0 0 0;
 
     &:before{
       content: '';
@@ -403,6 +404,7 @@
       right: 0;
       backdrop-filter: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="blur"><feGaussianBlur stdDeviation="5"/></filter></svg>#blur');
       background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 12px 0 0 0;
     }
 
     & > * {
@@ -445,6 +447,7 @@
 
       .map {
         position: relative;
+        background-color: rgba(0, 188, 212, 0.2);
 
         .canvas {
           position: absolute;
@@ -471,7 +474,7 @@
         .viewport {
           position: absolute;
           background-color: #000;
-          opacity: 0.3;
+          opacity: 0.1;
           z-index: 2;
           cursor: move;
         }

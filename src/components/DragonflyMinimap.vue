@@ -13,9 +13,10 @@
                             :width="width"
                             x="0"
                             y="0"
-                            stroke="#f00"
+                            stroke="#000"
                             stroke-opacity="0.5"
-                            fill="none"
+                            fill="#fff"
+                            opacity="0.8"
                             :stroke-width="4/scale.value"
                         />
                         <rect
