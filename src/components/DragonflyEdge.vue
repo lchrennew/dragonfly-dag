@@ -1,6 +1,6 @@
 <template>
     <component
-        :is="lineShape.value"
+        :is="lineShape"
         v-model:definition="definition"
         :position="{source, target}"
     />
@@ -11,14 +11,14 @@
           :marker-start="selected?'url(#anchor)':''"
           class="edge"
     />
-    <template v-if="!readOnly.value">
+    <template v-if="!readOnly">
         <path
             :d="definition"
             class="edge-area"
             @mousedown.left.prevent.stop="onMouseDown"
         />
     </template>
-    <line v-if="showArrow.value"
+    <line v-if="showArrow"
           :x1="arrowPoint1.x"
           :x2="arrowPoint2.x"
           :y1="arrowPoint1.y"
@@ -112,15 +112,15 @@ export default {
             return {source: this.source, target: this.target}
         },
         arrowPositionPercent() {
-            return this.arrowPosition.value / 100
+            return this.arrowPosition / 100
         },
         showLabel() {
-            return this.showEdgeLabels.value && (this.edge.showLabel ?? true) && this.edge.label
+            return this.showEdgeLabels && (this.edge.showLabel ?? true) && this.edge.label
         },
     },
     methods: {
         generateArrowPoints(pathLength, path) {
-            if (this.showArrow.value) {
+            if (this.showArrow) {
                 const arrowPointLength = pathLength * this.arrowPositionPercent
                 this.arrowPoint1 = path.getPointAtLength(Math.max(arrowPointLength - 1, 0)) ?? origin
                 this.arrowPoint2 = path.getPointAtLength(arrowPointLength) ?? origin
@@ -166,9 +166,9 @@ export default {
     },
     watch: {
         lineEnds: 'generatePoints',
-        'showArrow.value': 'generatePoints',
+        'showArrow': 'generatePoints',
         arrowPositionPercent: 'generatePoints',
-        'showEdgeLabels.value': 'generatePoints',
+        'showEdgeLabels': 'generatePoints',
     }
 }
 </script>

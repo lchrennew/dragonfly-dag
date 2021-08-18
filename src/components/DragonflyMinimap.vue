@@ -17,7 +17,7 @@
                             stroke-opacity="0.5"
                             fill="#fff"
                             opacity="0.8"
-                            :stroke-width="4/scale.value"
+                            :stroke-width="4/scale"
                         />
                         <rect
                             v-for="(value, id) in positions"
@@ -29,12 +29,12 @@
                             fill="#000"
                         />
                         <rect
-                            :height="height / scale.value"
-                            :width="width / scale.value"
+                            :height="height / scale"
+                            :width="width / scale"
                             fill="#000"
                             opacity="0.2"
-                            :x="-offsetX / scale.value"
-                            :y="-offsetY / scale.value"
+                            :x="-offsetX / scale"
+                            :y="-offsetY / scale"
                             cursor="move"
                             @mousedown.stop="onMouseDown"
                             @dragstart="onDragStart"
@@ -93,16 +93,16 @@ export default {
             })
         },
         mostLeft() {
-            return Math.min(0, -this.offsetX / this.scale.value, this.draggingSnapshot.left, ...this.positionArray.map(p => p.left))
+            return Math.min(0, -this.offsetX / this.scale, this.draggingSnapshot.left, ...this.positionArray.map(p => p.left))
         },
         mostRight() {
-            return Math.max(this.width, (this.width - this.offsetX) / this.scale.value, this.draggingSnapshot.right, ...this.positionArray.map(p => p.right))
+            return Math.max(this.width, (this.width - this.offsetX) / this.scale, this.draggingSnapshot.right, ...this.positionArray.map(p => p.right))
         },
         mostTop() {
-            return Math.min(0, -this.offsetY / this.scale.value, this.draggingSnapshot.top, ...this.positionArray.map(p => p.top))
+            return Math.min(0, -this.offsetY / this.scale, this.draggingSnapshot.top, ...this.positionArray.map(p => p.top))
         },
         mostBottom() {
-            return Math.max(this.height, (this.height - this.offsetY) / this.scale.value, this.draggingSnapshot.bottom, ...this.positionArray.map(p => p.bottom))
+            return Math.max(this.height, (this.height - this.offsetY) / this.scale, this.draggingSnapshot.bottom, ...this.positionArray.map(p => p.bottom))
         },
         fullWidth() {
             return this.mostRight - this.mostLeft
@@ -132,17 +132,17 @@ export default {
             return this.miniFullWidth / this.fullWidth || 1
         },
         miniViewportWidth() {
-            return this.width / this.scale.value * this.miniRate
+            return this.width / this.scale * this.miniRate
         },
         miniViewportHeight() {
-            return this.height / this.scale.value * this.miniRate
+            return this.height / this.scale * this.miniRate
         },
         offsetRange() {
             return {
                 maxOffsetX: -this.mostLeft,
                 maxOffsetY: -this.mostTop,
-                minOffsetX: -this.mostRight + this.width / this.scale.value,
-                minOffsetY: -this.mostBottom + this.height / this.scale.value,
+                minOffsetX: -this.mostRight + this.width / this.scale,
+                minOffsetY: -this.mostBottom + this.height / this.scale,
             }
         },
     },
@@ -168,7 +168,7 @@ export default {
             let debtName = `debt${axis}`
             let movement = event[`movement${axis}`]
             let debt = this[debtName]
-            let offset = this[`offset${axis}`] / this.scale.value - movement / this.miniRate
+            let offset = this[`offset${axis}`] / this.scale - movement / this.miniRate
 
             const {[`maxOffset${axis}`]: maxOffset, [`minOffset${axis}`]: minOffset,} = this.offsetRange
 
@@ -185,7 +185,7 @@ export default {
                 this[debtName] = debt
                 return
             }
-            this.$emit(`update:offset${axis}`, offset * this.scale.value)
+            this.$emit(`update:offset${axis}`, offset * this.scale)
         },
         onMouseMove(event) {
             if (this.dragging) {
@@ -226,8 +226,8 @@ export default {
         },
         onMapClick(event) {
             let {offsetX, offsetY} = event
-            this.$emit('update:offsetX', -this.mostLeft - offsetX / this.miniRate * this.scale.value + this.width / 2)
-            this.$emit('update:offsetY', -this.mostTop - offsetY / this.miniRate * this.scale.value + this.height / 2)
+            this.$emit('update:offsetX', -this.mostLeft - offsetX / this.miniRate * this.scale + this.width / 2)
+            this.$emit('update:offsetY', -this.mostTop - offsetY / this.miniRate * this.scale + this.height / 2)
             this.startDragging({x: this.miniViewportWidth / 2, y: this.miniViewportHeight / 2})
         },
     },

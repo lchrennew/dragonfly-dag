@@ -1,7 +1,9 @@
-import {createApp} from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import './index.less'
 import Antdv from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 
-createApp(App).use(Antdv).mount('#app')
+const app = createApp(App)
+app.config.unwrapInjectedRef = true
+app.use(Antdv).mount('#app')

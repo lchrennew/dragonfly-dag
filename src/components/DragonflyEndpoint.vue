@@ -68,12 +68,12 @@ export default {
     },
     computed: {
         linkable() {
-            if (this.readOnly.value) return false
-            switch (this.endpointDraggingBehavior.value) {
+            if (this.readOnly) return false
+            switch (this.endpointDraggingBehavior) {
                 case 'on':
                     return this.endpoint.linkable ?? true
                 case 'node':
-                    switch (this.nodeDraggingBehavior.value) {
+                    switch (this.nodeDraggingBehavior) {
                         case 'link':
                             return this.endpoint.linkable ?? true
                         default:
@@ -90,7 +90,7 @@ export default {
         combinedGroup() {
             return this.endpoint.group
                 ?? this.group
-                ?? this.endpointGroup.value(this.endpoint)
+                ?? this.endpointGroup(this.endpoint)
         },
 
         groupName() {
@@ -132,8 +132,8 @@ export default {
             }
         },
         position() {
-            const x = this.x + (this.nodePosition.value?.x ?? 0)
-            const y = this.y + (this.nodePosition.value?.y ?? 0)
+            const x = this.x + (this.nodePosition?.x ?? 0)
+            const y = this.y + (this.nodePosition?.y ?? 0)
             return {
                 width: this.width,
                 height: this.height,
@@ -153,7 +153,7 @@ export default {
             if (this.linkableOut) {
                 event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
                 this.startNodeLinking({
-                    source: this.node.value.id,
+                    source: this.node.id,
                     sourceEndpoint: this.endpoint.id,
                     sourceGroup: this.groupName
                 })
@@ -182,7 +182,7 @@ export default {
         onDragEnter(event) {
             this.targeted =
                 event.path.includes(event.toElement) &&
-                this.groupLinkIn(this.linkSource.value)
+                this.groupLinkIn(this.linkSource)
         },
         onDragLeave(event) {
             if (!event.path.includes(this.fromElement))
@@ -190,9 +190,9 @@ export default {
         },
         onDrop() {
             this.targeted = false
-            const target = this.node.value.id,
+            const target = this.node.id,
                 targetEndpoint = this.endpoint.id
-            this.groupLinkIn(this.linkSource.value) && this.link(target, targetEndpoint)
+            this.groupLinkIn(this.linkSource) && this.link(target, targetEndpoint)
         },
     },
     mounted() {

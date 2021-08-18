@@ -130,8 +130,8 @@ export default {
         },
 
         draggable() {
-            if (this.readOnly.value) return false
-            switch (this.nodeDraggingBehavior.value) {
+            if (this.readOnly) return false
+            switch (this.nodeDraggingBehavior) {
                 case 'move':
                     return this.node.movable ?? true
                 case 'link':
@@ -142,10 +142,10 @@ export default {
 
         },
         linkableIn() {
-            return (this.node.linkable ?? true) && this.groupLinkIn(this.linkSource.value ?? {})
+            return (this.node.linkable ?? true) && this.groupLinkIn(this.linkSource ?? {})
         },
         position() {
-            return this.positions.value[this.node.id]
+            return this.positions[this.node.id]
         },
         leftEndpoints() {
             return this.node.endpoints ? this.node.endpoints.filter(endpoint => !endpoint.orientation || (endpoint.orientation === 'left')) : undefined
@@ -163,8 +163,8 @@ export default {
     methods: {
         onMouseDown(event) {
             const rect = this.$el.getBoundingClientRect()
-            this.inDomOffset.x = (event.x - rect.x) / this.scale.value
-            this.inDomOffset.y = (event.y - rect.y) / this.scale.value
+            this.inDomOffset.x = (event.x - rect.x) / this.scale
+            this.inDomOffset.y = (event.y - rect.y) / this.scale
 
             if (this.selected) {
                 event.shiftKey && this.$emit('unselect', this.node.id)
@@ -173,7 +173,7 @@ export default {
             }
         },
         onNodeDragging(event) {
-            nodeDraggingBehaviorHandlers[this.nodeDraggingBehavior.value]?.[event.type]?.call(this, event)
+            nodeDraggingBehaviorHandlers[this.nodeDraggingBehavior]?.[event.type]?.call(this, event)
         },
         onNodeDrop(event) {
             this.targeted = false

@@ -7,7 +7,7 @@
                          :height="scaledSize"
                          patternUnits="userSpaceOnUse"
                 >
-                    <component :is="gridShape.value" :top="top" :left="left" :right="right" :bottom="bottom"
+                    <component :is="gridShape" :top="top" :left="left" :right="right" :bottom="bottom"
                                :size="scaledSize"/>
                 </pattern>
             </defs>
@@ -26,7 +26,7 @@ export default {
     inject: ['gridShape', 'scale'],
     computed: {
         scaledSize() {
-            let scale = this.scale.value
+            let scale = this.scale
             if (scale >= this.maxScale) {
                 do {
                     scale /= this.maxScale

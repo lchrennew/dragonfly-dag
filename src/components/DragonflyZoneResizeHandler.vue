@@ -46,7 +46,7 @@ export default {
                 y = this.top + fy * deltaY,
                 width = this.width + fw * deltaX,
                 height = this.height + fh * deltaY
-            const minWidth = this.minZoneWidth.value, minHeight = this.minZoneHeight.value
+            const minWidth = this.minZoneWidth, minHeight = this.minZoneHeight
             if (height < minHeight) {
                 y -= fy * (minHeight - height)
                 height = minHeight

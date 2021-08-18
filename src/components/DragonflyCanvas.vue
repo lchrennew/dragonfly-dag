@@ -453,8 +453,8 @@ export default {
       linkSource.value = null
     },
     async link(target, targetEndpoint) {
-      if (!linkSource.value) return
-      const { source, sourceEndpoint } = linkSource.value
+      if (!linkSource) return
+      const { source, sourceEndpoint } = linkSource
       if ((sourceEndpoint ?? source) === (targetEndpoint ?? target)) return
 
       const defaultEdge = {
@@ -535,7 +535,7 @@ export default {
       positions: computed(() => this.positions),
       arrowPosition: computed(() => this.arrowPosition),
       showArrow: computed(() => this.showArrow),
-      linkSource: computed(() => linkSource.value),
+      linkSource: computed(() => linkSource),
       nodeGroup: computed(() => this.normalizedNodeGroup),
       endpointGroup: computed(() => this.normalizedEndpointGroup),
       nodeDraggingBehavior: computed(() => this.nodeDraggingBehavior),

@@ -1,5 +1,5 @@
 <template>
-    <div class="dragonfly-scale">1 : {{ parseFloat(scale.value.toPrecision(3)) }}</div>
+    <div class="dragonfly-scale">1 : {{ parseFloat(scale.toPrecision(3)) }}</div>
 </template>
 
 <script>

@@ -13,7 +13,7 @@
              @dragleave.stop="onDragLeave">
             <slot :zone="zone"/>
         </div>
-        <template v-if="!readOnly.value && selected">
+        <template v-if="!readOnly && selected">
             <dragonfly-zone-resize-handler
                 v-for="orientation in ['se', 'sw', 'ne', 'nw']"
                 :key="orientation"
@@ -54,10 +54,10 @@ export default {
             return this.position?.y ?? 0
         },
         width() {
-            return this.position?.width ?? this.minZoneWidth.value
+            return this.position?.width ?? this.minZoneWidth
         },
         height() {
-            return this.position?.height ?? this.minZoneHeight.value
+            return this.position?.height ?? this.minZoneHeight
         },
         style() {
             return {
@@ -68,14 +68,14 @@ export default {
             }
         },
         draggable(){
-            return !this.readOnly.value
+            return !this.readOnly
         }
     },
     methods: {
         onMouseDown(event) {
             const rect = this.$el.getBoundingClientRect()
-            this.inDomOffset.x = (event.x - rect.x) / this.scale.value
-            this.inDomOffset.y = (event.y - rect.y) / this.scale.value
+            this.inDomOffset.x = (event.x - rect.x) / this.scale
+            this.inDomOffset.y = (event.y - rect.y) / this.scale
 
             if (this.selected) {
                 event.shiftKey && this.$emit('unselect', this.zone.id)

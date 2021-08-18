@@ -33,7 +33,7 @@
                 v-if="isVisible(edge)"
                 :edge="edge"
                 :line-shape="lineShape"
-                :selected="selected.value[edge.id]"
+                :selected="selected[edge.id]"
                 :source-endpoint="endpointPositions[edge.sourceEndpoint]"
                 :source-node="positions[edge.source]"
                 :target-endpoint="endpointPositions[edge.targetEndpoint]"
@@ -43,7 +43,7 @@
         </template>
         <dragonfly-linking-edge
             v-if="linking"
-            :line-shape="linkingLineShape.value"
+            :line-shape="linkingLineShape"
             :source="linkingSource"
             :target="linkingTarget"/>
     </svg>
