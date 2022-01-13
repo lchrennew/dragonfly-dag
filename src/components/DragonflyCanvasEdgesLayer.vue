@@ -1,26 +1,29 @@
 <template>
     <svg class="dragonfly-edges-layer" xmlns="http://www.w3.org/2000/svg">
-        <defs v-if="showArrow">
-            <marker id="arrow"
-                    :viewBox="`0 0 ${6/arrowZoomRatio} ${6/arrowZoomRatio}`"
-                    markerHeight="18"
-                    markerUnits="userSpaceOnUse"
-                    markerwidth="18"
-                    orient="auto"
-                    overflow="visible"
-                    refX="18"
-                    refY="9"
+        <defs>
+            <marker
+                v-if="showArrow"
+                id="arrow"
+                :viewBox="`0 0 ${6/arrowZoomRatio} ${6/arrowZoomRatio}`"
+                markerHeight="18"
+                markerUnits="userSpaceOnUse"
+                markerwidth="18"
+                orient="auto"
+                overflow="visible"
+                refX="18"
+                refY="9"
             >
                 <path class="arrow" d="M 0,0 L 0,18 L 18,9 Z"/>
             </marker>
-            <marker id="anchor"
-                    :viewBox="`0 0 6 6`"
-                    markerHeight="18"
-                    markerUnits="userSpaceOnUse"
-                    markerwidth="18"
-                    overflow="visible"
-                    refX="9"
-                    refY="9"
+            <marker
+                id="anchor"
+                :viewBox="`0 0 6 6`"
+                markerHeight="18"
+                markerUnits="userSpaceOnUse"
+                markerwidth="18"
+                overflow="visible"
+                refX="9"
+                refY="9"
             >
                 <path class="anchor" d="M 0,0 L 0,18 L 18,18 L 18,0 Z"/>
             </marker>

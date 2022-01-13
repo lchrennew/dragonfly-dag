@@ -78,9 +78,9 @@ export default {
             this.inDomOffset.y = (event.y - rect.y) / this.scale
 
             if (this.selected) {
-                event.shiftKey && this.$emit('unselect', this.zone.id)
+                event.shiftKey && this.$emit('unselect', this.zone.id, 'zone')
             } else {
-                this.$emit('select', {id: this.zone.id, multiple: event.shiftKey})
+                this.$emit('select', {id: this.zone.id, multiple: event.shiftKey, type: 'zone'})
             }
         },
         onDragStart(event) {

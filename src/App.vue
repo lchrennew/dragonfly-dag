@@ -13,7 +13,7 @@
         v-model:canvas-dragging="config.canvasDragging"
         v-model:canvas-wheeling="config.canvasWheeling"
         v-model:edges-data="edges"
-        v-model:layout="layout"
+        :positions="layout"
         v-model:node-dragging="config.nodeDragging"
         v-model:nodes-data="nodes"
         v-model:zones-data="zones"
@@ -39,6 +39,7 @@
         show-scale
         auto-layout
         @dblclick.stop.prevent="onDblClick"
+        @node:selected="onNodeSelected"
     >
       <template #nodeRenderer="{node}">
         <div class="node">Hi, {{ node.id }}</div>
@@ -70,97 +71,92 @@
   <canvas-data :edges="edges" :layout="layout" :nodes="nodes" :zones="zones"/>
 </template>
 
-<script>
-import { ref, shallowRef } from 'vue'
+<script setup>
+import { getCurrentInstance, nextTick, reactive, shallowRef } from "vue";
 import { DotGrid, DragonflyCanvas, DragonflyEndpoint, StraightLine, } from '../build'
 import CanvasConfig from './CanvasConfig.vue';
 import CanvasData from './CanvasData.vue';
 import './components/dragonfly-dag.less'
 
-export default {
-  name: 'App',
-  components: {
-    DragonflyEndpoint,
-    CanvasData,
-    CanvasConfig,
-    DragonflyCanvas
-  },
-  data() {
-    return {
-      config: {
-        zoomScale: ref(1),
-        minZoomScale: ref(0.1),
-        maxZoomScale: ref(5),
-        zoomSensitivity: ref(0.001),
-        layout: {
-          rankdir: 'TB',
-          marginx: 40,
-          marginy: 40,
-        },
-        showArrow: ref(false),
-        arrowZoomRatio: ref(1),
-        arrowPosition: ref(100),
-        canvasDragging: ref('select'),
-        nodeDragging: ref('move'),
-        canvasWheeling: ref('zoom'),
-        endpointDragging: ref('on'),
-        lineShape: shallowRef(StraightLine),
-        showEdgeLabels: ref(false),
-        gridSize: ref(20),
-        maxGridScale: ref(2),
-        minGridScale: ref(0.5),
-        gridShape: shallowRef(DotGrid)
-      },
-      feed: 1,
-      nodes: [{ id: 's1', status: 'queueing' }, { id: 's2', status: 'queueing' }],
-      edges: [{ id: 's1-succeeded-s2', source: 's1', target: 's2' }],
-      zones: [],
-      layout: {},
-    }
-  },
-  methods: {
-    addNode() {
-      // DON'T DO THIS
-      this.nodes.push({ id: `${this.feed}` })
+const current = getCurrentInstance()
 
-      // DO THIS
-      // this.nodes = [...this.nodes, {id: `${this.feed}`}]
-      this.feed++
-    },
-    addZone() {
-      this.zones.push({ id: `${this.feed}` })
-      this.feed++
-    },
-    async onAddingEdge({ source, target, sourceEndpoint, targetEndpoint }) {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          resolve({
-            id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
-            source,
-            target,
-            sourceEndpoint,
-            targetEndpoint,
-            label: (sourceEndpoint ?? source).split('-')[1]
-          }) // 用自定义数据连接
-          // resolve(false)   // 取消连接
-          // resolve(undefined)  // 用默数据连接
-        }, 100)
-      })
-    },
-    autoLayout() {
-      this.$refs.canvas.resetLayout()
-    },
-    onDblClick(event) {
-      const axis = this.$refs.canvas.translateMouseEvent(event)
-      if (axis) {
-        this.nodes = [...this.nodes, { id: 's3' }]
-        this.$nextTick(() => {
-          this.layout['s3'] = { ...this.layout['s3'], ...axis }
-        })
-      }
-    }
-  }
+const config = reactive({
+  zoomScale: 1,
+  minZoomScale: 0.1,
+  maxZoomScale: 5,
+  zoomSensitivity: 0.001,
+  layout: {
+    rankdir: 'TB',
+    marginx: 40,
+    marginy: 40,
+  },
+  showArrow: false,
+  arrowZoomRatio: 1,
+  arrowPosition: 100,
+  canvasDragging: 'select',
+  nodeDragging: 'move',
+  canvasWheeling: 'zoom',
+  endpointDragging: 'on',
+  lineShape: shallowRef(StraightLine),
+  showEdgeLabels: false,
+  gridSize: 20,
+  maxGridScale: 2,
+  minGridScale: 0.5,
+  gridShape: shallowRef(DotGrid)
+})
+
+const nodes = reactive([ { id: 's1', status: 'queueing' }, { id: 's2', status: 'queueing' } ])
+const edges = reactive([ { id: 's1-succeeded-s2', source: 's1', target: 's2' } ])
+const zones = reactive([])
+const layout = reactive({})
+
+const addNode = () => {
+  // DON'T DO THIS
+  nodes.push({ id: `${feed}` })
+
+  // DO THIS
+  // this.nodes = [...this.nodes, {id: `${feed}`}]
+  feed++
 }
+const addZone = () => {
+  zones.push({ id: `${feed}` })
+  feed++
+}
+
+
+const onAddingEdge = async ({ source, target, sourceEndpoint, targetEndpoint }) => new Promise(resolve => {
+  setTimeout(() => {
+    resolve({
+      id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
+      source,
+      target,
+      sourceEndpoint,
+      targetEndpoint,
+      label: (sourceEndpoint ?? source).split('-')[1]
+    }) // 用自定义数据连接
+    // resolve(false)   // 取消连接
+    // resolve(undefined)  // 用默数据连接
+  }, 100)
+})
+
+const autoLayout = () => current.refs.canvas.resetLayout()
+
+const onDblClick = event => {
+  const axis = current.refs.canvas.translateMouseEvent(event)
+  if (axis) {
+    nodes.push({ id: 's3' })
+    nextTick(() => layout['s3'] = { ...layout['s3'], ...axis })
+  }
+};
+
+const onNodeSelected = event => {
+  console.log(event)
+}
+
+</script>
+
+<script>
+let feed = 1
 </script>
 <style lang="less">
 .node {

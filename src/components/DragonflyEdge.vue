@@ -155,9 +155,9 @@ export default {
         },
         onMouseDown(event) {
             if (this.selected) {
-                this.onUnselect(this.edge.id)
+                this.onUnselect(this.edge.id, 'edge')
             } else {
-                this.onSelect({id: this.edge.id, multiple: event.shiftKey})
+                this.onSelect({id: this.edge.id, multiple: event.shiftKey, type: 'edge'})
             }
         }
     },

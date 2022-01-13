@@ -139,8 +139,15 @@ export default {
     'selected:moved',
     'edges:added',
     'nodes:added',
+
     'node:selected',
     'node:unselected',
+
+    'edge:selected',
+    'edge:unselected',
+
+    'zone:selected',
+    'zone:unselected',
   ],
   data() {
     canvasId++
@@ -151,7 +158,6 @@ export default {
       offsetY: 0,
       width: 0,
       height: 0,
-      positions: this.layout ?? {},
       endpointPositions: {}, // 存锚点相对于节点的位置
       selected: {},
       linkingSource: { x: 0, y: 0 },
@@ -170,16 +176,16 @@ export default {
       historyHead: 0,
       movingSource: null,
       movingTarget: null,
-      zones: [...this.zonesData ?? []],
-      nodes: [...this.nodesData ?? []],
-      edges: [...this.edgesData ?? []],
+      zones: [ ...this.zonesData ?? [] ],
+      nodes: [ ...this.nodesData ?? [] ],
+      edges: [ ...this.edgesData ?? [] ],
     }
   },
   props: {
-    nodesData: { type: Array, default: [] },
-    edgesData: { type: Array, default: [], },
-    zonesData: { type: Array, default: [] },
-    layout: { type: Object, default: {} },
+    nodesData: { type: Array, default: () => [] },
+    edgesData: { type: Array, default: () => [], },
+    zonesData: { type: Array, default: () => [] },
+    positions: { type: Object, default: () => ({}) },
     zoomSensitivity: { type: Number, default: 0.001, },
     zoomScale: { type: Number, },
     maxZoomScale: { type: Number, default: 5, },
@@ -189,8 +195,8 @@ export default {
     arrowZoomRatio: { type: Number, default: 1 }, // 箭头显示大小的倍率
     arrowPosition: { type: Number, default: 100 },
     beforeAddEdgeHook: { type: Function, }, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
-    nodeGroup: { type: [String, Object, Function] },
-    endpointGroup: { type: [String, Object, Function] },
+    nodeGroup: { type: [ String, Object, Function ] },
+    endpointGroup: { type: [ String, Object, Function ] },
     canvasDragging: { type: String, default: 'off' },
     nodeDragging: { type: String, default: 'off' },
     endpointDragging: { type: String, default: 'off' }, // off | node | on
@@ -276,7 +282,7 @@ export default {
           positions: Object.fromEntries(deleted.map(({ id }) => {
             const position = this.positions[id]
             delete this.positions[id]
-            return [id, position]
+            return [ id, position ]
           })),
           edges: this.edges.filter(({ source, target }) => this.selected[source] || this.selected[target]),
         },)
@@ -301,7 +307,7 @@ export default {
     onKeyDown(event) {
       if (this.readOnly) return
       if (event.target === this.$refs.canvas) {
-        if (['Backspace', 'Delete'].includes(event.code)) {
+        if ([ 'Backspace', 'Delete' ].includes(event.code)) {
           this.deleteSelectedNodes()
           this.deleteSelectedEdges()
           this.deleteSelectedZones()
@@ -359,15 +365,14 @@ export default {
     },
 
     resetLayout(overwrite = true) {
-      const layout = dagreLayout([...this.nodes, ...this.zones], this.positions, this.edges, this.layoutConfig)
+      const layout = dagreLayout([ ...this.nodes, ...this.zones ], this.positions, this.edges, this.layoutConfig)
       const positions = layout._nodes
       for (let { id } of this.nodes) {
         let { width, height, x, y } = positions[id]
         x -= width / 2
         y -= height / 2
-        positions[id] = { x, y, width, height, ...overwrite ? undefined : this.positions[id] }
+        this.positions[id] = { x, y, width, height, ...overwrite ? undefined : this.positions[id] }
       }
-      this.positions = positions
     },
 
     preSelect(shiftKey) {
@@ -380,16 +385,16 @@ export default {
         this.preSelected[nodeId] = shiftKey ? shiftStrategies.reverse(selected, selecting) : selecting
       }
     },
-    onSelect({ id, multiple }) {
+    onSelect({ id, multiple, type = 'node' }) {
       this.$refs.canvas.focus({ preventScroll: true })
       multiple
           ? (this.selected[id] = true)
           : (this.selected = { [id]: true })
-      this.$emit('node:selected', id)
+      this.$emit(`${type}:selected`, id)
     },
-    onUnselect(id) {
+    onUnselect(id, type = 'node') {
       delete this.selected[id]
-      this.$emit('node:unselected', id)
+      this.$emit(`${type}:unselected`, id)
     },
     clearSelection() {
       this.selected = {}
@@ -412,7 +417,7 @@ export default {
       }
     },
     stopNodeMoving() {
-      this.movingTarget = Object.fromEntries(Object.keys(this.selected).filter(id => this.selected[id]).map(id => [id, this.positions[id]]))
+      this.movingTarget = Object.fromEntries(Object.keys(this.selected).filter(id => this.selected[id]).map(id => [ id, this.positions[id] ]))
       this.log('selected:moved', { source: this.movingSource, target: this.movingTarget })
       this.movingSource = this.movingTarget = null
     },
@@ -453,8 +458,8 @@ export default {
       linkSource.value = null
     },
     async link(target, targetEndpoint) {
-      if (!linkSource) return
-      const { source, sourceEndpoint } = linkSource
+      if (!linkSource.value) return
+      const { source, sourceEndpoint } = linkSource.value
       if ((sourceEndpoint ?? source) === (targetEndpoint ?? target)) return
 
       const defaultEdge = {
@@ -468,7 +473,7 @@ export default {
           await this.beforeAddEdgeHook?.(defaultEdge) ?? defaultEdge
 
       if (edge) {
-        this.edges = [...this.edges, edge]
+        this.edges = [ ...this.edges, edge ]
         this.log('edges:added', { edge, defaultEdge })
       } else {
         this.$emit('edges:adding-cancelled', { edge, defaultEdge })
@@ -484,15 +489,15 @@ export default {
       const movingSource = Object.fromEntries(
           Object.keys(this.selected)
               .filter(id => this.selected[id])
-              .map(id => [id, { ...this.positions[id] }]))
+              .map(id => [ id, { ...this.positions[id] } ]))
       this.zones.forEach(({ id: zoneId }) => {
         if (movingSource[zoneId]) {
           const position = movingSource[zoneId]
           for (const { id } of this.nodes) {
             if (!movingSource[id] && id !== zoneId) {
               const { x, y, width, height } = this.positions[id]
-              const rect1 = [[position?.x ?? 0, position?.y ?? 0], [(position?.x ?? 0) + (position?.width ?? this.minZoneWidth), (position?.y ?? 0) + (position?.height ?? this.minZoneHeight)]]
-              const rect2 = [[x, y], [x + width, y + height]]
+              const rect1 = [ [ position?.x ?? 0, position?.y ?? 0 ], [ (position?.x ?? 0) + (position?.width ?? this.minZoneWidth), (position?.y ?? 0) + (position?.height ?? this.minZoneHeight) ] ]
+              const rect2 = [ [ x, y ], [ x + width, y + height ] ]
               const { r2 } = intersect(rect1, rect2)
               const inZone = r2 === 1
               inZone && (movingSource[id] = { x, y, width, height })
@@ -514,7 +519,7 @@ export default {
       })
     },
     stopZoneMoving() {
-      this.movingTarget = Object.fromEntries(Object.keys(this.movingSource).map(id => [id, this.positions[id]]))
+      this.movingTarget = Object.fromEntries(Object.keys(this.movingSource).map(id => [ id, this.positions[id] ]))
       this.$emit('selected:moved', { source: this.movingSource, target: this.movingTarget })
       this.movingSource = this.movingTarget = null
     }
@@ -602,22 +607,13 @@ export default {
     endpointDragging(value) {
       this.endpointDraggingBehavior = value
     },
-    layout(value) {
-      this.positions = value
-    },
-    positions: {
-      deep: true,
-      handler(value) {
-        this.$emit('update:layout', value)
-      }
-    },
     nodesData: {
       deep: true,
       handler(value) {
-        const hash = Object.fromEntries(this.nodes.map(({ id }) => [id, true]))
+        const hash = Object.fromEntries(this.nodes.map(({ id }) => [ id, true ]))
         const added = value.filter(({ id }) => !hash[id])
         added.length && this.log('nodes:added', added)
-        this.nodes = [...value]
+        this.nodes = [ ...value ]
       }
     },
     nodes: {
@@ -631,7 +627,7 @@ export default {
     zonesData: {
       deep: true,
       handler(value) {
-        this.zones = [...value]
+        this.zones = [ ...value ]
       }
     },
     zones: {
@@ -653,7 +649,7 @@ export default {
     edgesData: {
       deep: true,
       handler(value) {
-        this.edges = [...value]
+        this.edges = [ ...value ]
       }
     }
   }

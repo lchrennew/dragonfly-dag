@@ -15,14 +15,14 @@
         <p>
             显示连线标签
             <a-switch
-                :default-checked="showEdgeLabels"
+                :checked="showEdgeLabels"
                 @change="$emit('update:showEdgeLabels', $event)"
             />
         </p>
         <p>
             显示箭头
             <a-switch
-                :default-checked="showArrow"
+                :checked="showArrow"
                 @change="$emit('update:showArrow', $event)"
             />
         </p>
