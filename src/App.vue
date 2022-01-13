@@ -18,7 +18,7 @@
         v-model:nodes-data="dataSet.nodes"
         v-model:zones-data="dataSet.zones"
         v-model:zoom-scale="config.zoomScale"
-        v-model:endpoint-dragging="config.endponitDragging"
+        v-model:endpoint-dragging="config.endpointDragging"
         :arrow-position="config.arrowPosition"
         :arrow-zoom-ratio="config.arrowZoomRatio"
         :before-add-edge-hook="onAddingEdge"
@@ -107,7 +107,7 @@ const config = reactive({
 
 const dataSet = reactive({
   nodes: [ { id: 's1', status: 'queueing' }, { id: 's2', status: 'queueing' } ],
-  edges: [ { id: 's1-succeeded-s2', source: 's1', target: 's2' } ],
+  edges: [],
   zones: [],
   positions: {}
 })
