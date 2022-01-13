@@ -103,7 +103,6 @@ import DragonflyZone from './DragonflyZone.vue';
 import StraightLine from './edge/StraightLine.vue';
 import ZigZagLine from './edge/ZigZagLine.vue';
 import DotGrid from './grid/DotGrid.vue';
-import historyTraveller from './historyTraveller';
 import shiftStrategies from './shiftStrategies';
 
 let linkSource = ref(null)
@@ -176,9 +175,6 @@ export default {
       historyHead: 0,
       movingSource: null,
       movingTarget: null,
-      zones: [ ...this.zonesData ?? [] ],
-      nodes: [ ...this.nodesData ?? [] ],
-      edges: [ ...this.edgesData ?? [] ],
     }
   },
   props: {
@@ -217,6 +213,36 @@ export default {
     readOnly: { type: Boolean, default: false },
   },
   computed: {
+    nodes: {
+      get() {
+        return this.nodesData ?? []
+      },
+      set(value) {
+        if (JSON.stringify(value) !== JSON.stringify(this.nodesData)) {
+          this.$emit('update:nodesData', value)
+        }
+      }
+    },
+    edges: {
+      get() {
+        return this.edgesData ?? []
+      },
+      set(value) {
+        if (JSON.stringify(value) !== JSON.stringify(this.edgesData)) {
+          this.$emit('update:edgesData', value)
+        }
+      }
+    },
+    zones: {
+      get() {
+        return this.zonesData ?? []
+      },
+      set(value) {
+        if (JSON.stringify(value) !== JSON.stringify(this.zonesData))
+          this.$emit('update:zonesData', value)
+      }
+    },
+
     canvasStyle() {
       return {
         transform: `scale(${this.scale})`,
@@ -253,39 +279,9 @@ export default {
     }
   },
   methods: {
-    log(type, payload) {
-      this.history.length = this.historyHead
-      this.history.push({ type, payload })
-      this.historyHead++
-      this.$emit(type, payload)
-    },
-    undo() {
-      if (this.historyHead) {
-        this.historyHead--
-        const { type, payload } = this.history[this.historyHead]
-        historyTraveller[type]?.back?.call?.(this, payload)
-      }
-    },
-    redo() {
-      const log = this.history[this.historyHead]
-      if (log) {
-        const { type, payload } = log
-        this.historyHead++
-        historyTraveller[type]?.forward?.call?.(this, payload)
-      }
-    },
     deleteSelectedNodes() {
       const deleted = this.nodes.filter(({ id }) => this.selected[id])
       if (deleted.length) {
-        this.log('nodes:deleted', {
-          nodes: deleted,
-          positions: Object.fromEntries(deleted.map(({ id }) => {
-            const position = this.positions[id]
-            delete this.positions[id]
-            return [ id, position ]
-          })),
-          edges: this.edges.filter(({ source, target }) => this.selected[source] || this.selected[target]),
-        },)
         this.nodes = this.nodes.filter(({ id }) => !this.selected[id])
         this.edges = this.edges.filter(({ source, target }) => !this.selected[source] && !this.selected[target])
       }
@@ -293,14 +289,12 @@ export default {
     deleteSelectedEdges() {
       const deleted = this.edges.filter(({ id }) => this.selected[id])
       if (deleted.length) {
-        this.log('edges:deleted', deleted)
         this.edges = this.edges.filter(({ id }) => !this.selected[id])
       }
     },
     deleteSelectedZones() {
       const deleted = this.zones.filter(({ id }) => this.selected[id])
       if (deleted.length) {
-        this.log('zones:deleted', this.zones.filter(({ id }) => this.selected[id]))
         this.zones = this.zones.filter(({ id }) => !this.selected[id])
       }
     },
@@ -311,10 +305,6 @@ export default {
           this.deleteSelectedNodes()
           this.deleteSelectedEdges()
           this.deleteSelectedZones()
-        } else if (event.ctrlKey && event.code === 'KeyZ') {
-          this.undo()
-        } else if (event.ctrlKey && event.code === 'KeyY') {
-          this.redo()
         }
       }
     },
@@ -418,7 +408,6 @@ export default {
     },
     stopNodeMoving() {
       this.movingTarget = Object.fromEntries(Object.keys(this.selected).filter(id => this.selected[id]).map(id => [ id, this.positions[id] ]))
-      this.log('selected:moved', { source: this.movingSource, target: this.movingTarget })
       this.movingSource = this.movingTarget = null
     },
     startNodeLinking({ source, sourceEndpoint, sourceGroup }) {
@@ -474,7 +463,6 @@ export default {
 
       if (edge) {
         this.edges = [ ...this.edges, edge ]
-        this.log('edges:added', { edge, defaultEdge })
       } else {
         this.$emit('edges:adding-cancelled', { edge, defaultEdge })
       }
@@ -607,51 +595,6 @@ export default {
     endpointDragging(value) {
       this.endpointDraggingBehavior = value
     },
-    nodesData: {
-      deep: true,
-      handler(value) {
-        const hash = Object.fromEntries(this.nodes.map(({ id }) => [ id, true ]))
-        const added = value.filter(({ id }) => !hash[id])
-        added.length && this.log('nodes:added', added)
-        this.nodes = [ ...value ]
-      }
-    },
-    nodes: {
-      deep: true,
-      handler(value, oldValue) {
-        if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
-          this.$emit('update:nodesData', value)
-        }
-      }
-    },
-    zonesData: {
-      deep: true,
-      handler(value) {
-        this.zones = [ ...value ]
-      }
-    },
-    zones: {
-      deep: true,
-      handler(value, oldValue) {
-        if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
-          this.$emit('update:zonesData', value)
-        }
-      }
-    },
-    edges: {
-      deep: true,
-      handler(value, oldValue) {
-        if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
-          this.$emit('update:edgesData', value)
-        }
-      }
-    },
-    edgesData: {
-      deep: true,
-      handler(value) {
-        this.edges = [ ...value ]
-      }
-    }
   }
 }
 </script>

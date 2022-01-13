@@ -12,11 +12,11 @@
         ref="canvas"
         v-model:canvas-dragging="config.canvasDragging"
         v-model:canvas-wheeling="config.canvasWheeling"
-        v-model:edges-data="edges"
-        :positions="layout"
-        v-model:node-dragging="config.nodeDragging"
-        v-model:nodes-data="nodes"
-        v-model:zones-data="zones"
+        :positions="dataSet.positions"
+        :node-dragging="config.nodeDragging"
+        v-model:edges-data="dataSet.edges"
+        v-model:nodes-data="dataSet.nodes"
+        v-model:zones-data="dataSet.zones"
         v-model:zoom-scale="config.zoomScale"
         v-model:endpoint-dragging="config.endponitDragging"
         :arrow-position="config.arrowPosition"
@@ -68,7 +68,7 @@
       v-model:show-edge-labels="config.showEdgeLabels"
       v-model:zoom-scale="config.zoomScale"
   />
-  <canvas-data :edges="edges" :layout="layout" :nodes="nodes" :zones="zones"/>
+  <canvas-data v-bind="dataSet"/>
 </template>
 
 <script setup>
@@ -105,21 +105,23 @@ const config = reactive({
   gridShape: shallowRef(DotGrid)
 })
 
-const nodes = reactive([ { id: 's1', status: 'queueing' }, { id: 's2', status: 'queueing' } ])
-const edges = reactive([ { id: 's1-succeeded-s2', source: 's1', target: 's2' } ])
-const zones = reactive([])
-const layout = reactive({})
+const dataSet = reactive({
+  nodes: [ { id: 's1', status: 'queueing' }, { id: 's2', status: 'queueing' } ],
+  edges: [ { id: 's1-succeeded-s2', source: 's1', target: 's2' } ],
+  zones: [],
+  positions: {}
+})
 
 const addNode = () => {
   // DON'T DO THIS
-  nodes.push({ id: `${feed}` })
+  // dataSet.nodes.push({ id: `${feed}` })
 
   // DO THIS
-  // this.nodes = [...this.nodes, {id: `${feed}`}]
+  dataSet.nodes = [ ...dataSet.nodes, { id: `${feed}` } ]
   feed++
 }
 const addZone = () => {
-  zones.push({ id: `${feed}` })
+  ([]).push({ id: `${feed}` })
   feed++
 }
 
@@ -144,15 +146,17 @@ const autoLayout = () => current.refs.canvas.resetLayout()
 const onDblClick = event => {
   const axis = current.refs.canvas.translateMouseEvent(event)
   if (axis) {
-    nodes.push({ id: 's3' })
-    nextTick(() => layout['s3'] = { ...layout['s3'], ...axis })
+    dataSet.nodes = [ ...dataSet.nodes, { id: 's3' } ]
+    nextTick(() => dataSet.positions['s3'] = { ...dataSet.positions['s3'], ...axis })
   }
 };
 
 const onNodeSelected = event => {
   console.log(event)
 }
-
+const onNodeAdded = event => {
+  console.log(event)
+}
 </script>
 
 <script>
