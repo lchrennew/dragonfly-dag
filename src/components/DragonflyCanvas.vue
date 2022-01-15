@@ -1,21 +1,547 @@
+<script>
+let feed = 0
+</script>
+
+<script setup>
+import { computed, defineExpose, getCurrentInstance, inject, onMounted, provide, reactive, ref } from 'vue'
+import dagreLayout from '../layout/dagreLayout';
+import { intersect } from '../utils/intersectHelper';
+import getCanvasDraggingHandlers from './canvasDraggingBehaviorHandlers';
+import getCanvasWheelingHandlers from './canvasWheelingBehaviorHandlers';
+import DragonflyCanvasEdgesLayer from './DragonflyCanvasEdgesLayer.vue';
+import DragonflyGrid from './DragonflyGrid.vue';
+import DragonflyMinimap from './DragonflyMinimap.vue';
+import DragonflyNode from './DragonflyNode.vue';
+import DragonflyScale from './DragonflyScale.vue';
+import DragonflyZone from './DragonflyZone.vue';
+import StraightLine from './edge/StraightLine.vue';
+import ZigZagLine from './edge/ZigZagLine.vue';
+import DotGrid from './grid/DotGrid.vue';
+import shiftStrategies from './shiftStrategies';
+
+const canvasId = feed++
+const linkSource = ref(null);
+
+const current = getCurrentInstance()
+
+const emit = defineEmits([
+  'edges:adding-cancelled',
+  'selected:moved',
+  'update:zoomScale',
+  'update:nodeDragging',
+  'update:canvasDragging',
+  'update:canvasWheeling',
+  'update:endpointDragging',
+  'update:layout',
+  'update:edgesData',
+  'update:nodesData',
+  'update:zonesData',
+  'nodes:deleted',
+  'edges:deleted',
+  'zones:deleted',
+  'selected:moved',
+  'edges:added',
+  'nodes:added',
+
+  'node:selected',
+  'node:unselected',
+
+  'edge:selected',
+  'edge:unselected',
+
+  'zone:selected',
+  'zone:unselected',
+])
+
+const selected = inject('selected')
+const multipleSelected = inject('multipleSelected')
+const selectAgain = inject('selectAgain')
+const selectMore = inject('selectMore')
+const unselect = inject('unselect')
+
+const props = defineProps({
+  nodesData: { type: Array, default: () => [] },
+  edgesData: { type: Array, default: () => [], },
+  zonesData: { type: Array, default: () => [] },
+  positions: { type: Object, default: () => reactive({}) },
+  zoomSensitivity: { type: Number, default: 0.001, },
+  zoomScale: { type: Number, },
+  maxZoomScale: { type: Number, default: 5, },
+  minZoomScale: { type: Number, default: 0.5, },
+  layoutConfig: { type: Object, default: () => ({}) },
+  showArrow: { type: Boolean, default: true, },
+  arrowZoomRatio: { type: Number, default: 1 }, // 箭头显示大小的倍率
+  arrowPosition: { type: Number, default: 100 },
+  beforeAddEdgeHook: { type: Function, }, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
+  nodeGroup: { type: [ String, Object, Function ] },
+  endpointGroup: { type: [ String, Object, Function ] },
+  canvasDragging: { type: String, default: 'off' },
+  nodeDragging: { type: String, default: 'off' },
+  endpointDragging: { type: String, default: 'off' }, // off | node | on
+  canvasWheeling: { type: String, default: 'off' },
+  lineShape: { default: StraightLine },
+  linkingLineShape: { default: StraightLine },
+  showEdgeLabels: { type: Boolean, default: true },
+  minZoneWidth: { type: Number, default: 120 },
+  minZoneHeight: { type: Number, default: 80 },
+  gridShape: { default: DotGrid },
+  gridSize: { type: Number, default: 10 },
+  minGridScale: { type: Number, default: 0.5 },
+  maxGridScale: { type: Number, default: 5 },
+  autoLayout: { type: Boolean, default: false },
+  showMinimap: { type: Boolean, default: false },
+  showScale: { type: Boolean, defualt: false },
+  showGrid: { type: Boolean, default: false },
+  readOnly: { type: Boolean, default: false },
+})
+
+const data = reactive({
+  dragging: false,
+  scale: props.zoomScale ?? 1,
+  offsetX: 0,
+  offsetY: 0,
+  width: 0,
+  height: 0,
+  endpointPositions: {}, // 存锚点相对于节点的位置
+  linkingSource: { x: 0, y: 0 },
+  linkingTarget: { x: 0, y: 0 },
+  draggingSource: { x: 0, y: 0 },
+  draggingTarget: { x: 0, y: 0 },
+  preSelected: {},
+  linking: false,
+  nodeDraggingBehavior: props.nodeDragging,
+  canvasDraggingBehavior: props.canvasDragging,
+  canvasWheelingBehavior: props.canvasWheeling,
+  endpointDraggingBehavior: props.endpointDragging,
+  nodesInZone: {},
+  history: [],
+  historyHead: 0,
+  movingSource: null,
+  movingTarget: null,
+})
+
+const normalizedEndpointGroup = computed(() =>
+    props.endpointGroup instanceof Function
+        ? props.endpointGroup
+        : () => props.endpointGroup);
+
+const normalizedNodeGroup = computed(() =>
+    props.nodeGroup instanceof Function
+        ? props.nodeGroup
+        : () => props.nodeGroup);
+
+const draggingAreaStyle = computed(() => {
+  const width = `${draggingArea.value.width}px`
+  const height = `${draggingArea.value.height}px`
+  const top = `${draggingArea.value.top}px`
+  const left = `${draggingArea.value.left}px`
+  return { width, height, top, left, }
+});
+
+const draggingArea = computed(() => {
+  const width = Math.abs(data.draggingSource.x - data.draggingTarget.x)
+  const height = Math.abs(data.draggingSource.y - data.draggingTarget.y)
+  const top = Math.min(data.draggingSource.y, data.draggingTarget.y)
+  const left = Math.min(data.draggingSource.x, data.draggingTarget.x)
+  return { width, height, top, left, }
+});
+
+const canvasStyle = computed(() => ({
+  transform: `scale(${data.scale})`,
+  top: `${data.offsetY}px`,
+  left: `${data.offsetX}px`
+}));
+
+const nodes = computed({
+  get() {
+    return props.nodesData ?? []
+  },
+  set(value) {
+    if (JSON.stringify(value) !== JSON.stringify(props.nodesData)) {
+      emit('update:nodesData', value)
+    }
+  }
+})
+const edges = computed({
+  get() {
+    return props.edgesData ?? []
+  },
+  set(value) {
+    if (JSON.stringify(value) !== JSON.stringify(props.edgesData)) {
+      emit('update:edgesData', value)
+    }
+  }
+})
+const zones = computed({
+  get() {
+    return props.zonesData ?? []
+  },
+  set(value) {
+    if (JSON.stringify(value) !== JSON.stringify(props.zonesData))
+      emit('update:zonesData', value)
+  }
+})
+const zoomScale = computed({
+  get() {
+    return props.zoomScale ?? data.scale
+  },
+  set(value) {
+    data.scale = value
+    emit('update:zoomScale', value)
+  }
+})
+
+const stopZoneMoving = () => {
+  data.movingTarget = Object.fromEntries(Object.keys(data.movingSource).map(id => [ id, props.positions[id] ]))
+  emit('selected:moved', { source: data.movingSource, target: data.movingTarget })
+  data.movingSource = data.movingTarget = null
+};
+
+const zoneMoving = (deltaX, deltaY) =>
+    Object.keys(data.movingSource).forEach(id => {
+      let { x, y, width, height } = props.positions[id]
+      x += deltaX
+      y += deltaY
+      props.positions[id] = { x, y, width, height }
+    });
+
+const startSelectedMoving = () => {
+  const movingSource = Object.fromEntries(
+      Object.keys(selected.value)
+          .filter(id => selected.value[id])
+          .map(id => [ id, { ...props.positions[id] } ]))
+  zones.value.forEach(({ id: zoneId }) => {
+    if (movingSource[zoneId]) {
+      const position = movingSource[zoneId]
+      for (const { id } of nodes.value) {
+        if (!movingSource[id] && id !== zoneId) {
+          const { x, y, width, height } = props.positions[id]
+          const rect1 = [ [ position?.x ?? 0, position?.y ?? 0 ], [ (position?.x ?? 0) + (position?.width ?? props.minZoneWidth), (position?.y ?? 0) + (position?.height ?? props.minZoneHeight) ] ]
+          const rect2 = [ [ x, y ], [ x + width, y + height ] ]
+          const { r2 } = intersect(rect1, rect2)
+          const inZone = r2 === 1
+          inZone && (movingSource[id] = { x, y, width, height })
+        }
+      }
+    }
+  })
+  data.movingSource = movingSource
+};
+
+const startZoneMoving = startSelectedMoving;
+
+const updatePosition = ({ id, x, y, width, height }) => props.positions[id] = { x, y, width, height };
+
+const endpointReposition = (id, x, y, width, height, orientation) => data.endpointPositions[id] = {
+  x,
+  y,
+  width,
+  height,
+  orientation
+};
+
+const link = async (target, targetEndpoint) => {
+  if (!linkSource.value) return
+  const { source, sourceEndpoint } = linkSource.value
+  if ((sourceEndpoint ?? source) === (targetEndpoint ?? target)) return
+
+  const defaultEdge = {
+    id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
+    target,
+    source,
+    targetEndpoint,
+    sourceEndpoint
+  }
+  const edge =
+      await props.beforeAddEdgeHook?.(defaultEdge) ?? defaultEdge
+
+  if (edge) {
+    edges.value = [ ...edges.value, edge ]
+  } else {
+    emit('edges:adding-cancelled', { edge, defaultEdge })
+  }
+};
+
+const stopNodeLinking = () => {
+  data.linking = false
+  linkSource.value = null
+};
+
+const nodeLinking = (
+    sourceX,
+    sourceY,
+    sourceWidth,
+    sourceHeight,
+    sourceOrientation = 'right',
+    targetX,
+    targetY,
+    targetWidth = 0,
+    targetHeight = 0,
+    targetOrientation = 'left') => {
+  // if (!multipleSelected.value) {   // hacking: 包含了从endpoint连接的情况
+  data.linkingSource = {
+    x: sourceX,
+    y: sourceY,
+    width: sourceWidth,
+    height: sourceHeight,
+    orientation: sourceOrientation
+  }
+  data.linkingTarget = {
+    x: targetX,
+    y: targetY,
+    width: targetWidth ?? 0,
+    height: targetHeight ?? 0,
+    orientation: targetOrientation
+  }
+  data.linking = true
+  // }
+};
+
+const startNodeLinking = ({ source, sourceEndpoint, sourceGroup }) => linkSource.value = {
+  source,
+  sourceEndpoint,
+  sourceGroup
+};
+
+const stopNodeMoving = () => {
+  data.movingTarget = Object.fromEntries(Object.keys(selected.value).filter(id => selected.value[id]).map(id => [ id, props.positions[id] ]))
+  data.movingSource = data.movingTarget = null
+};
+
+const nodeMoving = (deltaX, deltaY) => {
+  for (const nodeId in selected.value)
+    if (selected.value[nodeId]) {
+      let { x, y, width, height, } = props.positions[nodeId]
+      x += deltaX
+      y += deltaY
+      props.positions[nodeId] = { x, y, width, height, }
+    }
+};
+
+const startNodeMoving = startSelectedMoving
+
+// 用于Provide/Inject
+const setNodeSize = (nodeId, width, height) => props.positions[nodeId] = {
+  x: 0,
+  y: 0, ...props.positions[nodeId],
+  width,
+  height
+};
+
+const clearSelection = selectAgain
+
+const onUnselect = (id, type = 'node') => {
+  unselect(id)
+  emit(`${type}:unselected`, id)
+};
+
+const onSelect = ({ id, multiple, type = 'node' }) => {
+  current.refs.canvas.focus({ preventScroll: true })
+  multiple
+      ? selectMore(id)
+      : selectAgain(id)
+  emit(`${type}:selected`, id)
+};
+
+const preSelect = shiftKey => {
+  for (const nodeId in props.positions) {
+    const isSelected = selected.value[nodeId]
+    const { x, y, width, height } = props.positions[nodeId]
+    const xBetween = x + width > Math.min(data.draggingSource.x, data.draggingTarget.x) && x < Math.max(data.draggingSource.x, data.draggingTarget.x)
+    const yBetween = y + height > Math.min(data.draggingSource.y, data.draggingTarget.y) && y < Math.max(data.draggingSource.y, data.draggingTarget.y)
+    const selecting = xBetween && yBetween
+    data.preSelected[nodeId] = shiftKey ? shiftStrategies.reverse(isSelected, selecting) : selecting
+  }
+};
+
+const resetLayout = ({ overwrite = true }) => {
+  const layout = dagreLayout([ ...nodes.value, ...zones.value ], props.positions, edges.value, props.layoutConfig)
+  const positions = layout._nodes
+  for (let { id } of nodes.value) {
+    let { width, height, x, y } = positions[id]
+    x -= width / 2
+    y -= height / 2
+    props.positions[id] = { x, y, width, height, ...overwrite ? undefined : props.positions[id] }
+  }
+};
+
+const canvasDraggingBehaviorHandlers = getCanvasDraggingHandlers({
+  methods: {
+    selectDragging(event) {
+      data.draggingTarget.x += event.movementX / zoomScale.value
+      data.draggingTarget.y += event.movementY / zoomScale.value
+      preSelect(event.shiftKey)
+    },
+    selectDraggingEnd(event) {
+      selectAgain(
+          ...Object.entries(data.preSelected)
+              .filter(([ , isSelected ]) => isSelected)
+              .map(([ id ]) => id))
+      data.preSelected = {}
+    },
+    scrollDragging(event) {
+      data.offsetX += event.movementX
+      data.offsetY += event.movementY
+    },
+    zoomDragging(event) {
+      data.draggingTarget.x += event.movementX / zoomScale.value
+      data.draggingTarget.y += event.movementY / zoomScale.value
+    },
+    zoomDraggingEnd(event) {
+      const { width, height, top, left } = draggingArea.value
+      let zoomRatio =
+          data.width / data.height >= width / height
+              ? data.height / height
+              : data.width / width
+      let scale = zoomScale.value * zoomRatio
+      if (scale > props.maxZoomScale) scale = props.maxZoomScale
+      if (scale < props.minZoomScale) scale = props.minZoomScale
+
+      data.offsetY = -top * scale
+      data.offsetX = -left * scale
+      zoomScale.value = scale
+    },
+    clearSelection,
+    getCanvas: () => current.refs.canvas,
+  },
+  computed: { zoomScale },
+  data,
+  props,
+})
+
+const onCanvasDragging = event => {
+  canvasDraggingBehaviorHandlers[event.type]?.(event)
+};
+
+const canvasWheelingBehaviorHandlers = getCanvasWheelingHandlers({
+  data,
+  props,
+  emit,
+  computed: { zoomScale },
+  methods: {
+    getEl: () => current.refs.el
+  },
+})
+
+const onCanvasWheeling = event => {
+  canvasWheelingBehaviorHandlers[props.canvasWheeling]?.[event.type]?.(event)
+};
+
+const translateMouseEvent = ({ event }) => {
+  if (event.target === current.refs.canvas) {
+    return { x: event.layerX / zoomScale.value, y: event.layerY / zoomScale.value }
+  } else if (event.target === current.refs.canvas.parentElement) {
+    return { x: (event.layerX - data.offsetX) / zoomScale.value, y: (event.layerY - data.offsetY) / zoomScale.value }
+  } else return null
+};
+defineExpose({ translateMouseEvent })
+
+const onKeyDown = event => {
+  if (props.readOnly) return
+  if (event.target === current.refs.canvas) {
+    if ([ 'Backspace', 'Delete' ].includes(event.code)) {
+      deleteSelectedNodes()
+      deleteSelectedEdges()
+      deleteSelectedZones()
+    }
+  }
+};
+
+const deleteSelectedZones = () => {
+  const deleted = zones.value.filter(({ id }) => selected.value[id])
+  if (deleted.length) {
+    zones.value = zones.value.filter(({ id }) => !selected.value[id])
+  }
+};
+
+const deleteSelectedEdges = () => {
+  const deleted = edges.value.filter(({ id }) => selected.value[id])
+  if (deleted.length) {
+    edges.value = edges.value.filter(({ id }) => !selected.value[id])
+  }
+};
+
+const deleteSelectedNodes = () => {
+  const deleted = nodes.value.filter(({ id }) => selected.value[id])
+  if (deleted.length) {
+    nodes.value = nodes.value.filter(({ id }) => !selected.value[id])
+    edges.value = edges.value.filter(({ source, target }) => !selected.value[source] && !selected.value[target])
+    deleted.forEach(({ id }) => delete props.positions[id])
+  }
+};
+
+provide('nodes', nodes)
+provide('edges', edges)
+provide('setNodeSize', setNodeSize)
+provide('startNodeMoving', startNodeMoving)
+provide('nodeMoving', nodeMoving)
+provide('stopNodeMoving', stopNodeMoving)
+provide('startNodeLinking', startNodeLinking)
+provide('nodeLinking', nodeLinking)
+provide('stopNodeLinking', stopNodeLinking)
+provide('endpointReposition', endpointReposition)
+provide('link', link)
+provide('positions', computed(() => props.positions))
+provide('arrowPosition', computed(() => props.arrowPosition))
+provide('showArrow', computed(() => props.showArrow))
+provide('linkSource', linkSource)
+provide('nodeGroup', computed(() => props.nodeGroup))
+provide('endpointGroup', normalizedEndpointGroup)
+provide('nodeDraggingBehavior', computed(() => props.nodeDragging))
+provide('lineShape', computed(() => props.lineShape))
+provide('linkingLineShape', computed(() => props.linkingLineShape))
+provide('dragging', computed(() => data.dragging))
+provide('onSelect', onSelect)
+provide('onUnselect', onUnselect)
+provide('showEdgeLabels', computed(() => props.showEdgeLabels))
+provide('canvasId', canvasId)
+provide('updatePosition', updatePosition)
+provide('minZoneWidth', computed(() => props.minZoneWidth))
+provide('minZoneHeight', computed(() => props.minZoneHeight))
+provide('startZoneMoving', startZoneMoving)
+provide('zoneMoving', zoneMoving)
+provide('stopZoneMoving', stopZoneMoving)
+provide('gridShape', computed(() => props.gridShape))
+provide('endpointDraggingBehavior', computed(() => props.endpointDragging))
+provide('scale', zoomScale)
+provide('readOnly', computed(() => props.readOnly))
+
+onMounted(() => {
+  const el = current.refs.el
+  const resizeObserver = new ResizeObserver(entries => {
+    entries.forEach(entry => {
+      data.width = entry.target.clientWidth
+      data.height = entry.target.clientHeight
+    })
+  })
+  data.width = el.clientWidth
+  data.height = el.clientHeight
+  resizeObserver.observe(el)
+  resetLayout({ overwrite: props.autoLayout })
+})
+</script>
+
 <template>
-  <div class="dragonfly-viewport"
-       @mousedown.left="onCanvasDragging"
-       @mouseenter="onCanvasDragging"
-       @mouseleave="onCanvasDragging"
-       @mousemove="onCanvasDragging"
-       @mouseup="onCanvasDragging"
-       @wheel="onCanvasWheeling"
+  <div
+      ref="el"
+      class="dragonfly-viewport"
+      @mouseenter="onCanvasDragging"
+      @mouseleave="onCanvasDragging"
+      @mousemove="onCanvasDragging"
+      @mouseup="onCanvasDragging"
+      @wheel="onCanvasWheeling"
+      @mousedown.left="onCanvasDragging"
   >
-    <div :id="`dragonfly-canvas-${canvasId}`"
-         ref="canvas"
-         :style="canvasStyle"
-         class="dragonfly-canvas"
-         tabindex="-1"
-         @keydown="onKeyDown"
+    <div
+        :id="`dragonfly-canvas-${canvasId}`"
+        ref="canvas"
+        :style="canvasStyle"
+        class="dragonfly-canvas"
+        tabindex="-1"
+        @keydown="onKeyDown"
     >
-      <div v-if="dragging"
-           :class="canvasDraggingBehavior"
+      <div v-if="data.dragging"
+           :class="canvasDragging"
            :style="draggingAreaStyle"
            class="area"/>
       <dragonfly-node
@@ -23,7 +549,7 @@
           :key="node.id"
           :group="normalizedNodeGroup(node)"
           :node="node"
-          :selected="preSelected[node.id] ?? selected[node.id]"
+          :selected="data.preSelected[node.id] ?? selected[node.id]"
           @select="onSelect"
           @unselect="onUnselect"
       >
@@ -46,10 +572,10 @@
       <dragonfly-canvas-edges-layer
           :arrow-zoom-ratio="arrowZoomRatio"
           :edges="edges"
-          :endpoint-positions="endpointPositions"
-          :linking="linking"
-          :linking-source="linkingSource"
-          :linking-target="linkingTarget"
+          :endpoint-positions="data.endpointPositions"
+          :linking="data.linking"
+          :linking-source="data.linkingSource"
+          :linking-target="data.linkingTarget"
           :positions="positions">
         <template #label="{edge}">
           <slot :edge="edge" name="edgeLabelRenderer">{{ edge.label }}</slot>
@@ -69,532 +595,21 @@
     </div>
     <dragonfly-grid
         v-if="showGrid"
-        :size="gridSize"
-        :offset-x="offsetX"
-        :offset-y="offsetY"
+        :max-scale="maxGridScale"
         :min-scale="minGridScale"
-        :max-scale="maxGridScale"/>
+        :offset-x="data.offsetX"
+        :offset-y="data.offsetY"
+        :size="gridSize"/>
     <dragonfly-scale
         v-if="showScale"
     />
     <dragonfly-minimap
         v-if="showMinimap"
-        :width="width"
-        :height="height"
-        v-model:offset-x="offsetX"
-        v-model:offset-y="offsetY"
+        v-model:offset-x="data.offsetX"
+        v-model:offset-y="data.offsetY"
+        :height="data.height"
         :positions="positions"
+        :width="data.width"
     />
   </div>
 </template>
-
-<script>
-import { computed, ref } from 'vue'
-import dagreLayout from '../layout/dagreLayout';
-import { intersect } from '../utils/intersectHelper';
-import canvasDraggingBehaviorHandlers from './canvasDraggingBehaviorHandlers';
-import canvasWheelingBehaviorHandlers from './canvasWheelingBehaviorHandlers';
-import DragonflyCanvasEdgesLayer from './DragonflyCanvasEdgesLayer.vue';
-import DragonflyGrid from './DragonflyGrid.vue';
-import DragonflyMinimap from './DragonflyMinimap.vue';
-import DragonflyNode from './DragonflyNode.vue';
-import DragonflyScale from './DragonflyScale.vue';
-import DragonflyZone from './DragonflyZone.vue';
-import StraightLine from './edge/StraightLine.vue';
-import ZigZagLine from './edge/ZigZagLine.vue';
-import DotGrid from './grid/DotGrid.vue';
-import shiftStrategies from './shiftStrategies';
-
-let linkSource = ref(null)
-let canvasId = 0
-
-export default {
-  name: 'DragonflyCanvas',
-  components: {
-    DragonflyScale,
-    DragonflyMinimap,
-    DragonflyGrid,
-    DragonflyZone,
-    ZigZagLine,
-    StraightLine,
-    DragonflyNode,
-    DragonflyCanvasEdgesLayer
-  },
-  emits: [
-    'edges:adding-cancelled',
-    'selected:moved',
-    'update:zoomScale',
-    'update:nodeDragging',
-    'update:canvasDragging',
-    'update:canvasWheeling',
-    'update:endpointDragging',
-    'update:layout',
-    'update:edgesData',
-    'update:nodesData',
-    'update:zonesData',
-    'nodes:deleted',
-    'edges:deleted',
-    'zones:deleted',
-    'selected:moved',
-    'edges:added',
-    'nodes:added',
-
-    'node:selected',
-    'node:unselected',
-
-    'edge:selected',
-    'edge:unselected',
-
-    'zone:selected',
-    'zone:unselected',
-  ],
-  data() {
-    canvasId++
-    return {
-      dragging: false,
-      scale: this.zoomScale ?? 1,
-      offsetX: 0,
-      offsetY: 0,
-      width: 0,
-      height: 0,
-      endpointPositions: {}, // 存锚点相对于节点的位置
-      selected: {},
-      linkingSource: { x: 0, y: 0 },
-      linkingTarget: { x: 0, y: 0 },
-      draggingSource: { x: 0, y: 0 },
-      draggingTarget: { x: 0, y: 0 },
-      preSelected: {},
-      linking: false,
-      nodeDraggingBehavior: this.nodeDragging,
-      canvasDraggingBehavior: this.canvasDragging,
-      canvasWheelingBehavior: this.canvasWheeling,
-      endpointDraggingBehavior: this.endpointDragging,
-      canvasId,
-      nodesInZone: {},
-      history: [],
-      historyHead: 0,
-      movingSource: null,
-      movingTarget: null,
-    }
-  },
-  props: {
-    nodesData: { type: Array, default: () => [] },
-    edgesData: { type: Array, default: () => [], },
-    zonesData: { type: Array, default: () => [] },
-    positions: { type: Object, default: () => ({}) },
-    zoomSensitivity: { type: Number, default: 0.001, },
-    zoomScale: { type: Number, },
-    maxZoomScale: { type: Number, default: 5, },
-    minZoomScale: { type: Number, default: 0.5, },
-    layoutConfig: { type: Object, default: () => ({}) },
-    showArrow: { type: Boolean, default: true, },
-    arrowZoomRatio: { type: Number, default: 1 }, // 箭头显示大小的倍率
-    arrowPosition: { type: Number, default: 100 },
-    beforeAddEdgeHook: { type: Function, }, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
-    nodeGroup: { type: [ String, Object, Function ] },
-    endpointGroup: { type: [ String, Object, Function ] },
-    canvasDragging: { type: String, default: 'off' },
-    nodeDragging: { type: String, default: 'off' },
-    endpointDragging: { type: String, default: 'off' }, // off | node | on
-    canvasWheeling: { type: String, default: 'off' },
-    lineShape: { default: StraightLine },
-    linkingLineShape: { default: StraightLine },
-    showEdgeLabels: { type: Boolean, default: true },
-    minZoneWidth: { type: Number, default: 120 },
-    minZoneHeight: { type: Number, default: 80 },
-    gridShape: { default: DotGrid },
-    gridSize: { type: Number, default: 10 },
-    minGridScale: { type: Number, default: 0.5 },
-    maxGridScale: { type: Number, default: 5 },
-    autoLayout: { type: Boolean, default: false },
-    showMinimap: { type: Boolean, default: false },
-    showScale: { type: Boolean, defualt: false },
-    showGrid: { type: Boolean, default: false },
-    readOnly: { type: Boolean, default: false },
-  },
-  computed: {
-    nodes: {
-      get() {
-        return this.nodesData ?? []
-      },
-      set(value) {
-        if (JSON.stringify(value) !== JSON.stringify(this.nodesData)) {
-          this.$emit('update:nodesData', value)
-        }
-      }
-    },
-    edges: {
-      get() {
-        return this.edgesData ?? []
-      },
-      set(value) {
-        if (JSON.stringify(value) !== JSON.stringify(this.edgesData)) {
-          this.$emit('update:edgesData', value)
-        }
-      }
-    },
-    zones: {
-      get() {
-        return this.zonesData ?? []
-      },
-      set(value) {
-        if (JSON.stringify(value) !== JSON.stringify(this.zonesData))
-          this.$emit('update:zonesData', value)
-      }
-    },
-
-    canvasStyle() {
-      return {
-        transform: `scale(${this.scale})`,
-        top: `${this.offsetY}px`,
-        left: `${this.offsetX}px`
-      }
-    },
-    draggingArea() {
-      const width = Math.abs(this.draggingSource.x - this.draggingTarget.x)
-      const height = Math.abs(this.draggingSource.y - this.draggingTarget.y)
-      const top = Math.min(this.draggingSource.y, this.draggingTarget.y)
-      const left = Math.min(this.draggingSource.x, this.draggingTarget.x)
-      return { width, height, top, left, }
-    },
-    draggingAreaStyle() {
-      const width = `${this.draggingArea.width}px`
-      const height = `${this.draggingArea.height}px`
-      const top = `${this.draggingArea.top}px`
-      const left = `${this.draggingArea.left}px`
-      return { width, height, top, left, }
-    },
-    multipleSelected() {
-      return Object.keys(this.selected).filter(nodeId => this.selected[nodeId]).length > 1
-    },
-    normalizedNodeGroup() {
-      return this.nodeGroup instanceof Function
-          ? this.nodeGroup
-          : () => this.nodeGroup
-    },
-    normalizedEndpointGroup() {
-      return this.endpointGroup instanceof Function
-          ? this.endpointGroup
-          : () => this.endpointGroup
-    }
-  },
-  methods: {
-    deleteSelectedNodes() {
-      const deleted = this.nodes.filter(({ id }) => this.selected[id])
-      if (deleted.length) {
-        this.nodes = this.nodes.filter(({ id }) => !this.selected[id])
-        this.edges = this.edges.filter(({ source, target }) => !this.selected[source] && !this.selected[target])
-      }
-    },
-    deleteSelectedEdges() {
-      const deleted = this.edges.filter(({ id }) => this.selected[id])
-      if (deleted.length) {
-        this.edges = this.edges.filter(({ id }) => !this.selected[id])
-      }
-    },
-    deleteSelectedZones() {
-      const deleted = this.zones.filter(({ id }) => this.selected[id])
-      if (deleted.length) {
-        this.zones = this.zones.filter(({ id }) => !this.selected[id])
-      }
-    },
-    onKeyDown(event) {
-      if (this.readOnly) return
-      if (event.target === this.$refs.canvas) {
-        if ([ 'Backspace', 'Delete' ].includes(event.code)) {
-          this.deleteSelectedNodes()
-          this.deleteSelectedEdges()
-          this.deleteSelectedZones()
-        }
-      }
-    },
-    translateMouseEvent(event) {
-      if (event.target === this.$refs.canvas) {
-        return { x: event.layerX / this.scale, y: event.layerY / this.scale }
-      } else if (event.target === this.$refs.canvas.parentElement) {
-        return { x: (event.layerX - this.offsetX) / this.scale, y: (event.layerY - this.offsetY) / this.scale }
-      } else return null
-    },
-    onCanvasWheeling(event) {
-      canvasWheelingBehaviorHandlers[this.canvasWheelingBehavior]?.[event.type]?.call?.(this, event)
-    },
-    onCanvasDragging(event) {
-      canvasDraggingBehaviorHandlers[event.type]?.call?.(this, event)
-    },
-    scrollDragging(event) {
-      this.offsetX += event.movementX
-      this.offsetY += event.movementY
-    },
-    selectDragging(event) {
-      this.draggingTarget.x += event.movementX / this.scale
-      this.draggingTarget.y += event.movementY / this.scale
-      this.preSelect(event.shiftKey)
-    },
-    zoomDragging(event) {
-      this.draggingTarget.x += event.movementX / this.scale
-      this.draggingTarget.y += event.movementY / this.scale
-    },
-
-    selectDraggingEnd(event) {
-      this.selected = { ...this.preSelected }
-      this.preSelected = {}
-    },
-    zoomDraggingEnd(event) {
-      const { width, height, top, left } = this.draggingArea
-      let zoomRatio =
-          this.width / this.height >= width / height
-              ? this.height / height
-              : this.width / width
-      let scale = this.scale * zoomRatio
-      if (scale > this.maxZoomScale) scale = this.maxZoomScale
-      if (scale < this.minZoomScale) scale = this.minZoomScale
-
-      this.offsetY = -top * scale
-      this.offsetX = -left * scale
-      this.scale = scale
-    },
-
-    resetLayout(overwrite = true) {
-      const layout = dagreLayout([ ...this.nodes, ...this.zones ], this.positions, this.edges, this.layoutConfig)
-      const positions = layout._nodes
-      for (let { id } of this.nodes) {
-        let { width, height, x, y } = positions[id]
-        x -= width / 2
-        y -= height / 2
-        this.positions[id] = { x, y, width, height, ...overwrite ? undefined : this.positions[id] }
-      }
-    },
-
-    preSelect(shiftKey) {
-      for (const nodeId in this.positions) {
-        const selected = this.selected[nodeId]
-        const { x, y, width, height } = this.positions[nodeId]
-        const xBetween = x + width > Math.min(this.draggingSource.x, this.draggingTarget.x) && x < Math.max(this.draggingSource.x, this.draggingTarget.x)
-        const yBetween = y + height > Math.min(this.draggingSource.y, this.draggingTarget.y) && y < Math.max(this.draggingSource.y, this.draggingTarget.y)
-        const selecting = xBetween && yBetween
-        this.preSelected[nodeId] = shiftKey ? shiftStrategies.reverse(selected, selecting) : selecting
-      }
-    },
-    onSelect({ id, multiple, type = 'node' }) {
-      this.$refs.canvas.focus({ preventScroll: true })
-      multiple
-          ? (this.selected[id] = true)
-          : (this.selected = { [id]: true })
-      this.$emit(`${type}:selected`, id)
-    },
-    onUnselect(id, type = 'node') {
-      delete this.selected[id]
-      this.$emit(`${type}:unselected`, id)
-    },
-    clearSelection() {
-      this.selected = {}
-    },
-    // 用于Provide/Inject
-    setNodeSize(nodeId, width, height) {
-      this.positions[nodeId] = { x: 0, y: 0, ...this.positions[nodeId], width, height }
-    },
-    startNodeMoving() {
-      this.startSelectedMoving()
-    },
-    nodeMoving(deltaX, deltaY) {
-      for (const nodeId in this.selected) {
-        if (this.selected[nodeId]) {
-          let { x, y, width, height, } = this.positions[nodeId]
-          x += deltaX
-          y += deltaY
-          this.positions[nodeId] = { x, y, width, height, }
-        }
-      }
-    },
-    stopNodeMoving() {
-      this.movingTarget = Object.fromEntries(Object.keys(this.selected).filter(id => this.selected[id]).map(id => [ id, this.positions[id] ]))
-      this.movingSource = this.movingTarget = null
-    },
-    startNodeLinking({ source, sourceEndpoint, sourceGroup }) {
-      linkSource.value = { source, sourceEndpoint, sourceGroup }
-    },
-    nodeLinking(
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        sourceOrientation = 'right',
-        targetX,
-        targetY,
-        targetWidth = 0,
-        targetHeight = 0,
-        targetOrientation = 'left') {
-      if (!this.multipleSelected) {   // hacking: 包含了从endpoint连接的情况
-        this.linkingSource = {
-          x: sourceX,
-          y: sourceY,
-          width: sourceWidth,
-          height: sourceHeight,
-          orientation: sourceOrientation
-        }
-        this.linkingTarget = {
-          x: targetX,
-          y: targetY,
-          width: targetWidth ?? 0,
-          height: targetHeight ?? 0,
-          orientation: targetOrientation
-        }
-        this.linking = true
-      }
-    },
-    stopNodeLinking() {
-      this.linking = false
-      linkSource.value = null
-    },
-    async link(target, targetEndpoint) {
-      if (!linkSource.value) return
-      const { source, sourceEndpoint } = linkSource.value
-      if ((sourceEndpoint ?? source) === (targetEndpoint ?? target)) return
-
-      const defaultEdge = {
-        id: `${sourceEndpoint ?? source}-${targetEndpoint ?? target}`,
-        target,
-        source,
-        targetEndpoint,
-        sourceEndpoint
-      }
-      const edge =
-          await this.beforeAddEdgeHook?.(defaultEdge) ?? defaultEdge
-
-      if (edge) {
-        this.edges = [ ...this.edges, edge ]
-      } else {
-        this.$emit('edges:adding-cancelled', { edge, defaultEdge })
-      }
-    },
-    endpointReposition(id, x, y, width, height, orientation) {
-      this.endpointPositions[id] = { x, y, width, height, orientation }
-    },
-    updatePosition({ id, x, y, width, height }) {
-      this.positions[id] = { x, y, width, height }
-    },
-    startSelectedMoving() {
-      const movingSource = Object.fromEntries(
-          Object.keys(this.selected)
-              .filter(id => this.selected[id])
-              .map(id => [ id, { ...this.positions[id] } ]))
-      this.zones.forEach(({ id: zoneId }) => {
-        if (movingSource[zoneId]) {
-          const position = movingSource[zoneId]
-          for (const { id } of this.nodes) {
-            if (!movingSource[id] && id !== zoneId) {
-              const { x, y, width, height } = this.positions[id]
-              const rect1 = [ [ position?.x ?? 0, position?.y ?? 0 ], [ (position?.x ?? 0) + (position?.width ?? this.minZoneWidth), (position?.y ?? 0) + (position?.height ?? this.minZoneHeight) ] ]
-              const rect2 = [ [ x, y ], [ x + width, y + height ] ]
-              const { r2 } = intersect(rect1, rect2)
-              const inZone = r2 === 1
-              inZone && (movingSource[id] = { x, y, width, height })
-            }
-          }
-        }
-      })
-      this.movingSource = movingSource
-    },
-    startZoneMoving() {
-      this.startSelectedMoving()
-    },
-    zoneMoving(deltaX, deltaY) {
-      Object.keys(this.movingSource).forEach(id => {
-        let { x, y, width, height } = this.positions[id]
-        x += deltaX
-        y += deltaY
-        this.positions[id] = { x, y, width, height }
-      })
-    },
-    stopZoneMoving() {
-      this.movingTarget = Object.fromEntries(Object.keys(this.movingSource).map(id => [ id, this.positions[id] ]))
-      this.$emit('selected:moved', { source: this.movingSource, target: this.movingTarget })
-      this.movingSource = this.movingTarget = null
-    }
-  },
-  provide() {
-    return {
-      nodes: computed(() => this.nodes),
-      edges: computed(() => this.edges),
-      setNodeSize: this.setNodeSize,
-      startNodeMoving: this.startNodeMoving,
-      nodeMoving: this.nodeMoving,
-      stopNodeMoving: this.stopNodeMoving,
-      startNodeLinking: this.startNodeLinking,
-      nodeLinking: this.nodeLinking,
-      stopNodeLinking: this.stopNodeLinking,
-      endpointReposition: this.endpointReposition,
-      link: this.link,
-      positions: computed(() => this.positions),
-      arrowPosition: computed(() => this.arrowPosition),
-      showArrow: computed(() => this.showArrow),
-      linkSource: computed(() => linkSource),
-      nodeGroup: computed(() => this.normalizedNodeGroup),
-      endpointGroup: computed(() => this.normalizedEndpointGroup),
-      nodeDraggingBehavior: computed(() => this.nodeDraggingBehavior),
-      lineShape: computed(() => this.lineShape),
-      linkingLineShape: computed(() => this.linkingLineShape),
-      dragging: computed(() => this.dragging),
-      onSelect: this.onSelect,
-      onUnselect: this.onUnselect,
-      selected: computed(() => this.selected),
-      showEdgeLabels: computed(() => this.showEdgeLabels),
-      canvasId: this.canvasId,
-      updatePosition: this.updatePosition,
-      minZoneWidth: computed(() => this.minZoneWidth),
-      minZoneHeight: computed(() => this.minZoneHeight),
-      startZoneMoving: this.startZoneMoving,
-      zoneMoving: this.zoneMoving,
-      stopZoneMoving: this.stopZoneMoving,
-      gridShape: computed(() => this.gridShape),
-      endpointDraggingBehavior: computed(() => this.endpointDraggingBehavior),
-      scale: computed(() => this.scale),
-      readOnly: computed(() => this.readOnly),
-    }
-  },
-  mounted() {
-    const resizeObserver = new ResizeObserver(entries => {
-      entries.forEach(entry => {
-        this.width = entry.target.clientWidth
-        this.height = entry.target.clientHeight
-      })
-    })
-    this.width = this.$el.clientWidth
-    this.height = this.$el.clientHeight
-    resizeObserver.observe(this.$el)
-    this.resetLayout(this.autoLayout)
-  },
-  watch: {
-    zoomScale(value) {
-      this.scale = value
-    },
-    scale(value) {
-      this.$emit('update:zoomScale', value)
-    },
-    nodeDragging(value) {
-      this.nodeDraggingBehavior = value
-    },
-    nodeDraggingBehavior(value) {
-      this.$emit('update:nodeDragging', value)
-    },
-    canvasDragging(value) {
-      this.canvasDraggingBehavior = value
-    },
-    canvasDraggingBehavior(value) {
-      this.$emit('update:canvasDragging', value)
-    },
-    canvasWheeling(value) {
-      this.canvasWheelingBehavior = value
-    },
-    canvasWheelingBehavior(value) {
-      this.$emit('update:canvasWheeling', value)
-    },
-    endpointDraggingBehavior(value) {
-      this.$emit('update:endpointDragging', value)
-    },
-    endpointDragging(value) {
-      this.endpointDraggingBehavior = value
-    },
-  }
-}
-</script>

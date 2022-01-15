@@ -8,53 +8,55 @@
   </div>
   <span id="debt"></span>
   <div style="width: 800px; height: 600px; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
-    <dragonfly-canvas
-        ref="canvas"
-        v-model:canvas-dragging="config.canvasDragging"
-        v-model:canvas-wheeling="config.canvasWheeling"
-        :positions="dataSet.positions"
-        :node-dragging="config.nodeDragging"
-        v-model:edges-data="dataSet.edges"
-        v-model:nodes-data="dataSet.nodes"
-        v-model:zones-data="dataSet.zones"
-        v-model:zoom-scale="config.zoomScale"
-        v-model:endpoint-dragging="config.endpointDragging"
-        :arrow-position="config.arrowPosition"
-        :arrow-zoom-ratio="config.arrowZoomRatio"
-        :before-add-edge-hook="onAddingEdge"
-        :endpoint-group="{linkIn: false, linkOut: true}"
-        :layout-config="config.layout"
-        :line-shape="config.lineShape"
-        :max-zoom-scale="config.maxZoomScale"
-        :min-zoom-scale="config.minZoomScale"
-        :node-group="{linkIn: true, linkOut: true}"
-        :show-arrow="config.showArrow"
-        :show-edge-labels="config.showEdgeLabels"
-        :grid-shape="config.gridShape"
-        :grid-size="config.gridSize"
-        :max-grid-scale="config.maxGridScale"
-        :min-grid-scale="config.minGridScale"
-        show-grid
-        show-minimap
-        show-scale
-        auto-layout
-        @dblclick.stop.prevent="onDblClick"
-        @node:selected="onNodeSelected"
-    >
-      <template #nodeRenderer="{node}">
-        <div class="node">Hi, {{ node.id }}</div>
-      </template>
-      <template #topEndpoints="{node}">
-        <dragonfly-endpoint :endpoint="{id:`${node.id}-input`}" :group="{linkIn: true, linkOut: false}"/>
-      </template>
-      <template #bottomEndpoints="{node}">
-        <dragonfly-endpoint :endpoint="{id:`${node.id}-succeeded`}" class="succeeded-endpoint"/>
-        <dragonfly-endpoint :endpoint="{id:`${node.id}-failed`}" class="failed-endpoint"/>
-      </template>
-      <template #edgeLabelRenderer="{edge}">
-        <div :class="`edge-label-${edge.label}`">{{ edge.label }}</div>
-      </template>
-    </dragonfly-canvas>
+    <dragonfly-selection-provider>
+      <dragonfly-canvas
+          ref="canvas"
+          v-model:canvas-dragging="config.canvasDragging"
+          v-model:canvas-wheeling="config.canvasWheeling"
+          :positions="dataSet.positions"
+          :node-dragging="config.nodeDragging"
+          v-model:edges-data="dataSet.edges"
+          v-model:nodes-data="dataSet.nodes"
+          v-model:zones-data="dataSet.zones"
+          v-model:zoom-scale="config.zoomScale"
+          v-model:endpoint-dragging="config.endpointDragging"
+          :arrow-position="config.arrowPosition"
+          :arrow-zoom-ratio="config.arrowZoomRatio"
+          :before-add-edge-hook="onAddingEdge"
+          :endpoint-group="{linkIn: false, linkOut: true}"
+          :layout-config="config.layout"
+          :line-shape="config.lineShape"
+          :max-zoom-scale="config.maxZoomScale"
+          :min-zoom-scale="config.minZoomScale"
+          :node-group="{linkIn: true, linkOut: true}"
+          :show-arrow="config.showArrow"
+          :show-edge-labels="config.showEdgeLabels"
+          :grid-shape="config.gridShape"
+          :grid-size="config.gridSize"
+          :max-grid-scale="config.maxGridScale"
+          :min-grid-scale="config.minGridScale"
+          show-grid
+          show-minimap
+          show-scale
+          auto-layout
+          @dblclick.stop.prevent="onDblClick"
+          @node:selected="onNodeSelected"
+      >
+        <template #nodeRenderer="{node}">
+          <div class="node">Hi, {{ node.id }}</div>
+        </template>
+        <template #topEndpoints="{node}">
+          <dragonfly-endpoint :endpoint="{id:`${node.id}-input`}" :group="{linkIn: true, linkOut: false}"/>
+        </template>
+        <template #bottomEndpoints="{node}">
+          <dragonfly-endpoint :endpoint="{id:`${node.id}-succeeded`}" class="succeeded-endpoint"/>
+          <dragonfly-endpoint :endpoint="{id:`${node.id}-failed`}" class="failed-endpoint"/>
+        </template>
+        <template #edgeLabelRenderer="{edge}">
+          <div :class="`edge-label-${edge.label}`">{{ edge.label }}</div>
+        </template>
+      </dragonfly-canvas>
+    </dragonfly-selection-provider>
   </div>
   <canvas-config
       v-model:arrow-position="config.arrowPosition"
@@ -77,6 +79,7 @@ import { DotGrid, DragonflyCanvas, DragonflyEndpoint, StraightLine, } from '../b
 import CanvasConfig from './CanvasConfig.vue';
 import CanvasData from './CanvasData.vue';
 import './components/dragonfly-dag.less'
+import DragonflySelectionProvider from "./components/DragonflySelectionProvider.vue";
 
 const current = getCurrentInstance()
 
@@ -121,7 +124,7 @@ const addNode = () => {
   feed++
 }
 const addZone = () => {
-  ([]).push({ id: `${feed}` })
+  dataSet.zones.push({ id: `${feed}` })
   feed++
 }
 
@@ -141,10 +144,10 @@ const onAddingEdge = async ({ source, target, sourceEndpoint, targetEndpoint }) 
   }, 100)
 })
 
-const autoLayout = () => current.refs.canvas.resetLayout()
+const autoLayout = () => current.refs.canvas.resetLayout({})
 
 const onDblClick = event => {
-  const axis = current.refs.canvas.translateMouseEvent(event)
+  const axis = current.refs.canvas.translateMouseEvent({ event: event })
   if (axis) {
     dataSet.nodes = [ ...dataSet.nodes, { id: 's3' } ]
     nextTick(() => dataSet.positions['s3'] = { ...dataSet.positions['s3'], ...axis })
