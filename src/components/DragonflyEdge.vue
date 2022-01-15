@@ -76,7 +76,7 @@ const data = reactive({
 
 const showLabel = computed(() => showEdgeLabels.value && (props.edge.showLabel ?? true) && props.edge.label);
 
-const arrowPositionPercent = computed(() => arrowPosition / 100);
+const arrowPositionPercent = computed(() => arrowPosition.value / 100);
 
 const lineEnds = computed(() => ({ source: source.value, target: target.value }));
 
