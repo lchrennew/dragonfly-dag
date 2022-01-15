@@ -8,7 +8,7 @@
   </div>
   <span id="debt"></span>
   <div style="width: 800px; height: 600px; margin-left: 100px; margin-top: 100px; border:solid 1px #f00;">
-    <dragonfly-selection-provider>
+    <dragonfly-selection-provider v-model:selection="dataSet.selection">
       <dragonfly-canvas
           ref="canvas"
           v-model:canvas-dragging="config.canvasDragging"
@@ -112,7 +112,8 @@ const dataSet = reactive({
   nodes: [ { id: 's1', status: 'queueing' }, { id: 's2', status: 'queueing' } ],
   edges: [],
   zones: [],
-  positions: {}
+  positions: {},
+  selection: []
 })
 
 const addNode = () => {

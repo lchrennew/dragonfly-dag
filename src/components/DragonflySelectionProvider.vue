@@ -5,7 +5,7 @@
 <script setup>
 import { computed, provide, reactive } from "vue";
 
-const emit = defineEmits([ 'update:Selection' ])
+const emit = defineEmits([ 'update:selection' ])
 
 const props = defineProps({
   selection: { type: Array },
@@ -25,12 +25,13 @@ provide('selectAgain', (...ids) => {
     computedSelection.value.length = 0
     computedSelection.value.push(...ids)
   }
-  emit('update:Selection', [ ...ids ])
+  emit('update:selection', [ ...ids ])
 })
 
 provide('selectMore', (...ids) => {
+  const [ ...old ] = computedSelection.value
   if (!props.selection) computedSelection.value.push(...ids)
-  emit('update:Selection', [ ...ids ])
+  emit('update:selection', [ ...old, ...ids ])
 })
 
 provide('multipleSelected', multiple)
@@ -42,6 +43,6 @@ provide('unselect', (...ids) => {
     computedSelection.value.length = 0
     computedSelection.value.push(...selection)
   }
-  emit('update:Selection', [ ...selection ])
+  emit('update:selection', [ ...selection ])
 })
 </script>

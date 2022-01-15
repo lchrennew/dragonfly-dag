@@ -53,11 +53,32 @@ const emit = defineEmits([
   'zone:unselected',
 ])
 
-const selected = inject('selected')
-const multipleSelected = inject('multipleSelected')
-const selectAgain = inject('selectAgain')
-const selectMore = inject('selectMore')
-const unselect = inject('unselect')
+
+// selection start
+const selection = reactive([])
+const multiple = computed(() => selection.length > 1)
+
+
+const selected = inject('selected', computed(() => Object.fromEntries(selection.map(id => [ id, true ]))))
+const multipleSelected = inject('multipleSelected', multiple)
+const selectAgain = inject('selectAgain', (...ids) => {
+  selection.length = 0
+  selection.push(...ids)
+})
+const selectMore = inject('selectMore', (...ids) => selection.push(...ids))
+const unselect = inject('unselect', (...ids) => {
+  const _selection = selection.filter(id => !ids.includes(id))
+  selection.length = 0
+  selection.push(..._selection)
+})
+
+provide('selectAgain', selectAgain)
+provide('selectMore', selectMore)
+provide('multipleSelected', multipleSelected)
+provide('selected', selected)
+provide('unselect', unselect)
+// selection end
+
 
 const props = defineProps({
   nodesData: { type: Array, default: () => [] },
@@ -505,6 +526,7 @@ provide('gridShape', computed(() => props.gridShape))
 provide('endpointDraggingBehavior', computed(() => props.endpointDragging))
 provide('scale', zoomScale)
 provide('readOnly', computed(() => props.readOnly))
+
 
 onMounted(() => {
   const el = current.refs.el
