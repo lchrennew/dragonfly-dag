@@ -1,8 +1,8 @@
 <script>
 export default {
     name: "LineShapeBase",
-    props: ['position', 'definition'],
-    emits: ['update:definition'],
+    props: [ 'position', 'definition' ],
+    emits: [ 'update:definition' ],
     computed: {
         source() {
             return this.position.source
@@ -23,8 +23,8 @@ export default {
         },
     },
     methods: {
-        stringifyPoint({x, y}) {
-            return `${x},${y}`
+        stringifyPoint({ x, y }) {
+            return `${x.toFixed(2)},${y.toFixed(2)}`
         }
     },
     render() {

@@ -9,3 +9,4 @@ yarn.lock
 *.iml
 *.ipr
 .idea
+/yarn-error.log

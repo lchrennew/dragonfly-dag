@@ -2,9 +2,8 @@
     <div class="dragonfly-scale">1 : {{ parseFloat(scale.toPrecision(3)) }}</div>
 </template>
 
-<script>
-export default {
-    name: "DragonflyScale",
-    inject: ['scale']
-}
+<script setup>
+import { inject } from "vue";
+
+const scale = inject('scale')
 </script>

@@ -23,8 +23,8 @@
 @canvas-z-index: 1;
 
 @zone-z-index: 1;
-@node-z-index: 2;
-@node-selected-z-index: 3;
+@node-z-index: 3;
+@node-selected-z-index: 4;
 
 @node-endpoints-z-index: 2;
 @node-inner-z-index: 1;
@@ -73,12 +73,10 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 1px;
-    height: 1px;
     z-index: @edges-layer-z-index;
     overflow: visible !important;
     color: @edge-default-color;
-
+    pointer-events: none;
 
     .arrow {
       stroke: none;
@@ -124,6 +122,7 @@
       stroke-opacity: 0.2;
       cursor: pointer;
       z-index: 1;
+      pointer-events: all;
 
       &:hover {
         stroke: #00aaff;
@@ -395,7 +394,7 @@
     box-shadow: 0 0 20px 0 #00000010;
     border-radius: 12px 0 0 0;
 
-    &:before{
+    &:before {
       content: '';
       position: absolute;
       top: 0;

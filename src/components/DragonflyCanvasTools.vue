@@ -1,38 +1,38 @@
 <template>
     <div class="dragonfly-tools" @mousedown.stop>
-        <button @click="toggleCanvasDraggingBehavior('off')"
-                :class="{active: canvasDraggingBehavior==='off'}">锁定
+        <button :class="{active: canvasDraggingBehavior==='off'}"
+                @click="toggleCanvasDraggingBehavior('off')">锁定
         </button>
-        <button @click="toggleCanvasDraggingBehavior('select')"
-                :class="{active: canvasDraggingBehavior==='select'}">
+        <button :class="{active: canvasDraggingBehavior==='select'}"
+                @click="toggleCanvasDraggingBehavior('select')">
             框选
         </button>
-        <button @click="toggleCanvasDraggingBehavior('scroll')"
-                :class="{active: canvasDraggingBehavior==='scroll'}">
+        <button :class="{active: canvasDraggingBehavior==='scroll'}"
+                @click="toggleCanvasDraggingBehavior('scroll')">
             滚动
         </button>
-        <button @click="toggleCanvasDraggingBehavior('zoom')"
-                :class="{active: canvasDraggingBehavior==='zoom'}">缩放
+        <button :class="{active: canvasDraggingBehavior==='zoom'}"
+                @click="toggleCanvasDraggingBehavior('zoom')">缩放
         </button>
         <span>|</span>
-        <button @click="toggleNodeDraggingBehavior('off')"
-                :class="{active: nodeDraggingBehavior==='off'}">锁定
+        <button :class="{active: nodeDraggingBehavior==='off'}"
+                @click="toggleNodeDraggingBehavior('off')">锁定
         </button>
-        <button @click="toggleNodeDraggingBehavior('move')"
-                :class="{active: nodeDraggingBehavior==='move'}">移动
+        <button :class="{active: nodeDraggingBehavior==='move'}"
+                @click="toggleNodeDraggingBehavior('move')">移动
         </button>
-        <button @click="toggleNodeDraggingBehavior('link')"
-                :class="{active: nodeDraggingBehavior==='link'}">连接
+        <button :class="{active: nodeDraggingBehavior==='link'}"
+                @click="toggleNodeDraggingBehavior('link')">连接
         </button>
         <span>|</span>
-        <button @click="toggleCanvasWheelingBehavior('off')"
-                :class="{active: canvasWheelingBehavior==='off'}">锁定
+        <button :class="{active: canvasWheelingBehavior==='off'}"
+                @click="toggleCanvasWheelingBehavior('off')">锁定
         </button>
-        <button @click="toggleCanvasWheelingBehavior('zoom')"
-                :class="{active: canvasWheelingBehavior==='zoom'}">缩放
+        <button :class="{active: canvasWheelingBehavior==='zoom'}"
+                @click="toggleCanvasWheelingBehavior('zoom')">缩放
         </button>
-        <button @click="toggleCanvasWheelingBehavior('scroll')"
-                :class="{active: canvasWheelingBehavior==='scroll'}">滚动
+        <button :class="{active: canvasWheelingBehavior==='scroll'}"
+                @click="toggleCanvasWheelingBehavior('scroll')">滚动
         </button>
     </div>
 </template>
@@ -45,21 +45,21 @@ export default {
             type: String,
             default: 'move',
             validate(value) {
-                return ['off', 'move', 'link'].includes(value)
+                return [ 'off', 'move', 'link' ].includes(value)
             }
         },
         canvasDraggingBehavior: {
             type: String,
             default: 'select',
             validate(value) {
-                return ['off', 'select', 'scroll', 'zoom'].includes(value)
+                return [ 'off', 'select', 'scroll', 'zoom' ].includes(value)
             }
         },
         canvasWheelingBehavior: {
             type: String,
             default: 'zoom',
             validate(value) {
-                return ['off', 'scroll', 'zoom'].includes(value)
+                return [ 'off', 'scroll', 'zoom' ].includes(value)
             }
         },
 

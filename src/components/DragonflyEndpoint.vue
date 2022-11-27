@@ -1,18 +1,19 @@
 <template>
     <div
-        class="dragonfly-endpoint"
         :class="{targeted,[endpoint.className]:endpoint.className}"
-        @mousedown.stop="onMouseDown"
         :draggable="linkable"
+        class="dragonfly-endpoint"
         @dragstart="onDragStart"
+        @drop="onDrop"
+        @mousedown.stop="onMouseDown"
         @drag.passive="onDrag"
         @dragend.prevent="onDragEnd"
         @dragenter.stop="onDragEnter"
         @dragleave.stop="onDragLeave"
-        @drop="onDrop"
     >
-        <div v-if="endpoint.label || label" class="label"
-             :class="{[endpoint.labelClassName]:endpoint.labelClassName, [labelClass]:labelClass}">
+        <div v-if="endpoint.label || label"
+             :class="{[endpoint.labelClassName]:endpoint.labelClassName, [labelClass]:labelClass}"
+             class="label">
             {{ endpoint.label ?? label }}
         </div>
         <slot/>
@@ -20,8 +21,9 @@
 </template>
 
 <script>
-import img from "../utils/emptyDragImage";
-import preventDefaultDrop from "../utils/preventDefaultDrop";
+import img from "../utils/empty-drag-image.js";
+import preventDefaultDrop from "../utils/prevent-default-drop.js";
+import { zoomLevel } from "../utils/device-pixel-ratio.js";
 
 export default {
     name: "DragonflyEndpoint",
@@ -31,7 +33,7 @@ export default {
             required: true,
         },
         group: {
-            type: [String, Object],
+            type: [ String, Object ],
         },
         label: {
             type: String
@@ -101,18 +103,18 @@ export default {
             }
         },
         groupLinkIn() {
-            let {linkIn} = this.combinedGroup ?? {}
+            let { linkIn } = this.combinedGroup ?? {}
 
             if (typeof this.combinedGroup === 'string') {
-                return ({sourceGroup}) => sourceGroup === this.combinedGroup
+                return ({ sourceGroup }) => sourceGroup === this.combinedGroup
             } else if (linkIn === false) {
                 return () => false
             } else if (linkIn === undefined) {
-                return ({sourceGroup}) => this.groupName === sourceGroup
+                return ({ sourceGroup }) => this.groupName === sourceGroup
             } else if (typeof linkIn === 'string') {
-                return ({sourceGroup}) => linkIn === sourceGroup
+                return ({ sourceGroup }) => linkIn === sourceGroup
             } else if (linkIn instanceof Array) {
-                return ({sourceGroup}) => linkIn.includes(sourceGroup)
+                return ({ sourceGroup }) => linkIn.includes(sourceGroup)
             } else if (linkIn instanceof Function) {
                 return linkIn
             } else {
@@ -122,7 +124,7 @@ export default {
             }
         },
         groupLinkOut() {
-            let {linkOut} = this.combinedGroup ?? {}
+            let { linkOut } = this.combinedGroup ?? {}
             if (linkOut === false) {
                 return () => false
             } else if (linkOut instanceof Function) {
@@ -166,13 +168,13 @@ export default {
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
             this.nodeLinking(
-                this.position.x,
-                this.position.y,
+                this.position.x * zoomLevel.value,
+                this.position.y * zoomLevel.value,
                 this.width,
                 this.height,
                 this.orientation,
-                event.offsetX + this.position.x,
-                event.offsetY + this.position.y,
+                (event.offsetX + this.position.x) * zoomLevel.value,
+                (event.offsetY + this.position.y) * zoomLevel.value,
             )
         },
         onDragEnd() {

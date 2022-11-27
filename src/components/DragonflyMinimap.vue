@@ -1,23 +1,28 @@
 <template>
-    <div class="dragonfly-minimap" :class="{minimized}">
-        <div class="dragonfly-minimap-inner" ref="inner">
-            <div class="map" :style="miniFullStyle" @mousedown.stop="onMapClick">
+    <div :class="{ minimized }" class="dragonfly-minimap">
+        <div ref="inner" class="dragonfly-minimap-inner">
+            <div
+                :style="miniFullStyle"
+                class="map"
+                @mousedown.stop="onMapClick"
+            >
                 <div class="thumbnail">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         x="0"
-                         :y="0"
-                         :viewBox="`${mostLeft} ${mostTop} ${fullWidth} ${fullHeight}`">
-
+                    <svg
+                        :viewBox="`${mostLeft} ${mostTop} ${fullWidth} ${fullHeight}`"
+                        :y="0"
+                        x="0"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
                         <rect
                             :height="height"
+                            :stroke-width="4 / scale"
                             :width="width"
-                            x="0"
-                            y="0"
-                            stroke="#000"
-                            stroke-opacity="0.5"
                             fill="#fff"
                             opacity="0.8"
-                            :stroke-width="4/scale"
+                            stroke="#000"
+                            stroke-opacity="0.5"
+                            x="0"
+                            y="0"
                         />
                         <rect
                             v-for="(value, id) in positions"
@@ -31,49 +36,64 @@
                         <rect
                             :height="height / scale"
                             :width="width / scale"
-                            fill="#000"
-                            opacity="0.2"
                             :x="-offsetX / scale"
                             :y="-offsetY / scale"
                             cursor="move"
-                            @mousedown.stop="onMouseDown"
+                            fill="#000"
+                            opacity="0.2"
                             @dragstart="onDragStart"
+                            @mouseenter="onMouseEnter"
+                            @mouseleave="onMouseLeave"
                             @mousemove="onMouseMove"
                             @mouseup="onMouseUp"
-                            @mouseleave="onMouseLeave"
-                            @mouseenter="onMouseEnter"
+                            @mousedown.stop="onMouseDown"
                         />
                     </svg>
                 </div>
             </div>
         </div>
-        <div class="switch" @click="minimized=!minimized">
-            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24">
-                <path d="M20,20 L4,4 M20,4 L4,4 M4,20 L4,4" stroke-width="1" stroke="#000" fill="none"
-                      v-if="minimized"/>
-                <path d="M4,4 L20,20 M4,20 L20,20 M20,4 L20,20" stroke-width="1" stroke="#000" fill="none" v-else/>
+        <div class="switch" @click="minimized = !minimized">
+            <svg
+                height="100%"
+                viewBox="0 0 24 24"
+                width="100%"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    v-if="minimized"
+                    d="M20,20 L4,4 M20,4 L4,4 M4,20 L4,4"
+                    fill="none"
+                    stroke="#000"
+                    stroke-width="1"
+                />
+                <path
+                    v-else
+                    d="M4,4 L20,20 M4,20 L20,20 M20,4 L20,20"
+                    fill="none"
+                    stroke="#000"
+                    stroke-width="1"
+                />
             </svg>
         </div>
     </div>
-
 </template>
 
 <script>
-import img from "../utils/emptyDragImage";
-import preventDefaultDrop from "../utils/preventDefaultDrop";
+import img from "../utils/empty-drag-image.js";
+import preventDefaultDrop from "../utils/prevent-default-drop.js";
 
 export default {
     name: "DragonflyMinimap",
-    props: ['width', 'height', 'offsetX', 'offsetY', 'positions'],
-    inject:['scale'],
+    props: [ 'width', 'height', 'offsetX', 'offsetY', 'positions' ],
+    inject: [ 'scale' ],
     data() {
         return {
             minimized: false,
             minimapWidth: 0,
             minimapHeight: 0,
             dragging: false,
-            inDomOffset: {x: 0, y: 0},
-            draggingSnapshot: {left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity},
+            inDomOffset: { x: 0, y: 0 },
+            draggingSnapshot: { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity },
             debtX: 0,
             debtY: 0,
             image: null,
@@ -83,7 +103,7 @@ export default {
     computed: {
         positionArray() {
             return Object.keys(this.positions).map(id => {
-                const {x, y, width, height} = this.positions[id]
+                const { x, y, width = 0, height = 0 } = this.positions[id]
                 return {
                     left: x,
                     top: y,
@@ -158,7 +178,7 @@ export default {
             }
         },
         onMouseDown(event) {
-            this.startDragging({x: event.offsetX, y: event.offsetY})
+            this.startDragging({ x: event.offsetX, y: event.offsetY })
         },
         onDragStart(event) {
             event.dataTransfer.setDragImage(img, 0, 0)  // hacking: 用空svg图片隐藏DragImage
@@ -170,7 +190,7 @@ export default {
             let debt = this[debtName]
             let offset = this[`offset${axis}`] / this.scale - movement / this.miniRate
 
-            const {[`maxOffset${axis}`]: maxOffset, [`minOffset${axis}`]: minOffset,} = this.offsetRange
+            const { [`maxOffset${axis}`]: maxOffset, [`minOffset${axis}`]: minOffset, } = this.offsetRange
 
             if (offset > maxOffset) {
                 this[debtName] += Math.round((offset - maxOffset) * this.miniRate)
@@ -191,7 +211,7 @@ export default {
             if (this.dragging) {
                 event.preventDefault()
                 if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
-                [...'XY'].forEach(axis => this.updateOffsetOnMove(event, axis))
+                [ ...'XY' ].forEach(axis => this.updateOffsetOnMove(event, axis))
             }
         },
         onMouseUp(event) {
@@ -208,7 +228,7 @@ export default {
         onMouseLeave(event) {
             if (this.dragging) {
                 document.addEventListener('mousemove', this.onMouseMove, false)
-                document.addEventListener('mouseup', this.onMouseUpOutside, {once: true})
+                document.addEventListener('mouseup', this.onMouseUpOutside, { once: true })
             }
         },
         onMouseEnter(event) {
@@ -225,10 +245,10 @@ export default {
             }
         },
         onMapClick(event) {
-            let {offsetX, offsetY} = event
+            let { offsetX, offsetY } = event
             this.$emit('update:offsetX', -this.mostLeft - offsetX / this.miniRate * this.scale + this.width / 2)
             this.$emit('update:offsetY', -this.mostTop - offsetY / this.miniRate * this.scale + this.height / 2)
-            this.startDragging({x: this.miniViewportWidth / 2, y: this.miniViewportHeight / 2})
+            this.startDragging({ x: this.miniViewportWidth / 2, y: this.miniViewportHeight / 2 })
         },
     },
     mounted() {

@@ -2,10 +2,10 @@
 import LineShapeBase from "./LineShapeBase.vue";
 
 const vectors = {
-    left: [-1, 0],
-    right: [1, 0],
-    top: [0, -1],
-    bottom: [0, 1]
+    left: [ -1, 0 ],
+    right: [ 1, 0 ],
+    top: [ 0, -1 ],
+    bottom: [ 0, 1 ]
 }
 
 export default {
@@ -13,18 +13,18 @@ export default {
     extends: LineShapeBase,
     computed: {
         start() {
-            let {x, y, width, height, orientation = 'right'} = this.source
+            let { x, y, width, height, orientation = 'right' } = this.source
             const vector = vectors[orientation]
             x += vector[0] * width / 2
             y += vector[1] * height / 2
-            return {x, y}
+            return { x, y }
         },
         end() {
-            let {x, y, width, height, orientation = 'left'} = this.target
+            let { x, y, width, height, orientation = 'left' } = this.target
             const vector = vectors[orientation]
             x += vector[0] * width / 2
             y += vector[1] * height / 2
-            return {x, y}
+            return { x, y }
         },
         startPoint() {
             return `${this.start.x},${this.start.y}`
@@ -34,11 +34,11 @@ export default {
         },
         control() {
             const offset = Math.min(Math.abs(this.start.y - this.end.y) / 8, 20)
-            let {x, y, width, height, orientation = 'right'} = this.source
+            let { x, y, width, height, orientation = 'right' } = this.source
             const vector = vectors[orientation]
             x += vector[0] * width / 2 + vector[0] * offset
             y += vector[1] * height / 2 + vector[1] * offset
-            return {x, y}
+            return { x, y }
         },
         controlPoint() {
             return `${this.control.x},${this.control.y}`

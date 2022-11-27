@@ -6,7 +6,7 @@ export default {
     extends: LineShapeBase,
     computed: {
         k() {
-            const {source, target} = this.centers
+            const { source, target } = this.centers
             return Math.abs((source.y - target.y) / (source.x - target.x))
         },
         centers() {
@@ -27,8 +27,8 @@ export default {
             return `M ${this.startPoint} L ${this.endPoint}`
         },
         getPoint(current, ref) {
-            let {x, y, halfWidth, halfHeight, k} = current
-            let {x: refX, y: refY} = ref
+            let { x, y, halfWidth, halfHeight, k } = current
+            let { x: refX, y: refY } = ref
 
             const vector = {
                 x: x <= refX ? 1 : -1,
@@ -42,17 +42,17 @@ export default {
 
             x += vector.x * halfWidth * vectorK.x
             y += vector.y * halfHeight * vectorK.y
-            return {x, y}
+            return { x, y }
         },
 
         getCenter(type) {
-            let {x, width, y, height} = this[type]
+            let { x, width, y, height } = this[type]
             let halfWidth = width * 0.5, halfHeight = height * 0.5
             x += halfWidth
             y += halfHeight
             let k = height / width || 1
             return {
-                [type]: {x, y, k, halfWidth, halfHeight,}
+                [type]: { x, y, k, halfWidth, halfHeight, }
             }
         }
     }

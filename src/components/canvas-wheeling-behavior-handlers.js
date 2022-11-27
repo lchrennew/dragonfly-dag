@@ -14,7 +14,7 @@ const getCanvasWheelingHandlers = ({ data, props, computed, emit, methods }) => 
             data.offsetX += (data.offsetX + rect.left - event.clientX) * delta / computed.zoomScale
             data.offsetY += (data.offsetY + rect.top - event.clientY) * delta / computed.zoomScale
             computed.zoomScale = scale
-            emit('updated:zoomScale', scale)
+            emit('update:zoomScale', scale)
         }
     },
     scroll: {

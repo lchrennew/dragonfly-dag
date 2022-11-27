@@ -1,5 +1,5 @@
 <template>
-    <div class="dragonfly-endpoints" :class="orientation">
+    <div :class="orientation" class="dragonfly-endpoints">
         <template v-if="endpoints">
             <dragonfly-endpoint
                 v-for="endpoint in endpoints"
@@ -15,16 +15,16 @@
 import DragonflyEndpoint from "./DragonflyEndpoint.vue";
 
 const orientationVectors = {
-    left: [0, 0],
-    right: [1, 0],
-    top: [0, 0],
-    bottom: [0, 1],
+    left: [ 0, 0 ],
+    right: [ 1, 0 ],
+    top: [ 0, 0 ],
+    bottom: [ 0, 1 ],
 }
 
 export default {
     name: "DragonflyEndpoints",
-    components: {DragonflyEndpoint},
-    props: ['endpoints', 'orientation'],
+    components: { DragonflyEndpoint },
+    props: [ 'endpoints', 'orientation' ],
     provide() {
         return {
             getPosition: this.getPosition,

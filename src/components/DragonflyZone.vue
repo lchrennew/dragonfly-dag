@@ -3,8 +3,8 @@
          :style="style"
          class="dragonfly-zone"
     >
-        <div class="dragonfly-zone-inner"
-             :draggable="draggable"
+        <div :draggable="draggable"
+             class="dragonfly-zone-inner"
              @dragstart="onDragStart"
              @mousedown.left.stop="onMouseDown"
              @drag.passive="onDrag"
@@ -16,31 +16,31 @@
         <template v-if="!readOnly && selected">
             <dragonfly-zone-resize-handler
                 v-for="orientation in ['se', 'sw', 'ne', 'nw']"
+                :id="id"
                 :key="orientation"
                 :height="height"
                 :left="left"
                 :orientation="orientation"
                 :top="top"
                 :width="width"
-                :id="id"
             />
         </template>
     </div>
 </template>
 
 <script>
-import img from "../utils/emptyDragImage";
-import preventDefaultDrop from "../utils/preventDefaultDrop";
+import img from "../utils/empty-drag-image.js";
+import preventDefaultDrop from "../utils/prevent-default-drop.js";
 import DragonflyZoneResizeHandler from "./DragonflyZoneResizeHandler.vue";
 
 export default {
     name: "DragonflyZone",
-    components: {DragonflyZoneResizeHandler},
-    props: ['zone', 'selected', 'position'],
-    inject: ['updatePosition', 'zoneMoving', 'minZoneWidth', 'minZoneHeight', 'startZoneMoving', 'stopZoneMoving', 'scale', 'readOnly'],
+    components: { DragonflyZoneResizeHandler },
+    props: [ 'zone', 'selected', 'position' ],
+    inject: [ 'updatePosition', 'zoneMoving', 'minZoneWidth', 'minZoneHeight', 'startZoneMoving', 'stopZoneMoving', 'scale', 'readOnly' ],
     data() {
         return {
-            inDomOffset: {x: 0, y: 0},
+            inDomOffset: { x: 0, y: 0 },
         }
     },
     computed: {
@@ -67,7 +67,7 @@ export default {
                 top: `${this.top}px`,
             }
         },
-        draggable(){
+        draggable() {
             return !this.readOnly
         }
     },
@@ -80,7 +80,7 @@ export default {
             if (this.selected) {
                 event.shiftKey && this.$emit('unselect', this.zone.id, 'zone')
             } else {
-                this.$emit('select', {id: this.zone.id, multiple: event.shiftKey, type: 'zone'})
+                this.$emit('select', { id: this.zone.id, multiple: event.shiftKey, type: 'zone' })
             }
         },
         onDragStart(event) {

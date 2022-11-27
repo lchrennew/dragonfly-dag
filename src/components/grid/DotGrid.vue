@@ -1,8 +1,8 @@
 <template>
-    <circle r="0.3" :cx="left" :cy="top" fill="#000" stroke="none" stroke-width="0"/>
-    <circle r="0.3" :cx="right" :cy="top" fill="#000" stroke="none" stroke-width="0"/>
-    <circle r="0.3" :cx="left" :cy="bottom" fill="#000" stroke="none" stroke-width="0"/>
-    <circle r="0.3" :cx="right" :cy="bottom" fill="#000" stroke="none" stroke-width="0"/>
+    <circle :cx="left" :cy="top" fill="#000" r="0.3" stroke="none" stroke-width="0"/>
+    <circle :cx="right" :cy="top" fill="#000" r="0.3" stroke="none" stroke-width="0"/>
+    <circle :cx="left" :cy="bottom" fill="#000" r="0.3" stroke="none" stroke-width="0"/>
+    <circle :cx="right" :cy="bottom" fill="#000" r="0.3" stroke="none" stroke-width="0"/>
 </template>
 
 <script>

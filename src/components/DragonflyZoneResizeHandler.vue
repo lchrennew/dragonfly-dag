@@ -1,31 +1,31 @@
 <template>
-    <div class="anchor"
-         :class="orientation"
+    <div :class="orientation"
+         class="anchor"
          draggable="true"
-         @mousedown.stop="onMouseDown"
          @dragstart="onDragStart"
+         @mousedown.stop="onMouseDown"
          @drag.passive="onDrag"
          @dragend.prevent="onDragEnd"
     ></div>
 </template>
 
 <script>
-import img from "../utils/emptyDragImage";
-import preventDefaultDrop from "../utils/preventDefaultDrop";
+import img from "../utils/empty-drag-image.js";
+import preventDefaultDrop from "../utils/prevent-default-drop.js";
 
 const vectors = { // fx, fy, fw, fh
-    ne: [0, 1, 1, -1],
-    se: [0, 0, 1, 1],
-    nw: [1, 1, -1, -1],
-    sw: [1, 0, -1, 1],
+    ne: [ 0, 1, 1, -1 ],
+    se: [ 0, 0, 1, 1 ],
+    nw: [ 1, 1, -1, -1 ],
+    sw: [ 1, 0, -1, 1 ],
 }
 export default {
     name: "DragonflyZoneResizeHandler",
-    props: ['orientation', 'left', 'top', 'width', 'height', 'id'],
-    inject: ['updatePosition', 'minZoneWidth', 'minZoneHeight'],
+    props: [ 'orientation', 'left', 'top', 'width', 'height', 'id' ],
+    inject: [ 'updatePosition', 'minZoneWidth', 'minZoneHeight' ],
     data() {
         return {
-            inDomOffset: {x: 0, y: 0},
+            inDomOffset: { x: 0, y: 0 },
         }
     },
     methods: {
@@ -39,7 +39,7 @@ export default {
         },
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
-            const [fx, fy, fw, fh] = vectors[this.orientation]
+            const [ fx, fy, fw, fh ] = vectors[this.orientation]
             const deltaX = event.offsetX - this.inDomOffset.x
             const deltaY = event.offsetY - this.inDomOffset.y
             let x = this.left + fx * deltaX,
@@ -55,7 +55,7 @@ export default {
                 x -= fx * (minWidth - width)
                 width = minWidth
             }
-            this.updatePosition({id: this.id, x, y, width, height,})
+            this.updatePosition({ id: this.id, x, y, width, height, })
         },
         onDragEnd(event) {
             document.removeEventListener('dragover', preventDefaultDrop)

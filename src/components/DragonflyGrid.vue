@@ -3,15 +3,15 @@
         <svg xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <pattern id="grid-pattern"
-                         :width="scaledSize"
                          :height="scaledSize"
+                         :width="scaledSize"
                          patternUnits="userSpaceOnUse"
                 >
-                    <component :is="gridShape" :top="top" :left="left" :right="right" :bottom="bottom"
-                               :size="scaledSize"/>
+                    <component :is="gridShape" :bottom="bottom" :left="left" :right="right" :size="scaledSize"
+                               :top="top"/>
                 </pattern>
             </defs>
-            <rect fill="url(#grid-pattern)" width="100%" height="100%"/>
+            <rect fill="url(#grid-pattern)" height="100%" width="100%"/>
         </svg>
     </div>
 </template>
@@ -21,9 +21,9 @@ import DotGrid from "./grid/DotGrid.vue";
 
 export default {
     name: "DragonflyGrid",
-    components: {DotGrid},
-    props: ['offsetX', 'offsetY', 'size', 'maxScale', 'minScale'],
-    inject: ['gridShape', 'scale'],
+    components: { DotGrid },
+    props: [ 'offsetX', 'offsetY', 'size', 'maxScale', 'minScale' ],
+    inject: [ 'gridShape', 'scale' ],
     computed: {
         scaledSize() {
             let scale = this.scale
