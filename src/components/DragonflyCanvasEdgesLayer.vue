@@ -63,7 +63,7 @@ const showArrow = inject('showArrow')
 const lineShape = inject('lineShape')
 const linkingLineShape = inject('linkingLineShape')
 const selected = inject('selected')
-const antiZoomLevel = computed(() => 1 / zoomLevel)
+const antiZoomLevel = computed(() => 1 / zoomLevel.value)
 const isVisible = edge => {
     const sourceReady = props.positions[edge.source]
     const targetReady = props.positions[edge.target]
