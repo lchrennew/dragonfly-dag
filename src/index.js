@@ -10,6 +10,7 @@ import LRoundedCornerLine from "./components/edge/LRoundedCornerLine.vue";
 import DotGrid from "./components/grid/DotGrid.vue";
 import LineGrid from "./components/grid/LineGrid.vue";
 import TileGrid from "./components/grid/TileGrid.vue";
+import DragonflySelectionProvider from './components/DragonflySelectionProvider.vue'
 import './components/dragonfly-dag.less'
 
 export {
@@ -25,4 +26,5 @@ export {
     TileGrid,
     LBrokenLine,
     LRoundedCornerLine,
+    DragonflySelectionProvider,
 }

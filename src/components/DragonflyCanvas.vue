@@ -19,6 +19,43 @@ import ZigZagLine from './edge/ZigZagLine.vue';
 import DotGrid from './grid/DotGrid.vue';
 import shiftStrategies from './shift-strategies.js';
 
+const props = defineProps({
+    nodesData: { type: Array, default: () => [] },
+    edgesData: { type: Array, default: () => [], },
+    zonesData: { type: Array, default: () => [] },
+    positions: { type: Object, default: () => reactive({}) },
+    zoomSensitivity: { type: Number, default: 0.001, },
+    zoomScale: { type: Number, },
+    maxZoomScale: { type: Number, default: 5, },
+    minZoomScale: { type: Number, default: 0.5, },
+    layoutConfig: { type: Object, default: () => ({}) },
+    showArrow: { type: Boolean, default: true, },
+    arrowZoomRatio: { type: Number, default: 1 }, // 箭头显示大小的倍率
+    arrowPosition: { type: Number, default: 100 },
+    beforeAddEdgeHook: { type: Function, }, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
+    nodeGroup: { type: [ String, Object, Function ] },
+    endpointGroup: { type: [ String, Object, Function ] },
+    canvasDragging: { type: String, default: 'off' },
+    nodeDragging: { type: String, default: 'off' },
+    endpointDragging: { type: String, default: 'off' }, // off | node | on
+    canvasWheeling: { type: String, default: 'off' },
+    lineShape: { default: StraightLine },
+    linkingLineShape: { default: StraightLine },
+    showEdgeLabels: { type: Boolean, default: true },
+    minZoneWidth: { type: Number, default: 120 },
+    minZoneHeight: { type: Number, default: 80 },
+    gridShape: { default: DotGrid },
+    gridSize: { type: Number, default: 10 },
+    minGridScale: { type: Number, default: 0.5 },
+    maxGridScale: { type: Number, default: 5 },
+    autoLayout: { type: Boolean, default: false },
+    showMinimap: { type: Boolean, default: false },
+    showScale: { type: Boolean, default: false },
+    showGrid: { type: Boolean, default: false },
+    readOnly: { type: Boolean, default: false },
+    defaultSelected: { type: Array }
+})
+
 const canvasId = feed++
 const linkSource = ref(null);
 
@@ -57,7 +94,7 @@ const emit = defineEmits([
 
 
 // selection start
-const selection = reactive([])
+const selection = reactive(props.defaultSelected ?? [])
 const multiple = computed(() => selection.length > 1)
 
 
@@ -81,42 +118,6 @@ provide('selected', selected)
 provide('unselect', unselect)
 // selection end
 
-
-const props = defineProps({
-    nodesData: { type: Array, default: () => [] },
-    edgesData: { type: Array, default: () => [], },
-    zonesData: { type: Array, default: () => [] },
-    positions: { type: Object, default: () => reactive({}) },
-    zoomSensitivity: { type: Number, default: 0.001, },
-    zoomScale: { type: Number, },
-    maxZoomScale: { type: Number, default: 5, },
-    minZoomScale: { type: Number, default: 0.5, },
-    layoutConfig: { type: Object, default: () => ({}) },
-    showArrow: { type: Boolean, default: true, },
-    arrowZoomRatio: { type: Number, default: 1 }, // 箭头显示大小的倍率
-    arrowPosition: { type: Number, default: 100 },
-    beforeAddEdgeHook: { type: Function, }, // 连接前调用钩子，返回false可取消，返回对象可替换默认值
-    nodeGroup: { type: [ String, Object, Function ] },
-    endpointGroup: { type: [ String, Object, Function ] },
-    canvasDragging: { type: String, default: 'off' },
-    nodeDragging: { type: String, default: 'off' },
-    endpointDragging: { type: String, default: 'off' }, // off | node | on
-    canvasWheeling: { type: String, default: 'off' },
-    lineShape: { default: StraightLine },
-    linkingLineShape: { default: StraightLine },
-    showEdgeLabels: { type: Boolean, default: true },
-    minZoneWidth: { type: Number, default: 120 },
-    minZoneHeight: { type: Number, default: 80 },
-    gridShape: { default: DotGrid },
-    gridSize: { type: Number, default: 10 },
-    minGridScale: { type: Number, default: 0.5 },
-    maxGridScale: { type: Number, default: 5 },
-    autoLayout: { type: Boolean, default: false },
-    showMinimap: { type: Boolean, default: false },
-    showScale: { type: Boolean, default: false },
-    showGrid: { type: Boolean, default: false },
-    readOnly: { type: Boolean, default: false },
-})
 
 const data = reactive({
     dragging: false,
