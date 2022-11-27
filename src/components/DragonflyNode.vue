@@ -2,7 +2,6 @@
 import { computed, getCurrentInstance, inject, onMounted, provide, reactive } from 'vue'
 import DragonflyEndpoints from "./DragonflyEndpoints.vue";
 import getNodeDraggingHandlers from "./node-dragging-behavior-handlers.js";
-import { zoomLevel } from "../utils/device-pixel-ratio.js";
 
 const props = defineProps([ 'node', 'selected', 'group' ])
 const data = reactive({
@@ -29,8 +28,8 @@ const readOnly = inject('readOnly')
 const emit = defineEmits([ 'select', 'unselect' ])
 
 onMounted(() => {
-    data.width = current.refs.el.clientWidth * zoomLevel.value
-    data.height = current.refs.el.clientHeight * zoomLevel.value
+    data.width = current.refs.el.clientWidth
+    data.height = current.refs.el.clientHeight
     setNodeSize(props.node.id, data.width, data.height)  // hacking: 回调DragonflyCanvasCore，提供尺寸信息
 })
 const onNodeDrop = event => {

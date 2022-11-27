@@ -55,14 +55,15 @@
 <script setup>
 import DragonflyEdge from "./DragonflyEdge.vue";
 import DragonflyLinkingEdge from "./DragonflyLinkingEdge.vue";
-import { inject } from "vue";
+import { computed, inject } from "vue";
+import { zoomLevel } from "../utils/device-pixel-ratio.js";
 
 const props = defineProps([ 'positions', 'endpointPositions', 'linking', 'linkingSource', 'linkingTarget', 'edges', 'arrowZoomRatio' ])
 const showArrow = inject('showArrow')
 const lineShape = inject('lineShape')
 const linkingLineShape = inject('linkingLineShape')
 const selected = inject('selected')
-const deviceScale = window.devicePixelRatio
+const antiZoomLevel = computed(() => 1 / zoomLevel)
 const isVisible = edge => {
     const sourceReady = props.positions[edge.source]
     const targetReady = props.positions[edge.target]
@@ -72,5 +73,7 @@ const isVisible = edge => {
 };
 </script>
 <style scoped lang="less">
-
+.dragonfly-edges-layer {
+    transform: scale(v-bind(antiZoomLevel));
+}
 </style>

@@ -23,7 +23,6 @@
 <script>
 import img from "../utils/empty-drag-image.js";
 import preventDefaultDrop from "../utils/prevent-default-drop.js";
-import { zoomLevel } from "../utils/device-pixel-ratio.js";
 
 export default {
     name: "DragonflyEndpoint",
@@ -168,13 +167,13 @@ export default {
         onDrag(event) {
             if (!event.screenX && !event.screenY) return    // hacking: 防止拖出窗口位置被置为(0,0)
             this.nodeLinking(
-                this.position.x * zoomLevel.value,
-                this.position.y * zoomLevel.value,
+                this.position.x,
+                this.position.y,
                 this.width,
                 this.height,
                 this.orientation,
-                (event.offsetX + this.position.x) * zoomLevel.value,
-                (event.offsetY + this.position.y) * zoomLevel.value,
+                (event.offsetX + this.position.x),
+                (event.offsetY + this.position.y),
             )
         },
         onDragEnd() {

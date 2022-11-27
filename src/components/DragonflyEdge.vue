@@ -55,7 +55,6 @@
 </template>
 <script setup>
 import { computed, getCurrentInstance, inject, nextTick, onMounted, reactive, watch } from "vue";
-import { zoomLevel } from "../utils/device-pixel-ratio.js";
 
 const origin = { x: 0, y: 0 }
 const props = defineProps([ 'edge', 'sourceNode', 'sourceEndpoint', 'targetNode', 'targetEndpoint', 'lineShape', 'selected' ])
@@ -84,18 +83,18 @@ const lineEnds = computed(() => ({ source: source.value, target: target.value })
 const target = computed(() => {
     if (props.targetEndpoint) {
         return {
-            x: (props.targetNode.x + props.targetEndpoint.x) * zoomLevel.value,
-            y: (props.targetNode.y + props.targetEndpoint.y) * zoomLevel.value,
-            width: props.targetEndpoint.width * zoomLevel.value,
-            height: props.targetEndpoint.height * zoomLevel.value,
+            x: (props.targetNode.x + props.targetEndpoint.x),
+            y: (props.targetNode.y + props.targetEndpoint.y),
+            width: props.targetEndpoint.width,
+            height: props.targetEndpoint.height,
             orientation: props.targetEndpoint.orientation,
         }
     } else {
         return {
-            x: props.targetNode.x * zoomLevel.value,
-            y: props.targetNode.y * zoomLevel.value,
-            width: props.targetNode.width * zoomLevel.value,
-            height: props.targetNode.height * zoomLevel.value,
+            x: props.targetNode.x,
+            y: props.targetNode.y,
+            width: props.targetNode.width,
+            height: props.targetNode.height,
             orientation: props.targetNode.orientation,
         }
     }
@@ -104,16 +103,16 @@ const target = computed(() => {
 const source = computed(() => {
     if (props.sourceEndpoint) {
         return {
-            x: (props.sourceNode.x + props.sourceEndpoint.x) * zoomLevel.value,
-            y: (props.sourceNode.y + props.sourceEndpoint.y) * zoomLevel.value,
+            x: (props.sourceNode.x + props.sourceEndpoint.x),
+            y: (props.sourceNode.y + props.sourceEndpoint.y),
             width: props.sourceEndpoint.width,
             height: props.sourceEndpoint.height,
             orientation: props.sourceEndpoint.orientation,
         }
     } else {
         return {
-            x: props.sourceNode.x * zoomLevel.value,
-            y: props.sourceNode.y * zoomLevel.value,
+            x: props.sourceNode.x,
+            y: props.sourceNode.y,
             width: props.sourceNode.width,
             height: props.sourceNode.height,
             orientation: props.sourceNode.orientation,
