@@ -1,7 +1,7 @@
-import img from "../utils/emptyDragImage";
-import preventDefaultDrop from "../utils/preventDefaultDrop";
+import img from "../utils/empty-drag-image.js";
+import preventDefaultDrop from "../utils/prevent-default-drop.js";
 
-const getNodeDraggingHandlers = ({data, props, computed, methods}) => ({
+const getNodeDraggingHandlers = ({ data, props, computed, methods }) => ({
     move: {
         dragstart(event) {
             if (computed.draggable.value) {
