@@ -153,6 +153,10 @@
       width: fit-content;
       height: fit-content;
 
+      &:hover {
+        z-index: @node-selected-z-index;
+      }
+
       &.selected {
         border: @node-selected-border;
         z-index: @node-selected-z-index;
