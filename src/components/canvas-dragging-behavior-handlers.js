@@ -17,7 +17,7 @@ const getCanvasDraggingHandlers = ({ methods, data, props, computed }) => {
         const canvas = methods.getCanvas()
         const fromCanvas = event.target === canvas
         fromCanvas && canvas.focus({ preventScroll: true }) // hacking: 用这个方式来获取keydown事件，必须结合canvas的tabindex属性，并防止获得焦点时滚动屏幕
-        const insideCanvas = !fromCanvas && event.path.includes(canvas)
+        const insideCanvas = !fromCanvas && event.composedPath().includes(canvas)
         if (!insideCanvas) {
             event.preventDefault()
 

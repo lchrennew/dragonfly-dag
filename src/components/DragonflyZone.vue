@@ -99,11 +99,11 @@ export default {
             this.stopZoneMoving()
         },
         onDragEnter(event) {
-            if (event.path.includes(event.toElement))
+            if (event.composedPath().includes(event.toElement))
                 this.targeted = true
         },
         onDragLeave(event) {
-            if (!event.path.includes(this.fromElement))
+            if (!event.composedPath().includes(this.fromElement))
                 this.targeted = false
         },
     },

@@ -50,11 +50,11 @@ const getNodeDraggingHandlers = ({ data, props, computed, methods }) => ({
             }
         },
         dragenter(event) {
-            if (event.path.includes(event.toElement))
+            if (event.composedPath().includes(event.toElement))
                 data.targeted = true
         },
         dragleave(event) {
-            if (!event.path.includes(event.fromElement))
+            if (!event.composedPath().includes(event.fromElement))
                 data.targeted = false
         },
         dragend(event) {

@@ -182,11 +182,11 @@ export default {
         },
         onDragEnter(event) {
             this.targeted =
-                event.path.includes(event.toElement) &&
+                event.composedPath().includes(event.toElement) &&
                 this.groupLinkIn(this.linkSource)
         },
         onDragLeave(event) {
-            if (!event.path.includes(this.fromElement))
+            if (!event.composedPath().includes(this.fromElement))
                 this.targeted = false
         },
         onDrop() {
