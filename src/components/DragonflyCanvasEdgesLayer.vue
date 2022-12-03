@@ -63,7 +63,7 @@ const showArrow = inject('showArrow')
 const lineShape = inject('lineShape')
 const linkingLineShape = inject('linkingLineShape')
 const selected = inject('selected')
-const antiZoomLevel = computed(() => 1 / zoomLevel.value)
+// const antiZoomLevel = computed(() => 1 / zoomLevel.value)
 const isVisible = edge => {
     const sourceReady = props.positions[edge.source]
     const targetReady = props.positions[edge.target]
@@ -73,7 +73,7 @@ const isVisible = edge => {
 };
 </script>
 <style scoped lang="less">
-.dragonfly-edges-layer {
-    transform: scale(v-bind(antiZoomLevel));
-}
+//.dragonfly-edges-layer {
+//    transform: scale(v-bind(antiZoomLevel));
+//}
 </style>

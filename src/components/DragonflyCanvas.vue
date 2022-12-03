@@ -461,7 +461,7 @@ const translateMouseEvent = ({ event }) => {
         }
     } else return null
 };
-defineExpose({ translateMouseEvent })
+defineExpose({ translateMouseEvent, resetLayout })
 
 const onKeyDown = event => {
     if (props.readOnly) return
